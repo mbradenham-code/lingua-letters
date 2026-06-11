@@ -1,0 +1,603 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Lingua Letters — Parent Dashboard</title>
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; background: #F1EFE8; min-height: 100vh; }
+    .topbar { background: white; border-bottom: 1px solid #e5e3dc; padding: 14px 24px; display: flex; align-items: center; gap: 12px; }
+    .logo { display: flex; align-items: center; gap: 8px; font-size: 16px; font-weight: 500; color: #1a1a1a; text-decoration: none; }
+    .orb { width: 26px; height: 26px; border-radius: 50%; background: #1D9E75; display: flex; align-items: center; justify-content: center; font-size: 14px; }
+    .spacer { flex: 1; }
+    .signout { font-size: 12px; color: #aaa; cursor: pointer; background: none; border: none; }
+    .layout { display: flex; min-height: calc(100vh - 53px); }
+    .sidebar { width: 220px; border-right: 1px solid #e5e3dc; background: #F8F7F4; padding: 16px 0; flex-shrink: 0; }
+    .sb-label { font-size: 10px; color: #aaa; padding: 4px 16px 2px; letter-spacing: .06em; text-transform: uppercase; font-weight: 500; }
+    .sb-item { display: flex; align-items: center; gap: 8px; padding: 7px 16px; font-size: 13px; color: #555; cursor: pointer; border-left: 2px solid transparent; }
+    .sb-item:hover { background: white; }
+    .sb-item.on { color: #0F6E56; background: #E1F5EE; border-left: 2px solid #1D9E75; font-weight: 500; }
+    .wbadge { margin-left: auto; font-size: 10px; background: #FAEEDA; color: #854F0B; border-radius: 20px; padding: 1px 6px; }
+    .nbadge { margin-left: auto; font-size: 10px; background: #1D9E75; color: white; border-radius: 20px; padding: 1px 6px; }
+    .main { flex: 1; padding: 28px 32px; overflow-y: auto; }
+    .page-title { font-size: 20px; font-weight: 500; color: #1a1a1a; margin-bottom: 4px; }
+    .page-sub { font-size: 13px; color: #888; margin-bottom: 24px; }
+    .stats-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 12px; margin-bottom: 24px; }
+    .stat-card { background: white; border: 1px solid #e5e3dc; border-radius: 12px; padding: 16px; }
+    .stat-val { font-size: 24px; font-weight: 500; color: #1a1a1a; margin-bottom: 4px; }
+    .stat-lbl { font-size: 11px; color: #aaa; }
+    .section-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 12px; }
+    .section-title { font-size: 14px; font-weight: 500; color: #1a1a1a; }
+    .view-all { font-size: 12px; color: #0F6E56; cursor: pointer; background: none; border: none; }
+    .card { background: white; border: 1px solid #e5e3dc; border-radius: 12px; overflow: hidden; margin-bottom: 20px; }
+    .card-pad { padding: 20px; }
+    .letter-row { display: flex; align-items: center; gap: 12px; padding: 12px 16px; border-bottom: 1px solid #e5e3dc; cursor: pointer; }
+    .letter-row:last-child { border-bottom: none; }
+    .letter-row:hover { background: #F8F7F4; }
+    .av { border-radius: 50%; display: flex; align-items: center; justify-content: center; font-weight: 500; font-size: 11px; flex-shrink: 0; }
+    .lr-info { flex: 1; }
+    .lr-title { font-size: 13px; font-weight: 500; color: #1a1a1a; margin-bottom: 2px; }
+    .lr-sub { font-size: 11px; color: #aaa; }
+    .chip { display: inline-flex; align-items: center; gap: 3px; font-size: 10px; padding: 2px 8px; border-radius: 20px; }
+    .cg { background: #E1F5EE; color: #0F6E56; }
+    .ca { background: #FAEEDA; color: #854F0B; }
+    .cr { background: #FCEBEB; color: #A32D2D; }
+    .cb { background: #E6F1FB; color: #0C447C; }
+    .flag-card { border: 1px solid #FAC775; border-radius: 12px; padding: 16px; background: #FAEEDA; margin-bottom: 12px; }
+    .flag-title { font-size: 12px; font-weight: 500; color: #854F0B; margin-bottom: 4px; }
+    .flag-reason { font-size: 11px; color: #854F0B; margin-bottom: 8px; }
+    .flag-explanation { background: white; border-radius: 8px; padding: 8px 10px; font-size: 11px; color: #555; margin-bottom: 10px; border: 1px solid #e5e3dc; }
+    .flag-actions { display: flex; gap: 8px; flex-wrap: wrap; }
+    .fbtn { padding: 5px 12px; font-size: 11px; border-radius: 7px; cursor: pointer; border: none; }
+    .fa { background: #E1F5EE; color: #0F6E56; }
+    .fr { background: #FCEBEB; color: #A32D2D; }
+    .settings-row { display: flex; align-items: flex-start; gap: 12px; padding: 12px 0; border-bottom: 1px solid #e5e3dc; }
+    .settings-row:last-child { border-bottom: none; }
+    .sr-lbl { flex: 1; }
+    .sr-lbl p { font-size: 13px; font-weight: 500; color: #1a1a1a; margin-bottom: 2px; }
+    .sr-lbl span { font-size: 11px; color: #aaa; line-height: 1.5; }
+    .tog { position: relative; width: 34px; height: 19px; flex-shrink: 0; margin-top: 2px; }
+    .tog input { opacity: 0; width: 0; height: 0; position: absolute; }
+    .tsl { position: absolute; inset: 0; background: #ccc; border-radius: 20px; cursor: pointer; transition: background .18s; }
+    .tsl::before { content: ""; position: absolute; width: 13px; height: 13px; left: 2px; top: 2px; background: white; border-radius: 50%; transition: transform .18s; }
+    .tog input:checked + .tsl { background: #1D9E75; }
+    .tog input:checked + .tsl::before { transform: translateX(15px); }
+    .tog input:disabled + .tsl { opacity: .4; cursor: default; }
+    .presets { display: flex; gap: 8px; margin-bottom: 16px; }
+    .preset { flex: 1; border: 1px solid #e5e3dc; border-radius: 8px; padding: 8px 6px; cursor: pointer; text-align: center; }
+    .preset.on { border: 2px solid #1D9E75; background: #E1F5EE; }
+    .preset-n { font-size: 11px; font-weight: 500; color: #1a1a1a; }
+    .preset.on .preset-n { color: #0F6E56; }
+    .preset-a { font-size: 10px; color: #aaa; margin-top: 1px; }
+    .preset.on .preset-a { color: #0F6E56; }
+    .ibox { border-left: 3px solid; padding: 9px 12px; font-size: 11px; line-height: 1.6; margin-bottom: 14px; border-radius: 0 8px 8px 0; }
+    .ib-blue { background: #E6F1FB; border-color: #378ADD; color: #0C447C; }
+    .ib-amber { background: #FAEEDA; border-color: #EF9F27; color: #633806; }
+    .ib-green { background: #E1F5EE; border-color: #1D9E75; color: #085041; }
+    .empty { padding: 24px; text-align: center; color: #aaa; font-size: 13px; }
+    .loading { padding: 24px; text-align: center; color: #aaa; font-size: 13px; }
+    select, input[type=text], input[type=number] { font-size: 12px; padding: 6px 9px; border: 1px solid #e5e3dc; border-radius: 7px; background: white; color: #1a1a1a; outline: none; }
+    select:focus, input:focus { border-color: #1D9E75; }
+    .letter-full { padding: 20px; }
+    .letter-greeting { font-weight: 500; margin-bottom: 12px; font-size: 14px; }
+    .letter-body { white-space: pre-line; font-size: 13px; line-height: 1.8; margin-bottom: 14px; color: #333; }
+    .letter-signoff { font-size: 13px; white-space: pre-line; }
+    .back-btn { background: none; border: 1px solid #e5e3dc; border-radius: 8px; padding: 6px 14px; font-size: 12px; color: #555; cursor: pointer; margin-bottom: 16px; }
+    .approval-card { border: 1px solid #B5D4F4; border-radius: 12px; padding: 16px; background: #E6F1FB; margin-bottom: 12px; }
+    .approval-title { font-size: 12px; font-weight: 500; color: #0C447C; margin-bottom: 4px; }
+    .approval-details { font-size: 13px; color: #1a1a1a; margin: 8px 0; line-height: 1.6; }
+    .approval-actions { display: flex; gap: 8px; margin-top: 10px; }
+    .abtn-approve { background: #1D9E75; color: white; border: none; border-radius: 7px; padding: 6px 14px; font-size: 11px; cursor: pointer; font-weight: 500; }
+    .abtn-deny { background: #FCEBEB; color: #A32D2D; border: none; border-radius: 7px; padding: 6px 14px; font-size: 11px; cursor: pointer; }
+    .pal-row { display: flex; align-items: center; gap: 12px; padding: 12px 16px; border-bottom: 1px solid #e5e3dc; }
+    .pal-row:last-child { border-bottom: none; }
+    .pal-info { flex: 1; }
+    .pal-name { font-size: 13px; font-weight: 500; color: #1a1a1a; margin-bottom: 2px; }
+    .pal-sub { font-size: 11px; color: #aaa; }
+    .remove-btn { background: none; border: 1px solid #F7C1C1; border-radius: 7px; padding: 4px 10px; font-size: 11px; color: #A32D2D; cursor: pointer; }
+    .remove-btn:hover { background: #FCEBEB; }
+    .request-form { background: white; border: 1px solid #e5e3dc; border-radius: 12px; padding: 20px; margin-bottom: 20px; }
+    .form-row { display: flex; gap: 10px; margin-bottom: 12px; flex-wrap: wrap; }
+    .form-group { flex: 1; min-width: 140px; }
+    .form-label { font-size: 11px; color: #aaa; font-weight: 500; text-transform: uppercase; letter-spacing: .05em; margin-bottom: 5px; display: block; }
+    .form-select { width: 100%; padding: 8px 10px; border: 1px solid #e5e3dc; border-radius: 8px; font-size: 13px; font-family: inherit; outline: none; background: white; }
+    .form-select:focus { border-color: #1D9E75; }
+    .request-btn { background: #1D9E75; color: white; border: none; border-radius: 8px; padding: 9px 20px; font-size: 13px; font-weight: 500; cursor: pointer; }
+    .request-btn:hover { background: #0F6E56; }
+    .match-suggestion { border: 1px solid #e5e3dc; border-radius: 10px; padding: 14px; margin-bottom: 10px; background: white; display: flex; align-items: center; gap: 12px; }
+    .ms-info { flex: 1; }
+    .ms-name { font-size: 13px; font-weight: 500; color: #1a1a1a; margin-bottom: 3px; }
+    .ms-sub { font-size: 11px; color: #aaa; }
+    .ms-btn { background: #E1F5EE; color: #0F6E56; border: 1px solid #9FE1CB; border-radius: 7px; padding: 5px 12px; font-size: 11px; cursor: pointer; font-weight: 500; }
+  </style>
+</head>
+<body>
+<div class="topbar">
+  <a class="logo" href="/dashboard.html"><div class="orb">✉</div>Lingua Letters</a>
+  <div class="spacer"></div>
+  <span style="font-size:13px;color:#555;" id="user-name"></span>
+  <button class="signout" onclick="handleSignOut()">Sign out</button>
+</div>
+
+<div class="layout">
+  <div class="sidebar">
+    <div class="sb-label">Parent</div>
+    <div class="sb-item on" onclick="showView('overview')">📊 Overview</div>
+    <div class="sb-item" onclick="showView('letters')">📬 All letters</div>
+    <div class="sb-item" onclick="showView('flagged')">🚩 Flagged <span class="wbadge" id="flag-count">0</span></div>
+    <div class="sb-item" onclick="showView('connections')">🌍 Pen pal connections <span class="nbadge" id="pending-count">1</span></div>
+    <div class="sb-item" onclick="showView('request')">➕ Request a match</div>
+    <div class="sb-item" onclick="showView('controls')">⚙ Controls</div>
+  </div>
+  <div class="main" id="main-panel">
+    <div class="loading">Loading...</div>
+  </div>
+</div>
+
+<script type="module">
+  import { createClient } from 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js/+esm'
+
+  const supabase = createClient(
+    'https://vfohvovtxklsdvpigycx.supabase.co',
+    'sb_publishable_iOcoEodjREKpEL1B7DqRSg_k4cKFSEu'
+  )
+
+  let currentUser = null
+  let child = null
+  let letters = []
+  let flags = []
+  let currentView = 'overview'
+  let selectedPreset = '16to17'
+
+  // Demo pending connection approval
+  const PENDING_CONNECTIONS = [
+    {
+      id: 'pending-1',
+      childName: 'Alex',
+      palName: 'María G.',
+      palAge: 14,
+      palCountry: 'Mexico',
+      palCity: 'Guadalajara',
+      palGrade: 'Middle school',
+      matchedBy: 'Ms. García (teacher)',
+      language: 'Spanish',
+      teacherNote: 'María is a warm, enthusiastic writer who I think will be a great match for Alex. Her English is intermediate level and she is very interested in US culture.'
+    }
+  ]
+
+  // Demo existing connections
+  const EXISTING_CONNECTIONS = [
+    { id: 'conn-1', palName: 'Luca T.', palCountry: 'Italy', palFlag: '🇮🇹', language: 'Italian ↔ English', matchedBy: 'In-person code', letters: 3, status: 'active' },
+    { id: 'conn-2', palName: 'Yuna K.', palCountry: 'South Korea', palFlag: '🇰🇷', language: 'Korean ↔ English', matchedBy: 'Teacher matched', letters: 0, status: 'active' }
+  ]
+
+  // Demo match suggestions
+  const MATCH_SUGGESTIONS = [
+    { id: 's1', name: 'Carlos R.', age: 15, country: 'Mexico', flag: '🇲🇽', grade: 'High school', language: 'Spanish', bio: 'Loves football, science, and learning about US culture.', teacher: 'Prof. Hernández' },
+    { id: 's2', name: 'Amara D.', age: 14, country: 'Senegal', flag: '🇸🇳', grade: 'Middle school', language: 'French', bio: 'Passionate about music, art, and environmental issues.', teacher: 'Mme. Diallo' },
+    { id: 's3', name: 'Noah B.', age: 15, country: 'Germany', flag: '🇩🇪', grade: 'High school', language: 'German', bio: 'Into technology, hiking, and learning about American history.', teacher: 'Herr Schmidt' }
+  ]
+
+  const PRESETS = {
+    under13: { label: 'Under 13', age: 'Strictest', note: 'No names beyond first, no location, no external handles. You see all letters.' },
+    '13to15': { label: '13–15', age: 'Moderate', note: 'First name only, no phone or address, no social handles, city mention blocked.' },
+    '16to17': { label: '16–17', age: 'Standard', note: 'First name only, no phone numbers, no moving to external platforms. Can mention general city.' },
+    '18plus': { label: '18+', age: 'Relaxed', note: 'Personal safety flags remain. Contact sharing allowed but tracked.' }
+  }
+
+  async function init() {
+    const { data: { session } } = await supabase.auth.getSession()
+    if (!session) { window.location.href = '/login.html'; return }
+
+    const { data: user } = await supabase
+      .from('users').select('*').eq('id', session.user.id).single()
+
+    if (!user || user.account_type !== 'parent') {
+      window.location.href = '/dashboard.html'; return
+    }
+
+    currentUser = user
+    document.getElementById('user-name').textContent = user.display_name
+
+    const { data: childData } = await supabase
+      .from('users').select('*').eq('parent_id', currentUser.id).single()
+
+    child = childData
+
+    const { data: flagData } = await supabase
+      .from('flags').select('*').eq('student_id', child?.id).eq('outcome', 'pending')
+
+    flags = flagData || []
+    document.getElementById('flag-count').textContent = flags.length
+    document.getElementById('pending-count').textContent = PENDING_CONNECTIONS.length
+
+    if (child) {
+      const { data: letterData } = await supabase
+        .from('letters')
+        .select('*, sender:users!letters_sender_id_fkey(display_name), recipient:users!letters_recipient_id_fkey(display_name)')
+        .or(`sender_id.eq.${child.id},recipient_id.eq.${child.id}`)
+        .eq('status', 'delivered')
+        .order('created_at', { ascending: false })
+      letters = letterData || []
+    }
+
+    renderView()
+  }
+
+  window.showView = function(view) {
+    currentView = view
+    document.querySelectorAll('.sb-item').forEach((el, i) => {
+      el.classList.toggle('on', i === ['overview','letters','flagged','connections','request','controls'].indexOf(view))
+    })
+    renderView()
+  }
+
+  function renderView() {
+    const panel = document.getElementById('main-panel')
+    if (currentView === 'overview') renderOverview(panel)
+    else if (currentView === 'letters') renderLetters(panel)
+    else if (currentView === 'flagged') renderFlagged(panel)
+    else if (currentView === 'connections') renderConnections(panel)
+    else if (currentView === 'request') renderRequest(panel)
+    else if (currentView === 'controls') renderControls(panel)
+  }
+
+  function renderOverview(panel) {
+    const childName = child?.display_name || 'your child'
+    panel.innerHTML = `
+      <div class="page-title">👨‍👩‍👧 ${childName}'s overview</div>
+      <div class="page-sub">${child ? child.account_type + ' account · Learning ' + child.learning_language : 'No child account linked yet.'}</div>
+      <div class="stats-grid">
+        <div class="stat-card"><div class="stat-val">${letters.length}</div><div class="stat-lbl">Letters sent</div></div>
+        <div class="stat-card"><div class="stat-val" style="color:${flags.length>0?'#854F0B':'#1a1a1a'}">${flags.length}</div><div class="stat-lbl">Pending flags</div></div>
+        <div class="stat-card"><div class="stat-val">${EXISTING_CONNECTIONS.length}</div><div class="stat-lbl">Pen pals</div></div>
+      </div>
+
+      ${PENDING_CONNECTIONS.length > 0 ? `
+      <div class="section-header">
+        <div class="section-title">⏳ Pending your approval</div>
+        <span class="chip cb">${PENDING_CONNECTIONS.length} waiting</span>
+      </div>
+      ${PENDING_CONNECTIONS.map(c => approvalCard(c)).join('')}` : ''}
+
+      ${flags.length > 0 ? `
+      <div class="section-header">
+        <div class="section-title">⚠ Flagged — needs attention</div>
+        <button class="view-all" onclick="showView('flagged')">View all →</button>
+      </div>
+      ${flags.slice(0,1).map(f => flagCard(f)).join('')}` : `
+      <div class="ibox ib-green">✓ All clear — no flagged letters right now!</div>`}
+
+      <div class="section-header">
+        <div class="section-title">Recent letters</div>
+        <button class="view-all" onclick="showView('letters')">View all →</button>
+      </div>
+      <div class="card">
+        ${letters.length === 0
+          ? `<div class="empty">${childName} hasn't sent any letters yet.</div>`
+          : letters.slice(0,4).map(l => letterRow(l)).join('')}
+      </div>`
+  }
+
+  function approvalCard(c) {
+    return `<div class="approval-card">
+      <div class="approval-title">🏫 New pen pal match — approval needed</div>
+      <div class="approval-details">
+        <strong>${c.matchedBy}</strong> has proposed matching <strong>${c.childName}</strong> with <strong>${c.palName}</strong>
+        (age ${c.palAge}, ${c.palCity}, ${c.palCountry}) for a <strong>${c.language}</strong> exchange.<br><br>
+        <em style="color:#555;font-size:12px;">Teacher's note: "${c.teacherNote}"</em>
+      </div>
+      <div style="display:flex;flex-wrap:wrap;gap:5px;margin:8px 0;">
+        <span class="chip cg">${c.palCountry}</span>
+        <span class="chip cb">Age ${c.palAge}</span>
+        <span class="chip" style="background:#EEEDFE;color:#3C3489;">${c.palGrade}</span>
+        <span class="chip cg">${c.language}</span>
+      </div>
+      <div class="approval-actions">
+        <button class="abtn-approve" onclick="approveConnection('${c.id}')">✓ Approve connection</button>
+        <button class="abtn-deny" onclick="denyConnection('${c.id}')">✗ Decline</button>
+      </div>
+    </div>`
+  }
+
+  window.approveConnection = function(id) {
+    const idx = PENDING_CONNECTIONS.findIndex(c => c.id === id)
+    if (idx > -1) PENDING_CONNECTIONS.splice(idx, 1)
+    document.getElementById('pending-count').textContent = PENDING_CONNECTIONS.length
+    alert('Connection approved! Your child and their pen pal can now start writing to each other.')
+    renderView()
+  }
+
+  window.denyConnection = function(id) {
+    const idx = PENDING_CONNECTIONS.findIndex(c => c.id === id)
+    if (idx > -1) PENDING_CONNECTIONS.splice(idx, 1)
+    document.getElementById('pending-count').textContent = PENDING_CONNECTIONS.length
+    alert('Connection declined. The teacher will be notified.')
+    renderView()
+  }
+
+  function renderConnections(panel) {
+    const childName = child?.display_name || 'your child'
+    panel.innerHTML = `
+      <div class="page-title">🌍 Pen pal connections</div>
+      <div class="page-sub">All of ${childName}'s current pen pals. You can remove any connection at any time.</div>
+
+      ${PENDING_CONNECTIONS.length > 0 ? `
+      <div class="section-header" style="margin-top:4px;">
+        <div class="section-title">⏳ Awaiting your approval</div>
+      </div>
+      ${PENDING_CONNECTIONS.map(c => approvalCard(c)).join('')}` : ''}
+
+      <div class="section-title" style="margin-bottom:12px;">Active connections</div>
+      <div class="card">
+        ${EXISTING_CONNECTIONS.length === 0
+          ? `<div class="empty">No active connections yet.</div>`
+          : EXISTING_CONNECTIONS.map(c => `
+          <div class="pal-row">
+            <div class="av" style="width:34px;height:34px;background:#E1F5EE;color:#0F6E56;">${c.palFlag}</div>
+            <div class="pal-info">
+              <div class="pal-name">${c.palName} — ${c.palCountry}</div>
+              <div class="pal-sub">${c.language} · ${c.matchedBy} · ${c.letters} letters exchanged</div>
+            </div>
+            <span class="chip cg" style="margin-right:8px;">Active</span>
+            <button class="remove-btn" onclick="removeConnection('${c.id}')">Remove</button>
+          </div>`).join('')}
+      </div>
+
+      <div class="ibox ib-amber">Removing a connection will stop all future letters between your child and that pen pal. Past letters are not deleted.</div>
+    `
+  }
+
+  window.removeConnection = function(id) {
+    if (confirm('Are you sure you want to remove this pen pal connection? Your child will be notified.')) {
+      const idx = EXISTING_CONNECTIONS.findIndex(c => c.id === id)
+      if (idx > -1) EXISTING_CONNECTIONS.splice(idx, 1)
+      alert('Connection removed. Your child\'s teacher has been notified.')
+      renderView()
+    }
+  }
+
+  function renderRequest(panel) {
+    panel.innerHTML = `
+      <div class="page-title">➕ Request a pen pal match</div>
+      <div class="page-sub">Tell us what you're looking for and we'll suggest options for your child's teacher to approve.</div>
+
+      <div class="request-form">
+        <div class="section-title" style="margin-bottom:16px;">What are you looking for?</div>
+        <div class="form-row">
+          <div class="form-group">
+            <label class="form-label">Language exchange</label>
+            <select class="form-select" id="req-lang">
+              <option value="">Any language</option>
+              <option value="Spanish">Spanish ↔ English</option>
+              <option value="French">French ↔ English</option>
+              <option value="Italian">Italian ↔ English</option>
+              <option value="Korean">Korean ↔ English</option>
+              <option value="Japanese">Japanese ↔ English</option>
+              <option value="German">German ↔ English</option>
+            </select>
+          </div>
+          <div class="form-group">
+            <label class="form-label">Preferred country</label>
+            <select class="form-select" id="req-country">
+              <option value="">Any country</option>
+              <option value="Mexico">Mexico</option>
+              <option value="Spain">Spain</option>
+              <option value="France">France</option>
+              <option value="Japan">Japan</option>
+              <option value="South Korea">South Korea</option>
+              <option value="Germany">Germany</option>
+              <option value="Italy">Italy</option>
+              <option value="Brazil">Brazil</option>
+            </select>
+          </div>
+        </div>
+        <div class="form-row">
+          <div class="form-group">
+            <label class="form-label">Age range</label>
+            <select class="form-select" id="req-age">
+              <option value="">Any age</option>
+              <option value="10-12">10–12</option>
+              <option value="12-14">12–14</option>
+              <option value="14-16">14–16</option>
+              <option value="16-18">16–18</option>
+            </select>
+          </div>
+          <div class="form-group">
+            <label class="form-label">Exchange style</label>
+            <select class="form-select" id="req-style">
+              <option value="">No preference</option>
+              <option value="structured">Structured (teacher-guided themes)</option>
+              <option value="open">Open (student-led topics)</option>
+            </select>
+          </div>
+        </div>
+        <button class="request-btn" onclick="findMatches()">🔍 Find suggestions</button>
+      </div>
+
+      <div id="suggestions-area"></div>
+    `
+  }
+
+  window.findMatches = function() {
+    const area = document.getElementById('suggestions-area')
+    area.innerHTML = `
+      <div class="section-title" style="margin-bottom:12px;">Suggested matches for ${child?.display_name || 'your child'}</div>
+      <div class="ibox ib-blue">These are suggestions only. Your child's teacher must approve any match before letters can be exchanged.</div>
+      ${MATCH_SUGGESTIONS.map(s => `
+        <div class="match-suggestion">
+          <div class="av" style="width:38px;height:38px;font-size:16px;background:#F8F7F4;">${s.flag}</div>
+          <div class="ms-info">
+            <div class="ms-name">${s.name}, ${s.age} — ${s.country}</div>
+            <div class="ms-sub">${s.grade} · ${s.language} · Teacher: ${s.teacher}</div>
+            <div style="font-size:11px;color:#555;margin-top:3px;font-style:italic;">"${s.bio}"</div>
+          </div>
+          <button class="ms-btn" onclick="requestMatch('${s.id}','${s.name}')">Request →</button>
+        </div>`).join('')}
+    `
+  }
+
+  window.requestMatch = function(id, name) {
+    alert(`Match request sent to your child's teacher! They will review and connect ${child?.display_name || 'your child'} with ${name} if they agree it's a good fit. You'll be notified when it's approved.`)
+    const btn = document.querySelector(`[onclick="requestMatch('${id}','${name}')"]`)
+    if (btn) { btn.textContent = '✓ Requested'; btn.style.background = '#E1F5EE'; btn.disabled = true; }
+  }
+
+  function renderLetters(panel) {
+    const childName = child?.display_name || 'Child'
+    panel.innerHTML = `
+      <div class="page-title">📬 ${childName}'s letters</div>
+      <div class="page-sub">All correspondence — AI reviewed and approved before delivery.</div>
+      <div class="card">
+        ${letters.length === 0
+          ? `<div class="empty">No letters yet.</div>`
+          : letters.map(l => letterRow(l)).join('')}
+      </div>`
+  }
+
+  function letterRow(l) {
+    const isChild = l.sender_id === child?.id
+    const other = isChild ? l.recipient?.display_name : l.sender?.display_name
+    const date = new Date(l.created_at).toLocaleDateString('en-US', { month: 'short', day: 'numeric' })
+    return `<div class="letter-row" onclick="viewLetter('${l.id}')">
+      <div class="av" style="width:32px;height:32px;background:${isChild?'#B5D4F4':'#F5C4B3'};color:${isChild?'#0C447C':'#712B13'};">
+        ${(isChild?child?.display_name:other||'?').split(' ').map(x=>x[0]).join('').substring(0,2)}
+      </div>
+      <div class="lr-info">
+        <div class="lr-title">${isChild?child?.display_name+' → '+other:other+' → '+child?.display_name}</div>
+        <div class="lr-sub">${l.subject||'No subject'} · ${date}</div>
+      </div>
+      <span class="chip cg">✓ Approved</span>
+    </div>`
+  }
+
+  window.viewLetter = function(letterId) {
+    const l = letters.find(x => x.id === letterId)
+    if (!l) return
+    const prevView = currentView
+    const panel = document.getElementById('main-panel')
+    const isChild = l.sender_id === child?.id
+    const date = new Date(l.created_at).toLocaleDateString('en-US', { weekday:'long', year:'numeric', month:'long', day:'numeric' })
+    panel.innerHTML = `
+      <button class="back-btn" onclick="showView('${prevView}')">← Back</button>
+      <div class="page-title" style="margin-bottom:4px;">${l.subject||'No subject'}</div>
+      <div style="font-size:13px;color:#888;margin-bottom:20px;">
+        ${isChild?child?.display_name+' → '+l.recipient?.display_name:l.sender?.display_name+' → '+child?.display_name} · ${date}
+        <span class="chip cg" style="margin-left:8px;">✓ AI approved</span>
+      </div>
+      <div class="card">
+        <div class="letter-full">
+          <div class="letter-greeting">${l.greeting}</div>
+          <div class="letter-body">${l.body}</div>
+          <div class="letter-signoff">${l.signoff}</div>
+        </div>
+      </div>`
+  }
+
+  function renderFlagged(panel) {
+    const childName = child?.display_name || 'your child'
+    panel.innerHTML = `
+      <div class="page-title">🚩 Flagged letters</div>
+      <div class="page-sub">These letters were held by AI and never delivered to ${childName}'s pen pal.</div>
+      ${flags.length === 0
+        ? `<div class="card"><div class="empty">All clear — nothing flagged! 🎉</div></div>`
+        : flags.map(f => flagCard(f)).join('')}`
+  }
+
+  function flagCard(f) {
+    return `<div class="flag-card">
+      <div class="flag-title">${child?.display_name||'Your child'} · ${new Date(f.created_at).toLocaleDateString()}</div>
+      <div class="flag-reason">⚠ ${f.reason}</div>
+      ${f.student_explanation
+        ? `<div class="flag-explanation"><strong>${child?.display_name||'Child'}'s explanation:</strong> "${f.student_explanation}"</div>`
+        : `<div class="flag-explanation" style="color:#aaa;font-style:italic;">No explanation provided yet.</div>`}
+      <div style="font-size:10px;color:#aaa;margin-bottom:8px;">Letter held — never sent. Teacher has also been notified.</div>
+      <div class="flag-actions">
+        <button class="fbtn fa" onclick="resolveFlag('${f.id}','waived')">✓ Waive flag</button>
+        <button class="fbtn fr" onclick="resolveFlag('${f.id}','upheld')">✗ Uphold — delete letter</button>
+      </div>
+    </div>`
+  }
+
+  window.resolveFlag = async function(flagId, outcome) {
+    await supabase.from('flags').update({ outcome, reviewed_at: new Date().toISOString() }).eq('id', flagId)
+    flags = flags.filter(f => f.id !== flagId)
+    document.getElementById('flag-count').textContent = flags.length
+    renderView()
+  }
+
+  function renderControls(panel) {
+    panel.innerHTML = `
+      <div class="page-title">⚙ Safety controls</div>
+      <div class="page-sub">Manage what's flagged for ${child?.display_name||'your child'}'s account.</div>
+
+      <div class="section-title" style="margin-bottom:12px;">Age preset</div>
+      <div class="presets">
+        ${Object.entries(PRESETS).map(([k,p]) => `
+          <div class="preset${selectedPreset===k?' on':''}" onclick="selectPreset('${k}')">
+            <div class="preset-n">${p.label}</div>
+            <div class="preset-a">${p.age}</div>
+          </div>`).join('')}
+      </div>
+      <div class="ibox ib-blue" id="preset-note">${PRESETS[selectedPreset].note}</div>
+
+      <div class="card" style="padding:20px;">
+        <div class="section-title" style="margin-bottom:16px;">Connection approval</div>
+        <div class="settings-row">
+          <div class="sr-lbl"><p>Approve all new pen pal connections</p><span>Any new connection — whether from a teacher match, code, or request — requires your approval before letters can start.</span></div>
+          <label class="tog"><input type="checkbox" checked><span class="tsl"></span></label>
+        </div>
+        <div class="settings-row">
+          <div class="sr-lbl"><p>Notify me when a new connection is proposed</p><span>You'll get an instant notification whenever a teacher proposes a new pen pal match for your child.</span></div>
+          <label class="tog"><input type="checkbox" checked><span class="tsl"></span></label>
+        </div>
+
+        <div class="section-title" style="margin:20px 0 16px;">Contact information flags</div>
+        <div class="settings-row"><div class="sr-lbl"><p>Phone numbers</p><span>Flag any attempt to share or request a phone number.</span></div><label class="tog"><input type="checkbox" checked><span class="tsl"></span></label></div>
+        <div class="settings-row"><div class="sr-lbl"><p>Home or school address</p><span>Flag specific addresses or named schools.</span></div><label class="tog"><input type="checkbox" checked><span class="tsl"></span></label></div>
+        <div class="settings-row"><div class="sr-lbl"><p>Last name sharing</p><span>Flag if your child shares or asks for a full last name.</span></div><label class="tog"><input type="checkbox" checked><span class="tsl"></span></label></div>
+        <div class="settings-row"><div class="sr-lbl"><p>General city mention</p><span>Allow mentioning a general city like "I live in Philadelphia".</span></div><label class="tog"><input type="checkbox"><span class="tsl"></span></label></div>
+
+        <div class="section-title" style="margin:20px 0 16px;">External platforms</div>
+        <div class="settings-row"><div class="sr-lbl"><p>Social media handles</p><span>Flag sharing Instagram, TikTok, Snapchat usernames.</span></div><label class="tog"><input type="checkbox" checked><span class="tsl"></span></label></div>
+        <div class="settings-row"><div class="sr-lbl"><p>Gaming platform IDs</p><span>Flag sharing Discord, Xbox, PlayStation usernames.</span></div><label class="tog"><input type="checkbox" checked><span class="tsl"></span></label></div>
+        <div class="settings-row"><div class="sr-lbl"><p>Suggesting to move off-platform</p><span>Flag phrases like "let's text instead".</span></div><label class="tog"><input type="checkbox" checked><span class="tsl"></span></label></div>
+
+        <div class="section-title" style="margin:20px 0 16px;">Content</div>
+        <div class="settings-row"><div class="sr-lbl"><p>Inappropriate language</p><span>Always on — cannot be turned off for under-18.</span></div><label class="tog"><input type="checkbox" checked disabled><span class="tsl"></span></label></div>
+        <div class="settings-row"><div class="sr-lbl"><p>Bullying or unkind language</p><span>Always on — cannot be turned off for under-18.</span></div><label class="tog"><input type="checkbox" checked disabled><span class="tsl"></span></label></div>
+        <div class="settings-row"><div class="sr-lbl"><p>Romantic or flirtatious language</p><span>Flag messages with romantic intent.</span></div><label class="tog"><input type="checkbox" checked><span class="tsl"></span></label></div>
+        <div class="settings-row"><div class="sr-lbl"><p>Requests to meet in person</p><span>Flag any suggestion to meet outside the platform.</span></div><label class="tog"><input type="checkbox" checked><span class="tsl"></span></label></div>
+        <div class="settings-row"><div class="sr-lbl"><p>Self-harm or mental health discussions</p><span>Flags immediately and shows a wellbeing resource.</span></div><label class="tog"><input type="checkbox" checked><span class="tsl"></span></label></div>
+
+        <div class="section-title" style="margin:20px 0 16px;">Account controls</div>
+        <div class="settings-row"><div class="sr-lbl"><p>Photo sharing</p><span>Allow your child to attach photos. All AI-screened and teacher-reviewed.</span></div><label class="tog"><input type="checkbox" checked><span class="tsl"></span></label></div>
+        <div class="settings-row"><div class="sr-lbl"><p>Daily time limit</p><span>Restrict how long your child can use the app per day.</span></div>
+          <select><option>No limit</option><option>30 min/day</option><option>1 hour/day</option><option>90 min/day</option></select>
+        </div>
+        <div class="settings-row"><div class="sr-lbl"><p>Require explanation before review</p><span>Your child must submit a 2-sentence explanation before you are notified of a flag.</span></div><label class="tog"><input type="checkbox"><span class="tsl"></span></label></div>
+        <div class="settings-row"><div class="sr-lbl"><p>Instant notifications</p><span>Push notification the moment something is flagged.</span></div><label class="tog"><input type="checkbox" checked><span class="tsl"></span></label></div>
+      </div>
+      <div class="ibox ib-amber">If your settings conflict with the teacher's, the <strong>stricter rule always applies</strong> for school accounts.</div>
+    `
+  }
+
+  window.selectPreset = function(key) {
+    selectedPreset = key
+    document.querySelectorAll('.preset').forEach((el, i) => {
+      el.classList.toggle('on', Object.keys(PRESETS)[i] === key)
+    })
+    const note = document.getElementById('preset-note')
+    if (note) note.textContent = PRESETS[key].note
+  }
+
+  window.handleSignOut = async function() {
+    await supabase.auth.signOut()
+    window.location.href = '/login.html'
+  }
+
+  init()
+</script>
+</body>
+</html>
