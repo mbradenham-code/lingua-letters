@@ -1,0 +1,610 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Lingua Letters — Find Teacher Partners</title>
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; background: #F1EFE8; min-height: 100vh; }
+    .topbar { background: white; border-bottom: 1px solid #e5e3dc; padding: 14px 24px; display: flex; align-items: center; gap: 12px; }
+    .logo { display: flex; align-items: center; gap: 8px; font-size: 16px; font-weight: 500; color: #1a1a1a; text-decoration: none; }
+    .orb { width: 26px; height: 26px; border-radius: 50%; background: #1D9E75; display: flex; align-items: center; justify-content: center; font-size: 14px; }
+    .spacer { flex: 1; }
+    .signout { font-size: 12px; color: #aaa; cursor: pointer; background: none; border: none; }
+    .layout { display: flex; min-height: calc(100vh - 53px); }
+    .sidebar { width: 260px; border-right: 1px solid #e5e3dc; background: #F8F7F4; padding: 20px 16px; flex-shrink: 0; }
+    .sidebar-title { font-size: 13px; font-weight: 500; color: #1a1a1a; margin-bottom: 14px; }
+    .filter-label { font-size: 10px; color: #aaa; letter-spacing: .06em; text-transform: uppercase; font-weight: 500; margin-bottom: 6px; margin-top: 14px; }
+    .filter-label:first-of-type { margin-top: 0; }
+    select, input[type=text] { width: 100%; padding: 8px 10px; border: 1px solid #e5e3dc; border-radius: 8px; font-size: 12px; font-family: inherit; color: #1a1a1a; background: white; outline: none; }
+    select:focus, input:focus { border-color: #1D9E75; }
+    .filter-btn { width: 100%; padding: 8px; background: #1D9E75; color: white; border: none; border-radius: 8px; font-size: 12px; font-weight: 500; cursor: pointer; margin-top: 14px; }
+    .filter-btn:hover { background: #0F6E56; }
+    .clear-btn { width: 100%; padding: 7px; background: none; color: #aaa; border: 1px solid #e5e3dc; border-radius: 8px; font-size: 12px; cursor: pointer; margin-top: 6px; }
+    .my-profile-btn { width: 100%; padding: 8px; background: #EEEDFE; color: #3C3489; border: 1px solid #CECBF6; border-radius: 8px; font-size: 12px; font-weight: 500; cursor: pointer; margin-top: 20px; }
+    .my-profile-btn:hover { background: #E0DEFE; }
+    .main { flex: 1; padding: 24px 28px; overflow-y: auto; }
+    .main-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 6px; }
+    .main-title { font-size: 20px; font-weight: 500; color: #1a1a1a; }
+    .main-sub { font-size: 13px; color: #888; margin-bottom: 20px; }
+    .results-count { font-size: 12px; color: #aaa; }
+    .teacher-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); gap: 16px; }
+    .teacher-card { background: white; border: 1px solid #e5e3dc; border-radius: 14px; overflow: hidden; transition: box-shadow 0.15s; }
+    .teacher-card:hover { box-shadow: 0 4px 16px rgba(0,0,0,0.08); }
+    .tc-header { padding: 16px; border-bottom: 1px solid #e5e3dc; display: flex; gap: 12px; align-items: flex-start; }
+    .av { border-radius: 50%; display: flex; align-items: center; justify-content: center; font-weight: 500; flex-shrink: 0; }
+    .tc-name { font-size: 14px; font-weight: 500; color: #1a1a1a; margin-bottom: 2px; }
+    .tc-school { font-size: 12px; color: #555; margin-bottom: 4px; }
+    .tc-location { font-size: 11px; color: #aaa; display: flex; align-items: center; gap: 3px; }
+    .tc-body { padding: 14px 16px; }
+    .tc-bio { font-size: 12px; color: #555; line-height: 1.6; margin-bottom: 12px; }
+    .tc-tags { display: flex; flex-wrap: wrap; gap: 5px; margin-bottom: 14px; }
+    .tag { font-size: 10px; padding: 3px 8px; border-radius: 20px; }
+    .tag-lang { background: #E1F5EE; color: #0F6E56; }
+    .tag-grade { background: #E6F1FB; color: #0C447C; }
+    .tag-style { background: #EEEDFE; color: #3C3489; }
+    .tag-open { background: #FAEEDA; color: #854F0B; }
+    .tc-stats { display: flex; gap: 14px; margin-bottom: 14px; }
+    .tc-stat { text-align: center; }
+    .tc-stat-val { font-size: 16px; font-weight: 500; color: #1a1a1a; }
+    .tc-stat-lbl { font-size: 10px; color: #aaa; }
+    .tc-footer { display: flex; gap: 8px; }
+    .connect-btn { flex: 1; padding: 8px; background: #1D9E75; color: white; border: none; border-radius: 8px; font-size: 12px; font-weight: 500; cursor: pointer; }
+    .connect-btn:hover { background: #0F6E56; }
+    .connect-btn.sent { background: #E1F5EE; color: #0F6E56; cursor: default; }
+    .connect-btn.connected { background: #E1F5EE; color: #0F6E56; cursor: default; }
+    .view-btn { padding: 8px 14px; background: none; border: 1px solid #e5e3dc; border-radius: 8px; font-size: 12px; color: #555; cursor: pointer; }
+    .view-btn:hover { background: #F8F7F4; }
+    .modal-bg { position: fixed; inset: 0; background: rgba(0,0,0,0.4); display: flex; align-items: center; justify-content: center; z-index: 100; padding: 20px; }
+    .modal { background: white; border-radius: 16px; width: 100%; max-width: 520px; max-height: 85vh; overflow-y: auto; }
+    .modal-header { padding: 20px 22px; border-bottom: 1px solid #e5e3dc; display: flex; align-items: center; gap: 12px; }
+    .modal-body { padding: 20px 22px; }
+    .modal-close { margin-left: auto; background: none; border: none; font-size: 18px; color: #aaa; cursor: pointer; }
+    .modal-section { margin-bottom: 18px; }
+    .modal-section-title { font-size: 11px; color: #aaa; letter-spacing: .06em; text-transform: uppercase; font-weight: 500; margin-bottom: 8px; }
+    .modal-bio { font-size: 13px; color: #555; line-height: 1.7; }
+    .request-textarea { width: 100%; padding: 10px 12px; border: 1px solid #e5e3dc; border-radius: 8px; font-size: 13px; font-family: inherit; resize: none; outline: none; min-height: 100px; }
+    .request-textarea:focus { border-color: #1D9E75; }
+    .modal-actions { display: flex; gap: 8px; justify-content: flex-end; margin-top: 16px; }
+    .modal-cancel { background: none; border: 1px solid #ddd; border-radius: 8px; padding: 8px 16px; font-size: 12px; cursor: pointer; color: #888; }
+    .modal-send { background: #1D9E75; color: white; border: none; border-radius: 8px; padding: 8px 18px; font-size: 12px; font-weight: 500; cursor: pointer; }
+    .profile-modal { background: white; border-radius: 16px; width: 100%; max-width: 560px; max-height: 90vh; overflow-y: auto; }
+    .profile-header { background: linear-gradient(135deg, #1D9E75, #0C447C); padding: 28px 24px; color: white; }
+    .profile-name { font-size: 20px; font-weight: 500; margin-bottom: 4px; }
+    .profile-school { font-size: 13px; opacity: 0.85; margin-bottom: 8px; }
+    .profile-location { font-size: 12px; opacity: 0.7; }
+    .profile-body { padding: 22px; }
+    .form-group { margin-bottom: 16px; }
+    .form-label { font-size: 12px; font-weight: 500; color: #555; margin-bottom: 5px; display: block; }
+    .form-input { width: 100%; padding: 9px 12px; border: 1px solid #e5e3dc; border-radius: 8px; font-size: 13px; font-family: inherit; outline: none; }
+    .form-input:focus { border-color: #1D9E75; }
+    .form-textarea { width: 100%; padding: 9px 12px; border: 1px solid #e5e3dc; border-radius: 8px; font-size: 13px; font-family: inherit; outline: none; resize: none; min-height: 100px; }
+    .form-textarea:focus { border-color: #1D9E75; }
+    .form-hint { font-size: 11px; color: #aaa; margin-top: 4px; }
+    .save-btn { width: 100%; padding: 10px; background: #1D9E75; color: white; border: none; border-radius: 8px; font-size: 13px; font-weight: 500; cursor: pointer; margin-top: 6px; }
+    .save-btn:hover { background: #0F6E56; }
+    .loading { text-align: center; padding: 60px 20px; color: #aaa; font-size: 14px; }
+    .empty { text-align: center; padding: 60px 20px; color: #aaa; }
+    .empty-icon { font-size: 48px; margin-bottom: 12px; }
+    .verified-badge { display: inline-flex; align-items: center; gap: 3px; font-size: 10px; background: #E1F5EE; color: #0F6E56; padding: 2px 7px; border-radius: 20px; }
+    .connection-style { display: flex; gap: 8px; }
+    .style-option { flex: 1; border: 1px solid #e5e3dc; border-radius: 8px; padding: 10px; text-align: center; cursor: pointer; }
+    .style-option.selected { border-color: #1D9E75; background: #E1F5EE; }
+    .style-option-title { font-size: 12px; font-weight: 500; color: #1a1a1a; margin-bottom: 3px; }
+    .style-option-sub { font-size: 10px; color: #aaa; }
+    .style-option.selected .style-option-title { color: #0F6E56; }
+  </style>
+</head>
+<body>
+<div class="topbar">
+  <a class="logo" href="/dashboard.html"><div class="orb">✉</div>Lingua Letters</a>
+  <div class="spacer"></div>
+  <span style="font-size:13px;color:#555;" id="user-name"></span>
+  <button class="signout" onclick="window.location.href='/teacher.html'">← Teacher dashboard</button>
+</div>
+
+<div class="layout">
+  <div class="sidebar">
+    <div class="sidebar-title">🔍 Find partners</div>
+
+    <div class="filter-label">Language</div>
+    <select id="filter-lang">
+      <option value="">All languages</option>
+      <option value="Spanish">Spanish</option>
+      <option value="French">French</option>
+      <option value="Italian">Italian</option>
+      <option value="Korean">Korean</option>
+      <option value="Japanese">Japanese</option>
+      <option value="German">German</option>
+      <option value="Portuguese">Portuguese</option>
+      <option value="Mandarin">Mandarin</option>
+    </select>
+
+    <div class="filter-label">Grade level</div>
+    <select id="filter-grade">
+      <option value="">All grades</option>
+      <option value="Elementary">Elementary (K–5)</option>
+      <option value="Middle">Middle school (6–8)</option>
+      <option value="High school">High school (9–12)</option>
+      <option value="University">University</option>
+    </select>
+
+    <div class="filter-label">Country</div>
+    <input type="text" id="filter-country" placeholder="e.g. Mexico, France...">
+
+    <div class="filter-label">Looking for</div>
+    <select id="filter-looking">
+      <option value="">Any</option>
+      <option value="structured">Structured exchange</option>
+      <option value="open">Open exchange</option>
+    </select>
+
+    <button class="filter-btn" onclick="applyFilters()">🔍 Apply filters</button>
+    <button class="clear-btn" onclick="clearFilters()">Clear filters</button>
+
+    <button class="my-profile-btn" onclick="showMyProfile()">✏ Edit my profile</button>
+  </div>
+
+  <div class="main">
+    <div class="main-header">
+      <div>
+        <div class="main-title">Teacher partners</div>
+        <div class="main-sub">Find educators from around the world to connect your classes.</div>
+      </div>
+      <div class="results-count" id="results-count"></div>
+    </div>
+    <div class="teacher-grid" id="teacher-grid">
+      <div class="loading">Loading teachers...</div>
+    </div>
+  </div>
+</div>
+
+<div id="modal-root"></div>
+
+<script type="module">
+  import { createClient } from 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js/+esm'
+
+  const supabase = createClient(
+    'https://vfohvovtxklsdvpigycx.supabase.co',
+    'sb_publishable_iOcoEodjREKpEL1B7DqRSg_k4cKFSEu'
+  )
+
+  let currentUser = null
+  let allTeachers = []
+  let connections = []
+  let myProfile = null
+  let selectedStyle = 'structured'
+
+  const DEMO_TEACHERS = [
+    {
+      id: 'demo-1',
+      display_name: 'Ms. López',
+      full_name: 'Carmen López',
+      school_name: 'Colegio San Patricio',
+      country: 'Mexico',
+      city: 'Guadalajara',
+      grade_level: 'Middle',
+      class_size: 24,
+      languages_taught: ['Spanish'],
+      looking_for: ['English','French'],
+      connection_style: 'structured',
+      bio: 'I have been teaching Spanish for 12 years and believe deeply in cultural exchange as a tool for empathy. My students are curious, warm, and excited to learn about other ways of life. I run a structured program with weekly letter themes tied to our curriculum.',
+      pairs_active: 3,
+      letters_exchanged: 147,
+      verified: true,
+      avatar_bg: '#F5C4B3',
+      avatar_col: '#712B13'
+    },
+    {
+      id: 'demo-2',
+      display_name: 'Mr. Tanaka',
+      full_name: 'Kenji Tanaka',
+      school_name: 'Osaka International School',
+      country: 'Japan',
+      city: 'Osaka',
+      grade_level: 'High school',
+      class_size: 18,
+      languages_taught: ['Japanese','English'],
+      looking_for: ['Spanish','French','Korean'],
+      connection_style: 'open',
+      bio: 'My students are advanced English learners who want to practice with native speakers while sharing Japanese culture. We love discussing food, festivals, anime, and daily life. I prefer a relaxed exchange where students guide their own conversations.',
+      pairs_active: 5,
+      letters_exchanged: 312,
+      verified: true,
+      avatar_bg: '#CECBF6',
+      avatar_col: '#3C3489'
+    },
+    {
+      id: 'demo-3',
+      display_name: 'Mme. Dubois',
+      full_name: 'Claire Dubois',
+      school_name: 'Lycée Victor Hugo',
+      country: 'France',
+      city: 'Lyon',
+      grade_level: 'High school',
+      class_size: 28,
+      languages_taught: ['French','English'],
+      looking_for: ['Spanish','German','Italian'],
+      connection_style: 'structured',
+      bio: 'Teaching in Lyon — the gastronomic capital of France! My students are passionate about food, cinema, and French literature. We follow a structured monthly theme programme and I love connecting with teachers who share a passion for making language learning meaningful.',
+      pairs_active: 4,
+      letters_exchanged: 203,
+      verified: true,
+      avatar_bg: '#C0DD97',
+      avatar_col: '#27500A'
+    },
+    {
+      id: 'demo-4',
+      display_name: 'Sr. Martínez',
+      full_name: 'Pablo Martínez',
+      school_name: 'IES Cervantes',
+      country: 'Spain',
+      city: 'Madrid',
+      grade_level: 'Middle',
+      class_size: 22,
+      languages_taught: ['Spanish','English'],
+      looking_for: ['English','French','Italian'],
+      connection_style: 'open',
+      bio: 'Madrid-based teacher with a love for history, football, and connecting young people across borders. My students are ages 12–14 and enthusiastic writers. We take an open approach — students pick their own topics and I guide from the sidelines.',
+      pairs_active: 2,
+      letters_exchanged: 89,
+      verified: true,
+      avatar_bg: '#B5D4F4',
+      avatar_col: '#0C447C'
+    },
+    {
+      id: 'demo-5',
+      display_name: 'Ms. Kim',
+      full_name: 'Ji-Young Kim',
+      school_name: 'Seoul Global High School',
+      country: 'South Korea',
+      city: 'Seoul',
+      grade_level: 'High school',
+      class_size: 30,
+      languages_taught: ['Korean','English'],
+      looking_for: ['English','Spanish','French'],
+      connection_style: 'structured',
+      bio: 'I teach English and run an international exchange programme at one of Seoul\'s top high schools. My students are motivated, disciplined, and deeply curious about Western cultures. We follow structured themes each month and take letter-writing very seriously as a skill.',
+      pairs_active: 6,
+      letters_exchanged: 445,
+      verified: true,
+      avatar_bg: '#F5C4B3',
+      avatar_col: '#712B13'
+    },
+    {
+      id: 'demo-6',
+      display_name: 'Frau Weber',
+      full_name: 'Anna Weber',
+      school_name: 'Gymnasium Schiller',
+      country: 'Germany',
+      city: 'Munich',
+      grade_level: 'High school',
+      class_size: 20,
+      languages_taught: ['German','English'],
+      looking_for: ['English','French','Spanish'],
+      connection_style: 'structured',
+      bio: 'Teaching in Munich with a focus on intercultural communication. Germany has a rich letter-writing tradition and I love passing that on to my students. Looking for partner classes who take the written word seriously and want a meaningful long-term exchange.',
+      pairs_active: 3,
+      letters_exchanged: 178,
+      verified: true,
+      avatar_bg: '#CECBF6',
+      avatar_col: '#3C3489'
+    }
+  ]
+
+  async function init() {
+    const { data: { session } } = await supabase.auth.getSession()
+    if (!session) { window.location.href = '/login.html'; return }
+
+    const { data: user } = await supabase
+      .from('users')
+      .select('*')
+      .eq('id', session.user.id)
+      .single()
+
+    if (!user || user.account_type !== 'teacher') {
+      window.location.href = '/dashboard.html'; return
+    }
+
+    currentUser = user
+    document.getElementById('user-name').textContent = user.display_name
+    allTeachers = DEMO_TEACHERS.filter(t => t.id !== currentUser.id)
+    renderGrid(allTeachers)
+  }
+
+  function renderGrid(teachers) {
+    const grid = document.getElementById('teacher-grid')
+    document.getElementById('results-count').textContent = teachers.length + ' teacher' + (teachers.length !== 1 ? 's' : '') + ' found'
+
+    if (teachers.length === 0) {
+      grid.innerHTML = `<div class="empty" style="grid-column:1/-1;">
+        <div class="empty-icon">🔍</div>
+        <p style="font-size:14px;margin-bottom:4px;">No teachers found</p>
+        <p style="font-size:12px;">Try adjusting your filters</p>
+      </div>`
+      return
+    }
+
+    grid.innerHTML = teachers.map(t => teacherCard(t)).join('')
+  }
+
+  function teacherCard(t) {
+    const initials = t.display_name.split(' ').map(x => x[0]).join('').substring(0, 2)
+    const langTags = t.languages_taught.map(l => `<span class="tag tag-lang">${l}</span>`).join('')
+    const gradeTags = `<span class="tag tag-grade">${t.grade_level}</span>`
+    const styleTags = `<span class="tag tag-style">${t.connection_style === 'structured' ? '📋 Structured' : '🌊 Open'}</span>`
+    const lookingTags = t.looking_for.map(l => `<span class="tag tag-open">Seeks: ${l}</span>`).join('')
+
+    return `<div class="teacher-card">
+      <div class="tc-header">
+        <div class="av" style="width:44px;height:44px;font-size:14px;background:${t.avatar_bg};color:${t.avatar_col};">${initials}</div>
+        <div style="flex:1;min-width:0;">
+          <div class="tc-name">${t.display_name} ${t.verified ? '<span class="verified-badge">✓ Verified</span>' : ''}</div>
+          <div class="tc-school">${t.school_name}</div>
+          <div class="tc-location">📍 ${t.city}, ${t.country}</div>
+        </div>
+      </div>
+      <div class="tc-body">
+        <div class="tc-bio">${t.bio.substring(0, 140)}...</div>
+        <div class="tc-tags">${langTags}${gradeTags}${styleTags}${lookingTags}</div>
+        <div class="tc-stats">
+          <div class="tc-stat"><div class="tc-stat-val">${t.class_size}</div><div class="tc-stat-lbl">Students</div></div>
+          <div class="tc-stat"><div class="tc-stat-val">${t.pairs_active}</div><div class="tc-stat-lbl">Active pairs</div></div>
+          <div class="tc-stat"><div class="tc-stat-val">${t.letters_exchanged}</div><div class="tc-stat-lbl">Letters sent</div></div>
+        </div>
+        <div class="tc-footer">
+          <button class="view-btn" onclick="viewProfile('${t.id}')">View profile</button>
+          <button class="connect-btn" id="btn-${t.id}" onclick="showConnectModal('${t.id}')">✉ Request connection</button>
+        </div>
+      </div>
+    </div>`
+  }
+
+  window.applyFilters = function() {
+    const lang = document.getElementById('filter-lang').value
+    const grade = document.getElementById('filter-grade').value
+    const country = document.getElementById('filter-country').value.toLowerCase()
+    const looking = document.getElementById('filter-looking').value
+
+    const filtered = allTeachers.filter(t => {
+      if (lang && !t.languages_taught.includes(lang)) return false
+      if (grade && t.grade_level !== grade) return false
+      if (country && !t.country.toLowerCase().includes(country) && !t.city.toLowerCase().includes(country)) return false
+      if (looking && t.connection_style !== looking) return false
+      return true
+    })
+
+    renderGrid(filtered)
+  }
+
+  window.clearFilters = function() {
+    document.getElementById('filter-lang').value = ''
+    document.getElementById('filter-grade').value = ''
+    document.getElementById('filter-country').value = ''
+    document.getElementById('filter-looking').value = ''
+    renderGrid(allTeachers)
+  }
+
+  window.viewProfile = function(teacherId) {
+    const t = allTeachers.find(t => t.id === teacherId)
+    if (!t) return
+    const initials = t.display_name.split(' ').map(x => x[0]).join('').substring(0, 2)
+
+    document.getElementById('modal-root').innerHTML = `
+      <div class="modal-bg" onclick="closeModal(event)">
+        <div class="profile-modal" onclick="event.stopPropagation()">
+          <div class="profile-header">
+            <div style="display:flex;align-items:center;gap:14px;margin-bottom:14px;">
+              <div class="av" style="width:56px;height:56px;font-size:18px;background:rgba(255,255,255,0.2);color:white;">${initials}</div>
+              <div>
+                <div class="profile-name">${t.display_name} ${t.verified ? '✓' : ''}</div>
+                <div class="profile-school">${t.school_name}</div>
+                <div class="profile-location">📍 ${t.city}, ${t.country}</div>
+              </div>
+            </div>
+            <div style="display:flex;gap:16px;">
+              <div style="text-align:center;"><div style="font-size:20px;font-weight:500;">${t.class_size}</div><div style="font-size:11px;opacity:.7;">Students</div></div>
+              <div style="text-align:center;"><div style="font-size:20px;font-weight:500;">${t.pairs_active}</div><div style="font-size:11px;opacity:.7;">Active pairs</div></div>
+              <div style="text-align:center;"><div style="font-size:20px;font-weight:500;">${t.letters_exchanged}</div><div style="font-size:11px;opacity:.7;">Letters sent</div></div>
+            </div>
+          </div>
+          <div class="profile-body">
+            <div class="modal-section">
+              <div class="modal-section-title">About</div>
+              <div class="modal-bio">${t.bio}</div>
+            </div>
+            <div class="modal-section">
+              <div class="modal-section-title">Languages taught</div>
+              <div style="display:flex;flex-wrap:wrap;gap:5px;">${t.languages_taught.map(l => `<span class="tag tag-lang">${l}</span>`).join('')}</div>
+            </div>
+            <div class="modal-section">
+              <div class="modal-section-title">Looking for classes learning</div>
+              <div style="display:flex;flex-wrap:wrap;gap:5px;">${t.looking_for.map(l => `<span class="tag tag-open">${l}</span>`).join('')}</div>
+            </div>
+            <div class="modal-section">
+              <div class="modal-section-title">Grade level</div>
+              <span class="tag tag-grade">${t.grade_level}</span>
+            </div>
+            <div class="modal-section">
+              <div class="modal-section-title">Exchange style</div>
+              <span class="tag tag-style">${t.connection_style === 'structured' ? '📋 Structured — teacher guides themes and pacing' : '🌊 Open — students guide their own conversations'}</span>
+            </div>
+            <div style="display:flex;gap:8px;margin-top:20px;">
+              <button class="modal-cancel" onclick="closeModal()">Close</button>
+              <button class="modal-send" style="flex:1;" onclick="closeModal();showConnectModal('${t.id}')">✉ Request connection</button>
+            </div>
+          </div>
+        </div>
+      </div>`
+  }
+
+  window.showConnectModal = function(teacherId) {
+    const t = allTeachers.find(t => t.id === teacherId)
+    if (!t) return
+
+    document.getElementById('modal-root').innerHTML = `
+      <div class="modal-bg" onclick="closeModal(event)">
+        <div class="modal" onclick="event.stopPropagation()">
+          <div class="modal-header">
+            <div class="av" style="width:36px;height:36px;font-size:12px;background:${t.avatar_bg};color:${t.avatar_col};">${t.display_name.split(' ').map(x=>x[0]).join('').substring(0,2)}</div>
+            <div>
+              <div style="font-size:14px;font-weight:500;">Connect with ${t.display_name}</div>
+              <div style="font-size:12px;color:#aaa;">${t.school_name} · ${t.city}, ${t.country}</div>
+            </div>
+            <button class="modal-close" onclick="closeModal()">×</button>
+          </div>
+          <div class="modal-body">
+            <div class="modal-section">
+              <div class="modal-section-title">Your message</div>
+              <textarea class="request-textarea" id="request-msg" placeholder="Introduce yourself! Tell ${t.display_name} about your class, your students, and why you'd love to connect. What do your students hope to get from a pen pal exchange?"></textarea>
+            </div>
+            <div class="modal-section">
+              <div class="modal-section-title">Your class details</div>
+              <div style="display:flex;gap:8px;margin-bottom:8px;">
+                <input type="text" id="req-grade" placeholder="Grade level" style="flex:1;">
+                <input type="text" id="req-size" placeholder="Class size" style="flex:1;">
+              </div>
+              <input type="text" id="req-lang" placeholder="Language your students are learning">
+            </div>
+            <div class="modal-actions">
+              <button class="modal-cancel" onclick="closeModal()">Cancel</button>
+              <button class="modal-send" onclick="sendRequest('${teacherId}')">Send request ✉</button>
+            </div>
+          </div>
+        </div>
+      </div>`
+  }
+
+  window.sendRequest = async function(teacherId) {
+    const msg = document.getElementById('request-msg').value
+    if (!msg || msg.length < 20) {
+      alert('Please write a message of at least 20 characters.')
+      return
+    }
+
+    const btn = document.getElementById('btn-' + teacherId)
+    closeModal()
+    if (btn) {
+      btn.textContent = '✓ Request sent'
+      btn.className = 'connect-btn sent'
+    }
+
+    alert('Connection request sent! When the teacher accepts, your classes will be linked and you can start matching students.')
+  }
+
+  window.showMyProfile = function() {
+    document.getElementById('modal-root').innerHTML = `
+      <div class="modal-bg" onclick="closeModal(event)">
+        <div class="modal" onclick="event.stopPropagation()">
+          <div class="modal-header">
+            <div>
+              <div style="font-size:15px;font-weight:500;">My teacher profile</div>
+              <div style="font-size:12px;color:#aaa;">Visible only to verified teachers on Lingua Letters</div>
+            </div>
+            <button class="modal-close" onclick="closeModal()">×</button>
+          </div>
+          <div class="modal-body">
+            <div class="form-group">
+              <label class="form-label">School name</label>
+              <input class="form-input" id="prof-school" placeholder="e.g. Lincoln Middle School" value="${currentUser.school_name || ''}">
+            </div>
+            <div class="form-group">
+              <label class="form-label">City and country</label>
+              <div style="display:flex;gap:8px;">
+                <input class="form-input" id="prof-city" placeholder="City" value="${currentUser.city || ''}">
+                <input class="form-input" id="prof-country" placeholder="Country" value="${currentUser.country || ''}">
+              </div>
+            </div>
+            <div class="form-group">
+              <label class="form-label">Grade level</label>
+              <select class="form-input" id="prof-grade">
+                <option value="">— Select —</option>
+                <option value="Elementary" ${currentUser.grade_level==='Elementary'?'selected':''}>Elementary (K–5)</option>
+                <option value="Middle" ${currentUser.grade_level==='Middle'?'selected':''}>Middle school (6–8)</option>
+                <option value="High school" ${currentUser.grade_level==='High school'?'selected':''}>High school (9–12)</option>
+                <option value="University" ${currentUser.grade_level==='University'?'selected':''}>University</option>
+              </select>
+            </div>
+            <div class="form-group">
+              <label class="form-label">Class size</label>
+              <input class="form-input" id="prof-size" type="number" placeholder="e.g. 24" value="${currentUser.class_size || ''}">
+            </div>
+            <div class="form-group">
+              <label class="form-label">Language(s) you teach</label>
+              <input class="form-input" id="prof-langs" placeholder="e.g. Spanish, English" value="${currentUser.languages_taught || ''}">
+            </div>
+            <div class="form-group">
+              <label class="form-label">Looking for classes learning</label>
+              <input class="form-input" id="prof-looking" placeholder="e.g. English, French" value="${currentUser.looking_for || ''}">
+            </div>
+            <div class="form-group">
+              <label class="form-label">Exchange style</label>
+              <div class="connection-style">
+                <div class="style-option ${selectedStyle==='structured'?'selected':''}" onclick="selectStyle('structured')">
+                  <div class="style-option-title">📋 Structured</div>
+                  <div class="style-option-sub">Teacher guides themes and pacing</div>
+                </div>
+                <div class="style-option ${selectedStyle==='open'?'selected':''}" onclick="selectStyle('open')">
+                  <div class="style-option-title">🌊 Open</div>
+                  <div class="style-option-sub">Students guide their own conversations</div>
+                </div>
+              </div>
+            </div>
+            <div class="form-group">
+              <label class="form-label">Your bio</label>
+              <textarea class="form-textarea" id="prof-bio" placeholder="Tell other teachers about yourself, your school, your students, and what you hope to get from a pen pal exchange. What makes your class special?">${currentUser.bio || ''}</textarea>
+              <div class="form-hint">This is what other teachers will read when deciding whether to connect with you. Be warm, specific, and genuine!</div>
+            </div>
+            <button class="save-btn" onclick="saveProfile()">Save profile</button>
+          </div>
+        </div>
+      </div>`
+  }
+
+  window.selectStyle = function(style) {
+    selectedStyle = style
+    document.querySelectorAll('.style-option').forEach((el, i) => {
+      el.classList.toggle('selected', ['structured','open'][i] === style)
+    })
+  }
+
+  window.saveProfile = async function() {
+    const updates = {
+      school_name: document.getElementById('prof-school').value,
+      city: document.getElementById('prof-city').value,
+      country: document.getElementById('prof-country').value,
+      grade_level: document.getElementById('prof-grade').value,
+      class_size: parseInt(document.getElementById('prof-size').value) || null,
+      languages_taught: document.getElementById('prof-langs').value,
+      looking_for: document.getElementById('prof-looking').value,
+      bio: document.getElementById('prof-bio').value,
+      connection_style: selectedStyle
+    }
+
+    const { error } = await supabase
+      .from('users')
+      .update(updates)
+      .eq('id', currentUser.id)
+
+    if (error) { alert('Error saving: ' + error.message); return }
+
+    Object.assign(currentUser, updates)
+    closeModal()
+    alert('Profile saved! You are now visible to other verified teachers.')
+  }
+
+  window.closeModal = function(e) {
+    if (e && e.target !== e.currentTarget) return
+    document.getElementById('modal-root').innerHTML = ''
+  }
+
+  window.handleSignOut = async function() {
+    await supabase.auth.signOut()
+    window.location.href = '/login.html'
+  }
+
+  init()
+</script>
+</body>
+</html>
