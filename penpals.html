@@ -1,0 +1,268 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Lingua Letters — My Pen Pals</title>
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; background: #F1EFE8; min-height: 100vh; }
+    .topbar { background: white; border-bottom: 1px solid #e5e3dc; padding: 14px 24px; display: flex; align-items: center; gap: 12px; }
+    .logo { display: flex; align-items: center; gap: 8px; font-size: 16px; font-weight: 500; color: #1a1a1a; text-decoration: none; }
+    .orb { width: 26px; height: 26px; border-radius: 50%; background: #1D9E75; display: flex; align-items: center; justify-content: center; font-size: 14px; }
+    .spacer { flex: 1; }
+    .signout { font-size: 12px; color: #aaa; cursor: pointer; background: none; border: none; }
+    .content { max-width: 700px; margin: 32px auto; padding: 0 20px 40px; }
+    .page-title { font-size: 20px; font-weight: 500; color: #1a1a1a; margin-bottom: 6px; }
+    .page-sub { font-size: 13px; color: #888; margin-bottom: 24px; }
+    .section-title { font-size: 14px; font-weight: 500; color: #1a1a1a; margin-bottom: 12px; }
+    .card { background: white; border: 1px solid #e5e3dc; border-radius: 14px; overflow: hidden; margin-bottom: 20px; }
+    .card-pad { padding: 20px; }
+    .pal-row { display: flex; align-items: center; gap: 12px; padding: 14px 20px; border-bottom: 1px solid #e5e3dc; }
+    .pal-row:last-child { border-bottom: none; }
+    .av { border-radius: 50%; display: flex; align-items: center; justify-content: center; font-weight: 500; font-size: 12px; flex-shrink: 0; }
+    .pal-info { flex: 1; }
+    .pal-name { font-size: 14px; font-weight: 500; color: #1a1a1a; margin-bottom: 2px; }
+    .pal-sub { font-size: 12px; color: #aaa; }
+    .pal-actions { display: flex; gap: 8px; }
+    .action-btn { padding: 6px 14px; border-radius: 8px; font-size: 12px; cursor: pointer; border: 1px solid #e5e3dc; background: white; color: #555; }
+    .action-btn:hover { background: #F8F7F4; }
+    .action-btn.primary { background: #1D9E75; color: white; border-color: #1D9E75; }
+    .action-btn.primary:hover { background: #0F6E56; }
+    .empty-pals { padding: 36px 20px; text-align: center; color: #aaa; }
+    .empty-pals .icon { font-size: 40px; margin-bottom: 10px; }
+    .empty-pals p { font-size: 13px; margin-bottom: 4px; }
+    .empty-pals span { font-size: 11px; }
+    .connect-options { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; margin-bottom: 20px; }
+    .connect-card { background: white; border: 1px solid #e5e3dc; border-radius: 14px; padding: 20px; }
+    .connect-icon { font-size: 28px; margin-bottom: 10px; }
+    .connect-title { font-size: 14px; font-weight: 500; margin-bottom: 6px; }
+    .connect-sub { font-size: 12px; color: #aaa; margin-bottom: 14px; line-height: 1.5; }
+    .code-display { font-size: 22px; font-weight: 500; color: #1D9E75; letter-spacing: 3px; background: #E1F5EE; border-radius: 8px; padding: 10px 16px; text-align: center; margin-bottom: 10px; }
+    .code-input { width: 100%; padding: 9px 12px; border: 1px solid #e5e3dc; border-radius: 8px; font-size: 14px; font-family: inherit; text-align: center; letter-spacing: 2px; text-transform: uppercase; outline: none; }
+    .code-input:focus { border-color: #1D9E75; }
+    .connect-btn { width: 100%; padding: 9px; background: #1D9E75; color: white; border: none; border-radius: 8px; font-size: 13px; font-weight: 500; cursor: pointer; margin-top: 8px; }
+    .connect-btn:hover { background: #0F6E56; }
+    .chip { display: inline-flex; align-items: center; gap: 3px; font-size: 10px; padding: 2px 8px; border-radius: 20px; }
+    .cg { background: #E1F5EE; color: #0F6E56; }
+    .cb { background: #E6F1FB; color: #0C447C; }
+    .cp { background: #EEEDFE; color: #3C3489; }
+    .error-msg { background: #FCEBEB; color: #A32D2D; padding: 10px 12px; border-radius: 8px; font-size: 12px; margin-top: 8px; display: none; }
+    .success-msg { background: #E1F5EE; color: #0F6E56; padding: 10px 12px; border-radius: 8px; font-size: 12px; margin-top: 8px; display: none; }
+    .loading { text-align: center; padding: 30px; color: #aaa; font-size: 13px; }
+  </style>
+</head>
+<body>
+<div class="topbar">
+  <a class="logo" href="/dashboard.html"><div class="orb">✉</div>Lingua Letters</a>
+  <div class="spacer"></div>
+  <span style="font-size:13px;color:#555;" id="user-name"></span>
+  <button class="signout" onclick="window.location.href='/dashboard.html'">← Dashboard</button>
+</div>
+
+<div class="content">
+  <div class="page-title">🌍 My pen pals</div>
+  <div class="page-sub">Connect with students from around the world and start exchanging letters.</div>
+
+  <div class="connect-options">
+    <div class="connect-card">
+      <div class="connect-icon">📱</div>
+      <div class="connect-title">Your connection code</div>
+      <div class="connect-sub">Share this code in person with someone you'd like to write to.</div>
+      <div class="code-display" id="my-code">Loading...</div>
+      <button class="connect-btn" style="background:#E1F5EE;color:#0F6E56;border:1px solid #9FE1CB;" onclick="copyCode()">📋 Copy code</button>
+    </div>
+    <div class="connect-card">
+      <div class="connect-icon">🔗</div>
+      <div class="connect-title">Enter a code</div>
+      <div class="connect-sub">Got a code from someone? Enter it here to connect as pen pals.</div>
+      <input class="code-input" id="code-input" placeholder="LL-XXXX" maxlength="7">
+      <div id="code-error" class="error-msg"></div>
+      <div id="code-success" class="success-msg"></div>
+      <button class="connect-btn" onclick="connectByCode()">Connect →</button>
+    </div>
+  </div>
+
+  <div class="section-title">Current pen pals</div>
+  <div class="card" id="pals-list">
+    <div class="loading">Loading your pen pals...</div>
+  </div>
+</div>
+
+<script type="module">
+  import { createClient } from 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js/+esm'
+
+  const supabase = createClient(
+    'https://vfohvovtxklsdvpigycx.supabase.co',
+    'sb_publishable_iOcoEodjREKpEL1B7DqRSg_k4cKFSEu'
+  )
+
+  let currentUser = null
+  let myCode = null
+
+  async function init() {
+    const { data: { session } } = await supabase.auth.getSession()
+    if (!session) { window.location.href = '/login.html'; return }
+
+    const { data: user } = await supabase
+      .from('users')
+      .select('*')
+      .eq('id', session.user.id)
+      .single()
+
+    if (!user) { window.location.href = '/login.html'; return }
+    currentUser = user
+    document.getElementById('user-name').textContent = user.display_name
+
+    await loadMyCode()
+    await loadPenPals()
+  }
+
+  async function loadMyCode() {
+    const { data: existing } = await supabase
+      .from('connection_codes')
+      .select('code')
+      .eq('student_id', currentUser.id)
+      .eq('used', false)
+      .single()
+
+    if (existing) {
+      myCode = existing.code
+      document.getElementById('my-code').textContent = existing.code
+      return
+    }
+
+    const code = 'LL-' + Math.random().toString(36).substring(2, 6).toUpperCase()
+    await supabase.from('connection_codes').insert({
+      student_id: currentUser.id,
+      code,
+      used: false
+    })
+    myCode = code
+    document.getElementById('my-code').textContent = code
+  }
+
+  async function loadPenPals() {
+    const { data: connections } = await supabase
+      .from('pen_pal_connections')
+      .select('*, student_a_user:users!pen_pal_connections_student_a_fkey(id,display_name,learning_language), student_b_user:users!pen_pal_connections_student_b_fkey(id,display_name,learning_language)')
+      .or(`student_a.eq.${currentUser.id},student_b.eq.${currentUser.id}`)
+      .eq('status', 'active')
+
+    const list = document.getElementById('pals-list')
+
+    if (!connections || connections.length === 0) {
+      list.innerHTML = `
+        <div class="empty-pals">
+          <div class="icon">🌍</div>
+          <p>No pen pals yet!</p>
+          <span>Share your code or ask your teacher to match you.</span>
+        </div>`
+      return
+    }
+
+    list.innerHTML = connections.map(c => {
+      const isA = c.student_a === currentUser.id
+      const pal = isA ? c.student_b_user : c.student_a_user
+      const initials = pal?.display_name?.split(' ').map(x => x[0]).join('').substring(0, 2) || '??'
+      const colors = [
+        { bg: '#F5C4B3', c: '#712B13' },
+        { bg: '#CECBF6', c: '#3C3489' },
+        { bg: '#C0DD97', c: '#27500A' },
+        { bg: '#B5D4F4', c: '#0C447C' }
+      ]
+      const col = colors[Math.floor(Math.random() * colors.length)]
+      const how = c.connected_by === 'teacher' ? '🏫 Matched by teacher' : '📱 Connected by code'
+
+      return `<div class="pal-row">
+        <div class="av" style="width:38px;height:38px;background:${col.bg};color:${col.c};">${initials}</div>
+        <div class="pal-info">
+          <div class="pal-name">${pal?.display_name || 'Pen pal'}</div>
+          <div class="pal-sub">${pal?.learning_language || 'Language learner'} · ${how}</div>
+        </div>
+        <div class="pal-actions">
+          <button class="action-btn primary" onclick="window.location.href='/inbox.html'">✉ Write</button>
+          <button class="action-btn" onclick="window.location.href='/inbox.html'">📬 Letters</button>
+        </div>
+      </div>`
+    }).join('')
+  }
+
+  window.copyCode = function() {
+    if (myCode) {
+      navigator.clipboard.writeText(myCode)
+      const btn = document.querySelector('.connect-btn')
+      btn.textContent = '✓ Copied!'
+      setTimeout(() => btn.textContent = '📋 Copy code', 2000)
+    }
+  }
+
+  window.connectByCode = async function() {
+    const input = document.getElementById('code-input').value.trim().toUpperCase()
+    const errEl = document.getElementById('code-error')
+    const sucEl = document.getElementById('code-success')
+    errEl.style.display = 'none'
+    sucEl.style.display = 'none'
+
+    if (!input || input.length < 5) {
+      errEl.textContent = 'Please enter a valid code.'
+      errEl.style.display = 'block'
+      return
+    }
+
+    if (input === myCode) {
+      errEl.textContent = 'You cannot connect with yourself!'
+      errEl.style.display = 'block'
+      return
+    }
+
+    const { data: codeData } = await supabase
+      .from('connection_codes')
+      .select('*, student:users!connection_codes_student_id_fkey(id,display_name)')
+      .eq('code', input)
+      .eq('used', false)
+      .single()
+
+    if (!codeData) {
+      errEl.textContent = 'Code not found or already used. Check with your pen pal.'
+      errEl.style.display = 'block'
+      return
+    }
+
+    const { data: existing } = await supabase
+      .from('pen_pal_connections')
+      .select('id')
+      .or(`and(student_a.eq.${currentUser.id},student_b.eq.${codeData.student_id}),and(student_a.eq.${codeData.student_id},student_b.eq.${currentUser.id})`)
+      .single()
+
+    if (existing) {
+      errEl.textContent = 'You are already connected with this person!'
+      errEl.style.display = 'block'
+      return
+    }
+
+    await supabase.from('pen_pal_connections').insert({
+      student_a: currentUser.id,
+      student_b: codeData.student_id,
+      connected_by: 'code',
+      status: 'active'
+    })
+
+    await supabase.from('connection_codes').update({ used: true, used_by: currentUser.id }).eq('code', input)
+
+    sucEl.textContent = `Connected with ${codeData.student?.display_name || 'your new pen pal'}! You can now write to each other.`
+    sucEl.style.display = 'block'
+    document.getElementById('code-input').value = ''
+
+    setTimeout(() => loadPenPals(), 1000)
+  }
+
+  window.handleSignOut = async function() {
+    await supabase.auth.signOut()
+    window.location.href = '/login.html'
+  }
+
+  init()
+</script>
+</body>
+</html>
