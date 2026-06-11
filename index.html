@@ -3,63 +3,250 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Lingua Letters</title>
+  <title>Lingua Letters — Cultural Pen Pal Letters for Language Learners</title>
+  <meta name="description" content="Connect students across the world through meaningful letter writing. Practice languages, learn about cultures, and build real friendships — safely.">
   <style>
-    body {
-      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      height: 100vh;
-      margin: 0;
-      background: #F1EFE8;
-    }
-    .splash {
-      text-align: center;
-    }
-    .orb {
-      width: 60px;
-      height: 60px;
-      border-radius: 50%;
-      background: #1D9E75;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      font-size: 28px;
-      margin: 0 auto 16px;
-    }
-    h1 {
-      font-size: 28px;
-      font-weight: 500;
-      color: #1a1a1a;
-      margin-bottom: 8px;
-    }
-    p {
-      font-size: 15px;
-      color: #888;
-      margin-bottom: 28px;
-    }
-    .btn {
-      background: #1D9E75;
-      color: white;
-      border: none;
-      border-radius: 10px;
-      padding: 12px 28px;
-      font-size: 15px;
-      font-weight: 500;
-      cursor: pointer;
-      display: inline-block;
-      text-decoration: none;
-    }
-    .btn:hover { background: #0F6E56; }
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; background: #F1EFE8; color: #1a1a1a; }
+    .nav { background: white; border-bottom: 1px solid #e5e3dc; padding: 14px 32px; display: flex; align-items: center; gap: 12px; }
+    .logo { display: flex; align-items: center; gap: 8px; font-size: 16px; font-weight: 500; text-decoration: none; color: #1a1a1a; }
+    .orb { width: 26px; height: 26px; border-radius: 50%; background: #1D9E75; display: flex; align-items: center; justify-content: center; font-size: 14px; }
+    .spacer { flex: 1; }
+    .nav-link { font-size: 13px; color: #555; text-decoration: none; margin-left: 20px; }
+    .nav-link:hover { color: #1D9E75; }
+    .nav-btn { background: #1D9E75; color: white; border: none; border-radius: 8px; padding: 8px 18px; font-size: 13px; font-weight: 500; cursor: pointer; text-decoration: none; margin-left: 12px; }
+    .nav-btn:hover { background: #0F6E56; }
+    .hero { max-width: 780px; margin: 0 auto; padding: 80px 24px 60px; text-align: center; }
+    .hero-badge { display: inline-flex; align-items: center; gap: 6px; background: #E1F5EE; color: #0F6E56; border: 1px solid #9FE1CB; border-radius: 20px; padding: 5px 14px; font-size: 12px; font-weight: 500; margin-bottom: 24px; }
+    .hero-title { font-size: 48px; font-weight: 500; line-height: 1.15; color: #1a1a1a; margin-bottom: 20px; }
+    .hero-title span { color: #1D9E75; }
+    .hero-sub { font-size: 18px; color: #555; line-height: 1.6; max-width: 560px; margin: 0 auto 36px; }
+    .hero-btns { display: flex; gap: 12px; justify-content: center; flex-wrap: wrap; }
+    .btn-primary { background: #1D9E75; color: white; border: none; border-radius: 10px; padding: 14px 28px; font-size: 15px; font-weight: 500; cursor: pointer; text-decoration: none; display: inline-block; }
+    .btn-primary:hover { background: #0F6E56; }
+    .btn-secondary { background: white; color: #1a1a1a; border: 1px solid #e5e3dc; border-radius: 10px; padding: 14px 28px; font-size: 15px; font-weight: 500; cursor: pointer; text-decoration: none; display: inline-block; }
+    .btn-secondary:hover { background: #F8F7F4; }
+    .features { max-width: 960px; margin: 0 auto; padding: 60px 24px; }
+    .features-title { text-align: center; font-size: 28px; font-weight: 500; margin-bottom: 8px; }
+    .features-sub { text-align: center; font-size: 15px; color: #888; margin-bottom: 48px; }
+    .features-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)); gap: 20px; }
+    .feature-card { background: white; border: 1px solid #e5e3dc; border-radius: 14px; padding: 24px; }
+    .feature-icon { font-size: 32px; margin-bottom: 14px; }
+    .feature-title { font-size: 15px; font-weight: 500; margin-bottom: 6px; }
+    .feature-sub { font-size: 13px; color: #888; line-height: 1.6; }
+    .how { background: white; padding: 60px 24px; }
+    .how-inner { max-width: 800px; margin: 0 auto; }
+    .how-title { text-align: center; font-size: 28px; font-weight: 500; margin-bottom: 8px; }
+    .how-sub { text-align: center; font-size: 15px; color: #888; margin-bottom: 48px; }
+    .steps { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 24px; }
+    .step { text-align: center; }
+    .step-num { width: 40px; height: 40px; border-radius: 50%; background: #1D9E75; color: white; display: flex; align-items: center; justify-content: center; font-size: 16px; font-weight: 500; margin: 0 auto 14px; }
+    .step-title { font-size: 14px; font-weight: 500; margin-bottom: 6px; }
+    .step-sub { font-size: 12px; color: #888; line-height: 1.6; }
+    .accounts { max-width: 960px; margin: 0 auto; padding: 60px 24px; }
+    .accounts-title { text-align: center; font-size: 28px; font-weight: 500; margin-bottom: 8px; }
+    .accounts-sub { text-align: center; font-size: 15px; color: #888; margin-bottom: 48px; }
+    .accounts-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 16px; }
+    .account-card { border: 1px solid #e5e3dc; border-radius: 14px; padding: 22px; background: white; }
+    .account-icon { font-size: 28px; margin-bottom: 10px; }
+    .account-title { font-size: 14px; font-weight: 500; margin-bottom: 6px; }
+    .account-sub { font-size: 12px; color: #888; line-height: 1.6; }
+    .safety { background: #1D9E75; padding: 60px 24px; }
+    .safety-inner { max-width: 800px; margin: 0 auto; text-align: center; }
+    .safety-title { font-size: 28px; font-weight: 500; color: white; margin-bottom: 12px; }
+    .safety-sub { font-size: 15px; color: rgba(255,255,255,0.85); margin-bottom: 40px; line-height: 1.6; }
+    .safety-points { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 16px; margin-bottom: 40px; }
+    .safety-point { background: rgba(255,255,255,0.15); border-radius: 12px; padding: 18px; text-align: left; }
+    .safety-point-title { font-size: 13px; font-weight: 500; color: white; margin-bottom: 4px; }
+    .safety-point-sub { font-size: 12px; color: rgba(255,255,255,0.75); line-height: 1.5; }
+    .cta { max-width: 600px; margin: 0 auto; padding: 80px 24px; text-align: center; }
+    .cta-title { font-size: 32px; font-weight: 500; margin-bottom: 12px; }
+    .cta-sub { font-size: 15px; color: #888; margin-bottom: 32px; line-height: 1.6; }
+    .footer { background: white; border-top: 1px solid #e5e3dc; padding: 24px 32px; display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 12px; }
+    .footer-logo { display: flex; align-items: center; gap: 8px; font-size: 14px; font-weight: 500; color: #1a1a1a; }
+    .footer-links { display: flex; gap: 20px; }
+    .footer-link { font-size: 12px; color: #aaa; text-decoration: none; }
+    .footer-link:hover { color: #555; }
+    .footer-copy { font-size: 12px; color: #aaa; }
   </style>
 </head>
 <body>
-  <div class="splash">
-    <div class="orb">✉</div>
-    <h1>Lingua Letters</h1>
-    <p>A cultural pen pal platform for language learners.</p>
-    <a class="btn" href="/login.html">Get started</a>
+
+<nav class="nav">
+  <a class="logo" href="/"><div class="orb">✉</div>Lingua Letters</a>
+  <div class="spacer"></div>
+  <a class="nav-link" href="#how">How it works</a>
+  <a class="nav-link" href="#safety">Safety</a>
+  <a class="nav-link" href="#accounts">For teachers</a>
+  <a class="nav-btn" href="/login.html">Get started</a>
+</nav>
+
+<section class="hero">
+  <div class="hero-badge">✉ Now open for early access</div>
+  <h1 class="hero-title">Letters that cross<br><span>language and culture</span></h1>
+  <p class="hero-sub">Connect students across the world through meaningful pen pal letters. Practice languages, discover cultures, and build real friendships — safely.</p>
+  <div class="hero-btns">
+    <a class="btn-primary" href="/login.html">Start writing letters →</a>
+    <a class="btn-secondary" href="#how">See how it works</a>
   </div>
+</section>
+
+<section class="features" id="features">
+  <div class="features-title">Everything language learning should be</div>
+  <div class="features-sub">Not flashcards. Real letters. Real people. Real culture.</div>
+  <div class="features-grid">
+    <div class="feature-card">
+      <div class="feature-icon">✉</div>
+      <div class="feature-title">Letter-based, not instant messaging</div>
+      <div class="feature-sub">One thoughtful letter a day. Students learn to write with a proper greeting, body, and sign-off — skills that last a lifetime.</div>
+    </div>
+    <div class="feature-card">
+      <div class="feature-icon">🌍</div>
+      <div class="feature-title">Real cultural exchange</div>
+      <div class="feature-sub">Every letter comes with cultural tips — how greetings differ, what sign-offs mean, what questions to ask. Language learning meets cultural education.</div>
+    </div>
+    <div class="feature-card">
+      <div class="feature-icon">✏</div>
+      <div class="feature-title">Grammar feedback built in</div>
+      <div class="feature-sub">After each letter is reviewed, students get a gentle 1-2 sentence grammar note. Encouraging, not overwhelming.</div>
+    </div>
+    <div class="feature-card">
+      <div class="feature-icon">🛡</div>
+      <div class="feature-title">AI safety on every letter</div>
+      <div class="feature-sub">Every letter passes through AI review before delivery. Flagged letters are never sent — teachers and parents are notified immediately.</div>
+    </div>
+    <div class="feature-card">
+      <div class="feature-icon">🏫</div>
+      <div class="feature-title">Built for classrooms</div>
+      <div class="feature-sub">Teachers can lock the interface to target language only, set one-letter-per-day limits, review all letters, and match students with pen pals worldwide.</div>
+    </div>
+    <div class="feature-card">
+      <div class="feature-icon">👨‍👩‍👧</div>
+      <div class="feature-title">Parents always in the loop</div>
+      <div class="feature-sub">Parents approve pen pal connections, receive instant flag notifications, and can read all their child's letters at any time.</div>
+    </div>
+  </div>
+</section>
+
+<section class="how" id="how">
+  <div class="how-inner">
+    <div class="how-title">How it works</div>
+    <div class="how-sub">Simple for students, powerful for teachers</div>
+    <div class="steps">
+      <div class="step">
+        <div class="step-num">1</div>
+        <div class="step-title">Create an account</div>
+        <div class="step-sub">School accounts connect to a teacher with a class code. Home accounts connect to a parent.</div>
+      </div>
+      <div class="step">
+        <div class="step-num">2</div>
+        <div class="step-title">Get matched</div>
+        <div class="step-sub">Your teacher matches you with a pen pal from a partner class, or connect in person using a code.</div>
+      </div>
+      <div class="step">
+        <div class="step-num">3</div>
+        <div class="step-title">Write your first letter</div>
+        <div class="step-sub">Choose a greeting, write your letter, pick a sign-off. Cultural tips guide you through every step.</div>
+      </div>
+      <div class="step">
+        <div class="step-num">4</div>
+        <div class="step-title">AI reviews it</div>
+        <div class="step-sub">Every letter passes through safety review before delivery. Appropriate letters are sent with grammar feedback.</div>
+      </div>
+      <div class="step">
+        <div class="step-num">5</div>
+        <div class="step-title">Exchange and grow</div>
+        <div class="step-sub">Write back and forth. Learn the language. Learn the culture. Make a real friend.</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section class="accounts" id="accounts">
+  <div class="accounts-title">An account for everyone</div>
+  <div class="accounts-sub">Each account type is designed for a specific role — and they work together seamlessly</div>
+  <div class="accounts-grid">
+    <div class="account-card">
+      <div class="account-icon">🏫</div>
+      <div class="account-title">School account</div>
+      <div class="account-sub">For students in a class. Teacher manages matching, language settings, and reviews. Parent optionally connected.</div>
+    </div>
+    <div class="account-card">
+      <div class="account-icon">🏠</div>
+      <div class="account-title">Home account</div>
+      <div class="account-sub">For independent learners. No teacher needed. Parent required for under 18. Full control over experience.</div>
+    </div>
+    <div class="account-card">
+      <div class="account-icon">📚</div>
+      <div class="account-title">Teacher account</div>
+      <div class="account-sub">Create a class, find partner classes worldwide, match students, review letters, and manage flag settings.</div>
+    </div>
+    <div class="account-card">
+      <div class="account-icon">👨‍👩‍👧</div>
+      <div class="account-title">Parent account</div>
+      <div class="account-sub">Approve connections, read all letters, manage safety settings, and receive instant notifications. Works with school and home accounts.</div>
+    </div>
+    <div class="account-card">
+      <div class="account-icon">🌍</div>
+      <div class="account-title">Solo learner</div>
+      <div class="account-sub">For adults 18 and over. Complete independence. AI moderation always on.</div>
+    </div>
+  </div>
+</section>
+
+<section class="safety" id="safety">
+  <div class="safety-inner">
+    <div class="safety-title">Safety is not an afterthought</div>
+    <div class="safety-sub">Every design decision in Lingua Letters starts with one question — is this safe for students? Here's what that looks like in practice.</div>
+    <div class="safety-points">
+      <div class="safety-point">
+        <div class="safety-point-title">🤖 AI reviews every letter</div>
+        <div class="safety-point-sub">Before any letter is delivered it passes through multiple AI safety checks.</div>
+      </div>
+      <div class="safety-point">
+        <div class="safety-point-title">🚩 Flagged = never sent</div>
+        <div class="safety-point-sub">A flagged letter is held immediately and never reaches the recipient.</div>
+      </div>
+      <div class="safety-point">
+        <div class="safety-point-title">👁 Teachers see everything</div>
+        <div class="safety-point-sub">School account teachers can read all letters in their class at any time.</div>
+      </div>
+      <div class="safety-point">
+        <div class="safety-point-title">📱 Parents approve connections</div>
+        <div class="safety-point-sub">No pen pal connection is active until a parent approves it for under-18 accounts.</div>
+      </div>
+      <div class="safety-point">
+        <div class="safety-point-title">✏ Students can explain</div>
+        <div class="safety-point-sub">When flagged, students can write a 2-sentence explanation. AI and adults decide together.</div>
+      </div>
+      <div class="safety-point">
+        <div class="safety-point-title">🔒 Strict flag rules</div>
+        <div class="safety-point-sub">Teachers and parents each set their own rules. When they conflict, the stricter one always wins.</div>
+      </div>
+    </div>
+    <a class="btn-primary" href="/login.html" style="background:white;color:#1D9E75;">Get started for free →</a>
+  </div>
+</section>
+
+<section class="cta">
+  <div class="cta-title">Ready to connect your class to the world?</div>
+  <div class="cta-sub">Lingua Letters is free to start. Create a teacher account, set up your class, and your students can be writing to pen pals across the globe within minutes.</div>
+  <div style="display:flex;gap:12px;justify-content:center;flex-wrap:wrap;">
+    <a class="btn-primary" href="/login.html">Create a teacher account</a>
+    <a class="btn-secondary" href="/login.html">Sign up as a student</a>
+  </div>
+</section>
+
+<footer class="footer">
+  <div class="footer-logo"><div class="orb" style="width:22px;height:22px;font-size:12px;">✉</div>Lingua Letters</div>
+  <div class="footer-links">
+    <a class="footer-link" href="#">Privacy policy</a>
+    <a class="footer-link" href="#">Terms of use</a>
+    <a class="footer-link" href="#">Safety</a>
+    <a class="footer-link" href="#">Contact</a>
+  </div>
+  <div class="footer-copy">© 2026 Lingua Letters</div>
+</footer>
+
 </body>
 </html>
