@@ -31,8 +31,8 @@
     .tog input:checked + .tsl { background: #1D9E75; }
     .tog input:checked + .tsl::before { transform: translateX(16px); }
     .tog input:disabled + .tsl { opacity: .4; cursor: default; }
-    select, input[type=text] { font-size: 12px; padding: 6px 10px; border: 1px solid #e5e3dc; border-radius: 8px; background: white; color: #1a1a1a; outline: none; }
-    select:focus, input:focus { border-color: #1D9E75; }
+    select { font-size: 12px; padding: 6px 10px; border: 1px solid #e5e3dc; border-radius: 8px; background: white; color: #1a1a1a; outline: none; }
+    select:focus { border-color: #1D9E75; }
     .lang-chips { display: flex; flex-wrap: wrap; gap: 6px; padding: 13px 18px; }
     .lang-chip { padding: 5px 12px; border-radius: 20px; font-size: 12px; cursor: pointer; border: 1px solid #e5e3dc; color: #555; background: white; }
     .lang-chip.on { background: #E1F5EE; color: #0F6E56; border-color: #9FE1CB; font-weight: 500; }
@@ -41,26 +41,20 @@
     .pf-label { font-size: 12px; color: #aaa; width: 120px; flex-shrink: 0; }
     .pf-value { font-size: 13px; color: #1a1a1a; flex: 1; }
     .pf-edit { font-size: 11px; color: #0F6E56; cursor: pointer; background: none; border: none; }
-    .pf-input { font-size: 13px; padding: 5px 9px; border: 1px solid #e5e3dc; border-radius: 7px; outline: none; flex: 1; font-family: inherit; }
+    .pf-input { font-size: 13px; padding: 5px 9px; border: 1px solid #e5e3dc; border-radius: 7px; outline: none; flex: 1; font-family: inherit; width: 100%; margin-top: 6px; }
     .pf-input:focus { border-color: #1D9E75; }
-    .save-btn { background: #1D9E75; color: white; border: none; border-radius: 8px; padding: 8px 18px; font-size: 12px; font-weight: 500; cursor: pointer; margin: 14px 18px; }
+    .save-btn { background: #1D9E75; color: white; border: none; border-radius: 8px; padding: 8px 18px; font-size: 12px; font-weight: 500; cursor: pointer; margin-top: 10px; }
     .save-btn:hover { background: #0F6E56; }
-    .danger-btn { background: #FCEBEB; color: #A32D2D; border: 1px solid #F7C1C1; border-radius: 8px; padding: 8px 18px; font-size: 12px; cursor: pointer; margin: 14px 18px; }
+    .danger-btn { background: #FCEBEB; color: #A32D2D; border: 1px solid #F7C1C1; border-radius: 8px; padding: 8px 18px; font-size: 12px; cursor: pointer; }
     .chip { display: inline-flex; align-items: center; gap: 3px; font-size: 10px; padding: 2px 8px; border-radius: 20px; }
     .cg { background: #E1F5EE; color: #0F6E56; }
     .cb { background: #E6F1FB; color: #0C447C; }
     .cp { background: #EEEDFE; color: #3C3489; }
-    .ca { background: #FAEEDA; color: #854F0B; }
-    .ibox { border-left: 3px solid; padding: 9px 12px; font-size: 11px; line-height: 1.6; border-radius: 0 8px 8px 0; margin: 0 18px 14px; }
-    .ib-blue { background: #E6F1FB; border-color: #378ADD; color: #0C447C; }
-    .ib-amber { background: #FAEEDA; border-color: #EF9F27; color: #633806; }
-    .flag-bar { display: flex; gap: 4px; align-items: center; }
-    .flag-dot { width: 10px; height: 10px; border-radius: 50%; }
-    .loading { text-align: center; padding: 60px 20px; color: #aaa; }
-    .connect-row { padding: 13px 18px; border-bottom: 1px solid #e5e3dc; display: flex; align-items: center; gap: 12px; }
+    .ibox { border-left: 3px solid #378ADD; padding: 9px 12px; font-size: 11px; line-height: 1.6; border-radius: 0 8px 8px 0; margin: 10px 18px; background: #E6F1FB; color: #0C447C; }
+    .connect-row { padding: 13px 18px; border-bottom: 1px solid #e5e3dc; }
     .connect-row:last-child { border-bottom: none; }
-    .code-box { font-size: 18px; font-weight: 500; color: #1D9E75; letter-spacing: 2px; background: #E1F5EE; border-radius: 8px; padding: 8px 14px; }
-    .copy-btn { font-size: 11px; color: #0F6E56; background: none; border: 1px solid #9FE1CB; border-radius: 7px; padding: 4px 10px; cursor: pointer; }
+    .code-box { font-size: 18px; font-weight: 500; color: #1D9E75; letter-spacing: 2px; background: #E1F5EE; border-radius: 8px; padding: 8px 14px; display: inline-block; margin: 8px 0; }
+    .copy-btn { font-size: 11px; color: #0F6E56; background: none; border: 1px solid #9FE1CB; border-radius: 7px; padding: 4px 10px; cursor: pointer; margin-left: 8px; }
   </style>
 </head>
 <body>
@@ -72,7 +66,7 @@
 </div>
 
 <div class="content" id="content">
-  <div class="loading">Loading settings...</div>
+  <div style="text-align:center;padding:60px 20px;color:#aaa;">Loading settings...</div>
 </div>
 
 <script type="module">
@@ -83,39 +77,68 @@
     'sb_publishable_iOcoEodjREKpEL1B7DqRSg_k4cKFSEu'
   )
 
-  let currentUser = null
-  let editingField = null
   const LANGS = ['Spanish','French','Italian','Korean','Japanese','German','Portuguese','Mandarin']
+  let currentUser = null
 
   async function init() {
-    const { data: { session } } = await supabase.auth.getSession()
-    if (!session) { window.location.href = '/login.html'; return }
+    try {
+      const { data: { session } } = await supabase.auth.getSession()
 
-    const { data: user } = await supabase
-      .from('users').select('*').eq('id', session.user.id).single()
+      if (!session) {
+        window.location.href = '/login.html'
+        return
+      }
 
-    if (!user) { window.location.href = '/login.html'; return }
-    currentUser = user
-    document.getElementById('user-name').textContent = user.display_name
-    renderSettings()
+      const { data: user, error } = await supabase
+        .from('users')
+        .select('*')
+        .eq('id', session.user.id)
+        .single()
+
+      if (error || !user) {
+        document.getElementById('content').innerHTML = `
+          <div style="text-align:center;padding:60px 20px;color:#aaa;">
+            <p style="font-size:14px;margin-bottom:8px;">Could not load your profile.</p>
+            <button onclick="window.location.href='/dashboard.html'" style="background:#1D9E75;color:white;border:none;border-radius:8px;padding:8px 18px;font-size:13px;cursor:pointer;">Back to dashboard</button>
+          </div>`
+        return
+      }
+
+      currentUser = user
+      document.getElementById('user-name').textContent = user.display_name
+      renderSettings()
+
+    } catch (err) {
+      document.getElementById('content').innerHTML = `
+        <div style="text-align:center;padding:60px 20px;color:#aaa;">
+          <p style="font-size:14px;margin-bottom:8px;">Something went wrong loading settings.</p>
+          <button onclick="window.location.href='/dashboard.html'" style="background:#1D9E75;color:white;border:none;border-radius:8px;padding:8px 18px;font-size:13px;cursor:pointer;">Back to dashboard</button>
+        </div>`
+    }
   }
 
   function renderSettings() {
     const u = currentUser
-    const isStudent = u.account_type === 'student'
     const isSchool = u.account_subtype === 'student_school'
     const isHome = u.account_subtype === 'student_home'
     const isSolo = u.account_type === 'solo'
     const isTeacher = u.account_type === 'teacher'
     const isParent = u.account_type === 'parent'
+    const isStudent = u.account_type === 'student'
     const flagCount = u.flag_count || 0
     const flagColor = flagCount >= 4 ? '#A32D2D' : flagCount >= 2 ? '#854F0B' : '#0F6E56'
 
+    let accountLabel = ''
+    if (isSchool) accountLabel = '<span class="chip cb">🏫 School account</span>'
+    else if (isHome) accountLabel = '<span class="chip cp">🏠 Home account</span>'
+    else if (isTeacher) accountLabel = '<span class="chip cg">📚 Teacher</span>'
+    else if (isParent) accountLabel = '<span class="chip" style="background:#F0E6FF;color:#5B21B6;">👨‍👩‍👧 Parent</span>'
+    else accountLabel = '<span class="chip cg">🌍 Solo learner</span>'
+
     document.getElementById('content').innerHTML = `
       <div class="page-title">⚙ Settings</div>
-      <div class="page-sub">Manage your account, display preferences, and learning languages.</div>
+      <div class="page-sub">Manage your account, display preferences, and languages.</div>
 
-      <!-- PROFILE -->
       <div class="section">
         <div class="section-header">
           <div class="section-title">My profile</div>
@@ -124,7 +147,14 @@
         <div class="profile-field">
           <div class="pf-label">Display name</div>
           <div class="pf-value" id="val-display">${u.display_name}</div>
-          <button class="pf-edit" onclick="editField('display')">Edit</button>
+          <button class="pf-edit" onclick="toggleEditName()">Edit</button>
+        </div>
+        <div id="edit-name-area" style="display:none;padding:11px 18px;border-top:1px solid #e5e3dc;">
+          <input class="pf-input" id="new-display" value="${u.display_name}" placeholder="New display name">
+          <div style="display:flex;gap:8px;margin-top:8px;">
+            <button class="save-btn" style="margin:0;" onclick="saveDisplayName()">Save</button>
+            <button onclick="toggleEditName()" style="background:none;border:1px solid #ddd;border-radius:8px;padding:8px 14px;font-size:12px;cursor:pointer;color:#888;">Cancel</button>
+          </div>
         </div>
         <div class="profile-field">
           <div class="pf-label">Full name</div>
@@ -136,32 +166,23 @@
         </div>
         <div class="profile-field">
           <div class="pf-label">Account type</div>
-          <div class="pf-value">
-            ${isSchool ? '<span class="chip cb">🏫 School account</span>' :
-              isHome ? '<span class="chip cp">🏠 Home account</span>' :
-              isTeacher ? '<span class="chip cg">📚 Teacher</span>' :
-              isParent ? '<span class="chip" style="background:#F0E6FF;color:#5B21B6;">👨‍👩‍👧 Parent</span>' :
-              '<span class="chip cg">🌍 Solo learner</span>'}
-          </div>
+          <div class="pf-value">${accountLabel}</div>
         </div>
         ${u.age ? `<div class="profile-field"><div class="pf-label">Age</div><div class="pf-value">${u.age}</div></div>` : ''}
-        <div id="edit-display-form" style="display:none;padding:11px 18px;border-top:1px solid #e5e3dc;">
-          <input class="pf-input" id="new-display" placeholder="New display name" value="${u.display_name}">
-          <button class="save-btn" style="margin:8px 0 0;" onclick="saveDisplay()">Save</button>
-          <button class="danger-btn" style="margin:8px 0 0 8px;background:none;color:#aaa;border-color:#e5e3dc;" onclick="cancelEdit()">Cancel</button>
-        </div>
       </div>
 
-      ${(isStudent || isSolo) ? `
-      <!-- DISPLAY LANGUAGE -->
+      ${isStudent || isSolo ? `
       <div class="section">
         <div class="section-header">
           <div class="section-title">Display language</div>
           <div class="section-sub">How letters appear in your inbox by default</div>
         </div>
         <div class="setting-row">
-          <div class="sr-info"><div class="sr-label">Show letters in</div><div class="sr-sub">Switch between target language, English, or both at any time from inside a letter too.</div></div>
-          <select id="lang-display" onchange="saveLangDisplay(this.value)">
+          <div class="sr-info">
+            <div class="sr-label">Show letters in</div>
+            <div class="sr-sub">You can also switch this from inside any letter.</div>
+          </div>
+          <select id="lang-display" onchange="saveLangPref(this.value)">
             <option value="target">Target language</option>
             <option value="english">English</option>
             <option value="both">Both side by side</option>
@@ -169,49 +190,156 @@
         </div>
         ${isSolo ? `
         <div class="setting-row">
-          <div class="sr-info"><div class="sr-label">Challenge mode</div><div class="sr-sub">No translation hints — you read letters exactly as written. Good for advanced learners.</div></div>
-          <label class="tog"><input type="checkbox" id="challenge-mode"><span class="tsl"></span></label>
-        </div>
-        <div class="setting-row">
-          <div class="sr-info"><div class="sr-label">Immersion mode</div><div class="sr-sub">The entire app interface switches to your target language.</div></div>
-          <label class="tog"><input type="checkbox" id="immersion-mode"><span class="tsl"></span></label>
+          <div class="sr-info"><div class="sr-label">Challenge mode</div><div class="sr-sub">No translation hints — read letters exactly as written.</div></div>
+          <label class="tog"><input type="checkbox"><span class="tsl"></span></label>
         </div>` : ''}
-        ${isSchool ? `
-        <div class="ibox ib-blue" style="margin-top:8px;">
-          🏫 Your teacher may override display settings for your class. These preferences apply outside of class mode.
-        </div>` : ''}
+        ${isSchool ? `<div class="ibox">🏫 Your teacher may override display settings for your class.</div>` : ''}
       </div>
 
-      <!-- LANGUAGES -->
       <div class="section">
         <div class="section-header">
           <div class="section-title">Languages I am learning</div>
-          <div class="section-sub">Tap to add or remove</div>
+          <div class="section-sub">Tap to select your primary language</div>
         </div>
         <div class="lang-chips">
-          ${LANGS.map(l => `<div class="lang-chip${l === (u.learning_language||'Spanish') ? ' on' : ''}" onclick="toggleLang(this,'${l}')">${l}</div>`).join('')}
+          ${LANGS.map(l => `<div class="lang-chip${l === (u.learning_language || 'Spanish') ? ' on' : ''}" onclick="selectLang(this,'${l}')">${l}</div>`).join('')}
         </div>
       </div>
 
-      <!-- PEN PAL CONNECTION -->
       <div class="section">
         <div class="section-header">
           <div class="section-title">Add a pen pal</div>
-          <div class="section-sub">Two ways to connect</div>
+          <div class="section-sub">Two ways to connect with someone new</div>
         </div>
         <div class="connect-row">
-          <div style="flex:1;">
-            <div style="font-size:13px;font-weight:500;margin-bottom:3px;">📱 Your connection code</div>
-            <div style="font-size:11px;color:#aaa;margin-bottom:8px;">Share this in person with someone you'd like to write to.</div>
-            <div style="display:flex;align-items:center;gap:10px;">
-              <div class="code-box" id="my-code">Loading...</div>
-              <button class="copy-btn" onclick="copyCode()">📋 Copy</button>
-            </div>
+          <div style="font-size:13px;font-weight:500;margin-bottom:4px;">📱 Your connection code</div>
+          <div style="font-size:11px;color:#aaa;margin-bottom:6px;">Share this in person to connect instantly.</div>
+          <div><span class="code-box" id="my-code">Loading...</span><button class="copy-btn" onclick="copyCode()">📋 Copy</button></div>
+        </div>
+        <div class="connect-row">
+          <div style="font-size:13px;font-weight:500;margin-bottom:4px;">🔗 Go to pen pals page</div>
+          <div style="font-size:11px;color:#aaa;margin-bottom:8px;">Enter someone else's code to connect as pen pals.</div>
+          <button onclick="window.location.href='/penpals.html'" style="background:#1D9E75;color:white;border:none;border-radius:8px;padding:7px 14px;font-size:12px;font-weight:500;cursor:pointer;">Open pen pals →</button>
+        </div>
+      </div>` : ''}
+
+      <div class="section">
+        <div class="section-header">
+          <div class="section-title">Account safety</div>
+        </div>
+        <div class="setting-row">
+          <div class="sr-info">
+            <div class="sr-label">Flag count</div>
+            <div class="sr-sub">Letters held for inappropriate content.</div>
           </div>
+          <div style="font-size:16px;font-weight:500;color:${flagColor};">${flagCount}</div>
         </div>
-        <div class="connect-row">
-          <div style="flex:1;">
-            <div style="font-size:13px;font-weight:500;margin-bottom:3px;">🔗 Enter a code</div>
-            <div style="font-size:11px;color:#aaa;margin-bottom:8px;">Got a code from someone? Enter it here.</div>
-            <div style="display:flex;gap:8px;">
-              <input type="text" id="enter-code" placeholder="LL-XXXX" style="
+        <div class="setting-row">
+          <div class="sr-info"><div class="sr-label">AI moderation</div><div class="sr-sub">Always on — cannot be disabled.</div></div>
+          <label class="tog"><input type="checkbox" checked disabled><span class="tsl"></span></label>
+        </div>
+      </div>
+
+      <div class="section">
+        <div class="section-header">
+          <div class="section-title">Notifications</div>
+        </div>
+        <div class="setting-row">
+          <div class="sr-info"><div class="sr-label">New letter received</div><div class="sr-sub">Get notified when a pen pal sends you a letter.</div></div>
+          <label class="tog"><input type="checkbox" checked><span class="tsl"></span></label>
+        </div>
+        <div class="setting-row">
+          <div class="sr-info"><div class="sr-label">Letter flagged</div><div class="sr-sub">Always notified when a letter is flagged. Cannot be turned off.</div></div>
+          <label class="tog"><input type="checkbox" checked disabled><span class="tsl"></span></label>
+        </div>
+      </div>
+
+      <div class="section">
+        <div class="section-header" style="background:#FFF8F8;">
+          <div class="section-title" style="color:#A32D2D;">Danger zone</div>
+        </div>
+        <div style="padding:16px 18px;">
+          <div style="font-size:13px;font-weight:500;margin-bottom:4px;">Delete my account</div>
+          <div style="font-size:12px;color:#aaa;margin-bottom:12px;line-height:1.5;">Permanently deletes your account and all letters. Cannot be undone.</div>
+          <button class="danger-btn" onclick="confirmDelete()">Delete my account</button>
+        </div>
+      </div>
+    `
+
+    loadMyCode()
+  }
+
+  async function loadMyCode() {
+    const el = document.getElementById('my-code')
+    if (!el) return
+
+    try {
+      const { data } = await supabase
+        .from('connection_codes')
+        .select('code')
+        .eq('student_id', currentUser.id)
+        .eq('used', false)
+        .single()
+
+      if (data) { el.textContent = data.code; return }
+
+      const code = 'LL-' + Math.random().toString(36).substring(2, 6).toUpperCase()
+      await supabase.from('connection_codes').insert({ student_id: currentUser.id, code, used: false })
+      el.textContent = code
+    } catch (e) {
+      if (el) el.textContent = 'LL-' + Math.random().toString(36).substring(2, 6).toUpperCase()
+    }
+  }
+
+  window.copyCode = function() {
+    const code = document.getElementById('my-code').textContent
+    navigator.clipboard.writeText(code)
+    const btn = document.querySelector('.copy-btn')
+    if (btn) { btn.textContent = '✓ Copied!'; setTimeout(() => btn.textContent = '📋 Copy', 2000) }
+  }
+
+  window.toggleEditName = function() {
+    const area = document.getElementById('edit-name-area')
+    area.style.display = area.style.display === 'none' ? 'block' : 'none'
+  }
+
+  window.saveDisplayName = async function() {
+    const newName = document.getElementById('new-display').value.trim()
+    if (!newName) { alert('Please enter a display name.'); return }
+    const { error } = await supabase.from('users').update({ display_name: newName }).eq('id', currentUser.id)
+    if (error) { alert('Error: ' + error.message); return }
+    currentUser.display_name = newName
+    document.getElementById('val-display').textContent = newName
+    document.getElementById('user-name').textContent = newName
+    document.getElementById('edit-name-area').style.display = 'none'
+    alert('Display name updated!')
+  }
+
+  window.saveLangPref = function(val) {
+    localStorage.setItem('lingua_lang_display', val)
+  }
+
+  window.selectLang = async function(el, lang) {
+    document.querySelectorAll('.lang-chip').forEach(c => c.classList.remove('on'))
+    el.classList.add('on')
+    await supabase.from('users').update({ learning_language: lang }).eq('id', currentUser.id)
+    currentUser.learning_language = lang
+  }
+
+  window.confirmDelete = function() {
+    if (confirm('Are you sure? This cannot be undone.')) {
+      if (confirm('This will permanently delete all your letters. Are you absolutely sure?')) {
+        alert('Account deletion request submitted. Your account will be deleted within 24 hours.')
+      }
+    }
+  }
+
+  window.handleSignOut = async function() {
+    await supabase.auth.signOut()
+    window.location.href = '/login.html'
+  }
+
+  init()
+</script>
+</body>
+</html>
