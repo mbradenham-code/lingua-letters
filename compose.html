@@ -18,9 +18,9 @@
     .card { background: white; border: 1px solid #e5e3dc; border-radius: 14px; overflow: hidden; margin-bottom: 16px; }
     .card-section { padding: 16px 20px; border-bottom: 1px solid #e5e3dc; }
     .card-section:last-child { border-bottom: none; }
-    .section-label { font-size: 10px; color: #aaa; letter-spacing: .06em; text-transform: uppercase; font-weight: 500; margin-bottom: 8px; display: flex; align-items: center; gap: 5px; }
+    .section-label { font-size: 10px; color: #aaa; letter-spacing: .06em; text-transform: uppercase; font-weight: 500; margin-bottom: 8px; }
     .section-hint { font-size: 11px; color: #aaa; font-style: italic; margin-top: 6px; line-height: 1.5; }
-    select, input[type=text], input[type=email] { width: 100%; padding: 9px 12px; border: 1px solid #e5e3dc; border-radius: 8px; font-size: 13px; font-family: inherit; color: #1a1a1a; background: white; outline: none; }
+    select, input[type=text] { width: 100%; padding: 9px 12px; border: 1px solid #e5e3dc; border-radius: 8px; font-size: 13px; font-family: inherit; color: #1a1a1a; background: white; outline: none; }
     select:focus, input:focus { border-color: #1D9E75; }
     .custom-input { margin-top: 8px; border: 1px solid #e5e3dc; border-radius: 8px; padding: 8px 12px; font-size: 13px; font-family: inherit; color: #1a1a1a; background: white; outline: none; width: 100%; }
     .custom-input:focus { border-color: #1D9E75; }
@@ -30,18 +30,13 @@
     .footer-bar { display: flex; align-items: center; gap: 10px; padding: 14px 20px; background: white; border-top: 1px solid #e5e3dc; border-radius: 0 0 14px 14px; }
     .footer-note { flex: 1; font-size: 10px; color: #aaa; line-height: 1.5; }
     .discard-btn { background: none; border: 1px solid #ddd; border-radius: 8px; padding: 8px 16px; font-size: 12px; color: #888; cursor: pointer; }
-    .send-btn { background: #1D9E75; color: white; border: none; border-radius: 8px; padding: 9px 20px; font-size: 13px; font-weight: 500; cursor: pointer; display: flex; align-items: center; gap: 6px; }
+    .send-btn { background: #1D9E75; color: white; border: none; border-radius: 8px; padding: 9px 20px; font-size: 13px; font-weight: 500; cursor: pointer; }
     .send-btn:hover { background: #0F6E56; }
     .send-btn:disabled { background: #aaa; cursor: default; }
-    .modal-bg { position: fixed; inset: 0; background: rgba(0,0,0,0.4); display: flex; align-items: center; justify-content: center; z-index: 100; }
-    .modal { background: white; border-radius: 14px; padding: 28px; max-width: 420px; width: 90%; }
-    .modal h3 { font-size: 16px; font-weight: 500; margin-bottom: 8px; }
-    .modal p { font-size: 13px; color: #666; margin-bottom: 16px; line-height: 1.6; }
-    .modal textarea { border: 1px solid #e5e3dc; border-radius: 8px; padding: 10px 12px; font-size: 13px; font-family: inherit; width: 100%; resize: none; outline: none; min-height: 80px; }
-    .modal textarea:focus { border-color: #1D9E75; }
-    .modal-actions { display: flex; gap: 8px; justify-content: flex-end; margin-top: 14px; }
-    .modal-cancel { background: none; border: 1px solid #ddd; border-radius: 8px; padding: 7px 14px; font-size: 12px; cursor: pointer; color: #888; }
-    .modal-submit { background: #1D9E75; color: white; border: none; border-radius: 8px; padding: 7px 14px; font-size: 12px; font-weight: 500; cursor: pointer; }
+    .loading-overlay { position: fixed; inset: 0; background: rgba(255,255,255,0.9); display: flex; flex-direction: column; align-items: center; justify-content: center; z-index: 200; gap: 14px; }
+    .loading-spinner { width: 36px; height: 36px; border: 3px solid #e5e3dc; border-top-color: #1D9E75; border-radius: 50%; animation: spin 0.8s linear infinite; }
+    @keyframes spin { to { transform: rotate(360deg); } }
+    .loading-msg { font-size: 14px; color: #555; }
     .success-card { background: white; border: 1px solid #e5e3dc; border-radius: 14px; padding: 36px; text-align: center; }
     .success-icon { font-size: 48px; margin-bottom: 14px; }
     .success-title { font-size: 18px; font-weight: 500; margin-bottom: 6px; }
@@ -52,12 +47,10 @@
     .flagged-title { font-size: 16px; font-weight: 500; color: #854F0B; margin-bottom: 6px; }
     .flagged-reason { font-size: 13px; color: #633806; margin-bottom: 16px; line-height: 1.6; }
     .explain-label { font-size: 12px; font-weight: 500; color: #854F0B; margin-bottom: 6px; }
+    .explain-textarea { width: 100%; border: 1px solid #FAC775; border-radius: 8px; padding: 10px 12px; font-size: 13px; font-family: inherit; resize: none; outline: none; min-height: 80px; background: white; }
+    .explain-textarea:focus { border-color: #854F0B; }
     .char-count { font-size: 11px; color: #aaa; text-align: right; margin-top: 4px; }
     .submit-explain-btn { background: #854F0B; color: white; border: none; border-radius: 8px; padding: 9px 18px; font-size: 13px; font-weight: 500; cursor: pointer; margin-top: 10px; }
-    .loading-overlay { position: fixed; inset: 0; background: rgba(255,255,255,0.9); display: flex; flex-direction: column; align-items: center; justify-content: center; z-index: 200; gap: 14px; }
-    .loading-spinner { width: 36px; height: 36px; border: 3px solid #e5e3dc; border-top-color: #1D9E75; border-radius: 50%; animation: spin 0.8s linear infinite; }
-    @keyframes spin { to { transform: rotate(360deg); } }
-    .loading-msg { font-size: 14px; color: #555; }
   </style>
 </head>
 <body>
@@ -77,7 +70,7 @@
   </div>
 
   <div class="safety-note">
-    🛡 <div>Your letter is reviewed by AI before delivery. If anything is flagged it will <strong>never be sent</strong> — you'll be notified and can explain.</div>
+    🛡 <div>Your letter is reviewed by AI before delivery. If flagged it will <strong>never be sent</strong> — you'll be notified and can explain.</div>
   </div>
 
   <div class="card">
@@ -87,12 +80,10 @@
         <option value="">— Select your pen pal —</option>
       </select>
     </div>
-
     <div class="card-section">
       <div class="section-label">② Subject</div>
       <input type="text" id="subject" placeholder="e.g. My first letter to you!">
     </div>
-
     <div class="card-section">
       <div class="section-label">③ Greeting / salutation</div>
       <select id="greeting-select" onchange="onGreetingChange()">
@@ -101,24 +92,21 @@
       <input type="text" id="greeting-custom" class="custom-input" placeholder="Or write your own greeting...">
       <div class="section-hint">Sets the tone — "Estimada" is formal, "Querida" is warm. Every culture opens letters differently!</div>
     </div>
-
     <div class="card-section">
       <div class="section-label">④ Body — your letter</div>
       <textarea id="body" placeholder="Share something about yourself, your city, or your school. Ask your pen pal at least one question about their culture..."></textarea>
-      <div class="section-hint">A great letter: one personal story, one cultural observation, one genuine question for them.</div>
+      <div class="section-hint">A great letter: one personal story, one cultural observation, one genuine question.</div>
     </div>
-
     <div class="card-section">
       <div class="section-label">⑤ Sign-off / closing</div>
       <select id="signoff-select" onchange="onSignoffChange()">
         <option value="">— Choose a sign-off —</option>
       </select>
       <input type="text" id="signoff-custom" class="custom-input" placeholder="Or write your own sign-off and name...">
-      <div class="section-hint">"Un abrazo" feels natural in Spanish even with new friends. French closings can be an entire sentence!</div>
+      <div class="section-hint">"Un abrazo" feels natural in Spanish even with new friends!</div>
     </div>
-
     <div class="footer-bar">
-      <div class="footer-note">AI reviewed · teacher sees all · flagged letters are never sent · grammar feedback after sending</div>
+      <div class="footer-note">AI reviewed · teacher sees all · flagged letters never sent · grammar feedback after sending</div>
       <button class="discard-btn" onclick="window.location.href='/inbox.html'">Discard</button>
       <button class="send-btn" id="send-btn" onclick="sendLetter()">✉ Send for review</button>
     </div>
@@ -134,14 +122,14 @@
   )
 
   const CULTURE_TIPS = {
-    Spanish: 'In Spanish letters, "Querida/o" feels warm and natural even with new pen pals. Ask about family early — it shows genuine respect and interest.',
+    Spanish: 'In Spanish letters, "Querida/o" feels warm and natural even with new pen pals. Ask about family early — it shows genuine respect.',
     French: 'French letters have elaborate closing formulas far more formal than English. Even casual letters tend toward formality.',
     Italian: 'Italian letters are warm and expressive. Italians love mentioning food and family — ask about both!',
-    Korean: 'Korean letters often open by acknowledging the season — a culturally meaningful gesture. Politeness levels matter greatly.',
-    Japanese: 'Japanese letters traditionally open with a seasonal greeting before any personal content. Modesty and politeness are highly valued.',
-    German: 'German letters tend to be direct and well-structured. A clear subject and organized paragraphs are appreciated.',
-    Portuguese: '"Querido/a" works warmly in Portuguese too. Brazilians tend to be expressive and personal; Portuguese letters are slightly more formal.',
-    Mandarin: 'Chinese letters often begin with wishes for the recipient\'s health. Showing respect for family and elders is important.'
+    Korean: 'Korean letters often open by acknowledging the season — a culturally meaningful gesture.',
+    Japanese: 'Japanese letters traditionally open with a seasonal greeting. Modesty and politeness are highly valued.',
+    German: 'German letters tend to be direct and well-structured. Clear paragraphs are appreciated.',
+    Portuguese: '"Querido/a" works warmly in Portuguese too. Brazilians tend to be expressive and personal.',
+    Mandarin: 'Chinese letters often begin with wishes for the recipient\'s health.'
   }
 
   const GREETINGS = {
@@ -171,46 +159,51 @@
   let selectedPenPal = null
 
   async function init() {
-    const { data: { session } } = await supabase.auth.getSession()
-    if (!session) { window.location.href = '/login.html'; return }
+    try {
+      const { data: { session } } = await supabase.auth.getSession()
+      if (!session) { window.location.href = '/login.html'; return }
 
-    const { data: user } = await supabase
-      .from('users')
-      .select('*')
-      .eq('id', session.user.id)
-      .single()
+      const { data: user } = await supabase
+        .from('users').select('*').eq('id', session.user.id).single()
 
-    if (!user) { window.location.href = '/login.html'; return }
-    currentUser = user
-    loadPenPals()
+      if (!user) { window.location.href = '/login.html'; return }
+      currentUser = user
+      loadPenPals()
+    } catch (err) {
+      console.error('Init error:', err)
+    }
   }
 
   async function loadPenPals() {
-    const { data: connections } = await supabase
-      .from('pen_pal_connections')
-      .select('*, student_a_user:users!pen_pal_connections_student_a_fkey(id,display_name,learning_language), student_b_user:users!pen_pal_connections_student_b_fkey(id,display_name,learning_language)')
-      .or(`student_a.eq.${currentUser.id},student_b.eq.${currentUser.id}`)
-      .eq('status', 'active')
+    try {
+      const { data: connections } = await supabase
+        .from('pen_pal_connections')
+        .select('*, student_a_user:users!pen_pal_connections_student_a_fkey(id,display_name,learning_language), student_b_user:users!pen_pal_connections_student_b_fkey(id,display_name,learning_language)')
+        .or(`student_a.eq.${currentUser.id},student_b.eq.${currentUser.id}`)
+        .eq('status', 'active')
 
-    const select = document.getElementById('penpal-select')
+      const select = document.getElementById('penpal-select')
 
-    if (!connections || connections.length === 0) {
-      select.innerHTML = '<option value="">No pen pals yet — ask your teacher to connect you!</option>'
-      return
-    }
-
-    penPals = connections.map(c => {
-      const isA = c.student_a === currentUser.id
-      return {
-        id: isA ? c.student_b : c.student_a,
-        name: isA ? c.student_b_user?.display_name : c.student_a_user?.display_name,
-        language: isA ? c.student_b_user?.learning_language : c.student_a_user?.learning_language,
-        connectionId: c.id
+      if (!connections || connections.length === 0) {
+        select.innerHTML = '<option value="">No pen pals yet — ask your teacher to connect you!</option>'
+        return
       }
-    })
 
-    select.innerHTML = '<option value="">— Select your pen pal —</option>' +
-      penPals.map((p, i) => `<option value="${i}">${p.name}</option>`).join('')
+      penPals = connections.map(c => {
+        const isA = c.student_a === currentUser.id
+        return {
+          id: isA ? c.student_b : c.student_a,
+          name: isA ? c.student_b_user?.display_name : c.student_a_user?.display_name,
+          language: isA ? c.student_b_user?.learning_language : c.student_a_user?.learning_language,
+          connectionId: c.id
+        }
+      })
+
+      select.innerHTML = '<option value="">— Select your pen pal —</option>' +
+        penPals.map((p, i) => `<option value="${i}">${p.name}</option>`).join('')
+    } catch (err) {
+      console.error('Load pen pals error:', err)
+    }
   }
 
   window.onPenPalChange = function() {
@@ -262,11 +255,10 @@
 
     try {
       const moderationResult = await moderateLetter(fullLetter)
-
       hideLoading()
 
       if (moderationResult.flagged) {
-        showFlagged(moderationResult.reason, { greeting, body, signoff, subject })
+        await showFlagged(moderationResult.reason, { greeting, body, signoff, subject })
         return
       }
 
@@ -277,11 +269,20 @@
         status: 'delivered'
       })
 
+      // Send new letter notification email
+      await notifyNewLetter({
+        recipientId: selectedPenPal.id,
+        fromName: currentUser.display_name,
+        fromCountry: 'your pen pal\'s country',
+        subject: subject || 'A new letter',
+        bodyPreview: body
+      })
+
       showSuccess(moderationResult.grammarNote)
 
     } catch (err) {
       hideLoading()
-      console.error(err)
+      console.error('Send error:', err)
       alert('Something went wrong. Please try again.')
     }
   }
@@ -295,8 +296,8 @@
         max_tokens: 1000,
         messages: [{
           role: 'user',
-          content: `You are a content moderator for a school letter-writing platform for students aged 8-18. 
-          
+          content: `You are a content moderator for a school letter-writing platform for students aged 8-18.
+
 Review this letter and respond ONLY with a JSON object (no markdown, no backticks):
 
 {
@@ -306,7 +307,7 @@ Review this letter and respond ONLY with a JSON object (no markdown, no backtick
   "translation": "English translation of the body if it is in another language, or empty string if already in English"
 }
 
-Flag the letter if it contains: personal contact info (phone, address, email), requests to move to another platform, inappropriate language, bullying, romantic content toward the recipient, or requests to meet in person.
+Flag if it contains: personal contact info (phone, address, email), requests to move to another platform, inappropriate language, bullying, romantic content, or requests to meet in person.
 
 The letter:
 ${letterText}`
@@ -321,8 +322,6 @@ ${letterText}`
   }
 
   async function saveLetter({ greeting, body, signoff, subject, grammarNote, translation, status }) {
-    const { data: { session } } = await supabase.auth.getSession()
-
     const { data: connection } = await supabase
       .from('pen_pal_connections')
       .select('id')
@@ -346,6 +345,35 @@ ${letterText}`
     })
   }
 
+  async function notifyNewLetter({ recipientId, fromName, fromCountry, subject, bodyPreview }) {
+    try {
+      const { data: recipient } = await supabase
+        .from('users')
+        .select('email, display_name')
+        .eq('id', recipientId)
+        .single()
+
+      if (!recipient) return
+
+      await fetch('/api/send-email', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          type: 'new_letter',
+          to: recipient.email,
+          data: {
+            fromName,
+            fromCountry,
+            subject,
+            preview: bodyPreview.substring(0, 100)
+          }
+        })
+      })
+    } catch (err) {
+      console.error('Email notify error:', err)
+    }
+  }
+
   async function showFlagged(reason, letterData) {
     document.getElementById('content').innerHTML = `
       <div class="flagged-card">
@@ -357,26 +385,126 @@ ${letterText}`
           You can write a brief explanation below if you believe this was a mistake.
         </div>
         <div class="explain-label">Your explanation (optional, max 2 sentences):</div>
-        <textarea id="explanation" placeholder="Explain why you wrote this..." maxlength="300" oninput="document.getElementById('char-count').textContent=this.value.length+'/300'"></textarea>
+        <textarea class="explain-textarea" id="explanation" placeholder="Explain why you wrote this..." maxlength="300" oninput="document.getElementById('char-count').textContent=this.value.length+'/300'"></textarea>
         <div class="char-count" id="char-count">0/300</div>
         <div style="display:flex;gap:10px;margin-top:12px;">
-          <button class="submit-explain-btn" onclick="submitExplanation('${reason}')">Submit explanation</button>
+          <button class="submit-explain-btn" onclick="submitExplanation('${reason.replace(/'/g, "\\'")}')">Submit explanation</button>
           <button class="discard-btn" onclick="window.location.href='/inbox.html'">Back to inbox</button>
         </div>
       </div>`
 
-    await supabase.from('flags').insert({
-      letter_id: null,
-      student_id: currentUser.id,
-      reason,
-      ai_confidence: 'high',
-      outcome: 'pending'
-    })
+    // Save flag to database
+    try {
+      await supabase.from('flags').insert({
+        letter_id: null,
+        student_id: currentUser.id,
+        reason,
+        ai_confidence: 'high',
+        outcome: 'pending'
+      })
+    } catch (err) {
+      console.error('Flag save error:', err)
+    }
+
+    // Email student
+    try {
+      await fetch('/api/send-email', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          type: 'flag_student',
+          to: currentUser.email,
+          data: {
+            studentName: currentUser.display_name,
+            reason,
+            reviewedBy: currentUser.account_subtype === 'student_school' ? 'teacher' : 'parent'
+          }
+        })
+      })
+    } catch (err) {
+      console.error('Student email error:', err)
+    }
+
+    // Email teacher if school account
+    if (currentUser.account_subtype === 'student_school' && currentUser.teacher_id) {
+      try {
+        const { data: teacher } = await supabase
+          .from('users').select('email').eq('id', currentUser.teacher_id).single()
+
+        if (teacher) {
+          await fetch('/api/send-email', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+              type: 'flag_teacher',
+              to: teacher.email,
+              data: { studentName: currentUser.display_name, reason }
+            })
+          })
+        }
+      } catch (err) {
+        console.error('Teacher email error:', err)
+      }
+    }
+
+    // Email parent if connected
+    if (currentUser.parent_id) {
+      try {
+        const { data: parent } = await supabase
+          .from('users').select('email').eq('id', currentUser.parent_id).single()
+
+        if (parent) {
+          await fetch('/api/send-email', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+              type: 'flag_parent',
+              to: parent.email,
+              data: { childName: currentUser.display_name, reason, explanation: '' }
+            })
+          })
+        }
+      } catch (err) {
+        console.error('Parent email error:', err)
+      }
+    }
   }
 
   window.submitExplanation = async function(reason) {
     const explanation = document.getElementById('explanation').value
-    alert('Your explanation has been sent to your teacher. They will review it shortly.')
+
+    try {
+      await supabase.from('flags')
+        .update({ student_explanation: explanation })
+        .eq('student_id', currentUser.id)
+        .eq('outcome', 'pending')
+    } catch (err) {
+      console.error('Explanation save error:', err)
+    }
+
+    // Re-notify parent with explanation
+    if (currentUser.parent_id) {
+      try {
+        const { data: parent } = await supabase
+          .from('users').select('email').eq('id', currentUser.parent_id).single()
+
+        if (parent) {
+          await fetch('/api/send-email', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+              type: 'flag_parent',
+              to: parent.email,
+              data: { childName: currentUser.display_name, reason, explanation }
+            })
+          })
+        }
+      } catch (err) {
+        console.error('Parent re-notify error:', err)
+      }
+    }
+
+    alert('Your explanation has been sent. Your teacher or parent will review it shortly.')
     window.location.href = '/inbox.html'
   }
 
@@ -387,7 +515,7 @@ ${letterText}`
         <div class="success-title">Letter sent!</div>
         <div class="success-sub">
           Your letter passed AI review and has been delivered to your pen pal.
-          ${grammarNote ? '<br><br><strong>Grammar note:</strong> ' + grammarNote : ''}
+          ${grammarNote ? '<br><br><strong>✏ Grammar note:</strong> ' + grammarNote : ''}
         </div>
         <button class="back-btn" onclick="window.location.href='/inbox.html'">Back to inbox</button>
       </div>`
