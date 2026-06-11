@@ -1,0 +1,129 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Lingua Letters — Dashboard</title>
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; background: #F1EFE8; min-height: 100vh; }
+    .topbar { background: white; border-bottom: 1px solid #e5e3dc; padding: 14px 24px; display: flex; align-items: center; gap: 12px; }
+    .logo { display: flex; align-items: center; gap: 8px; font-size: 16px; font-weight: 500; color: #1a1a1a; }
+    .orb { width: 26px; height: 26px; border-radius: 50%; background: #1D9E75; display: flex; align-items: center; justify-content: center; font-size: 14px; }
+    .spacer { flex: 1; }
+    .user-name { font-size: 13px; color: #555; }
+    .signout { font-size: 12px; color: #aaa; cursor: pointer; background: none; border: none; }
+    .signout:hover { color: #555; }
+    .content { max-width: 800px; margin: 40px auto; padding: 0 20px; }
+    .welcome { background: white; border-radius: 14px; padding: 28px; margin-bottom: 20px; border: 1px solid #e5e3dc; }
+    .welcome h1 { font-size: 22px; font-weight: 500; margin-bottom: 6px; }
+    .welcome p { font-size: 14px; color: #888; }
+    .cards { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 14px; }
+    .card { background: white; border-radius: 14px; padding: 22px; border: 1px solid #e5e3dc; cursor: pointer; transition: box-shadow 0.15s; }
+    .card:hover { box-shadow: 0 4px 16px rgba(0,0,0,0.08); }
+    .card-icon { font-size: 28px; margin-bottom: 12px; }
+    .card-title { font-size: 14px; font-weight: 500; margin-bottom: 4px; }
+    .card-sub { font-size: 12px; color: #aaa; }
+    .loading { text-align: center; padding: 60px 20px; color: #aaa; font-size: 14px; }
+    .chip { display: inline-flex; font-size: 10px; padding: 2px 8px; border-radius: 20px; margin-left: 8px; background: #FAEEDA; color: #854F0B; }
+  </style>
+</head>
+<body>
+<div class="topbar">
+  <div class="logo"><div class="orb">✉</div>Lingua Letters</div>
+  <div class="spacer"></div>
+  <span class="user-name" id="user-name">Loading...</span>
+  <button class="signout" onclick="handleSignOut()">Sign out</button>
+</div>
+<div class="content">
+  <div id="loading" class="loading">Loading your dashboard...</div>
+  <div id="dashboard" style="display:none;">
+    <div class="welcome">
+      <h1 id="welcome-msg">Welcome back!</h1>
+      <p id="welcome-sub"></p>
+    </div>
+    <div class="cards" id="cards"></div>
+  </div>
+</div>
+<script type="module">
+  import { createClient } from 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js/+esm'
+
+  const supabase = createClient(
+    'https://vfohvovtxklsdvpigycx.supabase.co',
+    'sb_publishable_iOcoEodjREKpEL1B7DqRSg_k4cKFSEu'
+  )
+
+  async function init() {
+    const { data: { session } } = await supabase.auth.getSession()
+    if (!session) { window.location.href = '/login.html'; return }
+
+    const { data: user } = await supabase
+      .from('users')
+      .select('*')
+      .eq('id', session.user.id)
+      .single()
+
+    if (!user) { window.location.href = '/login.html'; return }
+
+    document.getElementById('user-name').textContent = user.display_name
+    document.getElementById('welcome-msg').textContent = 'Welcome back, ' + user.display_name + '!'
+    document.getElementById('welcome-sub').textContent = getSubtitle(user)
+    document.getElementById('loading').style.display = 'none'
+    document.getElementById('dashboard').style.display = 'block'
+    renderCards(user)
+  }
+
+  function getSubtitle(user) {
+    if (user.account_type === 'student') return 'You are learning ' + user.learning_language + '. Your pen pals are waiting!'
+    if (user.account_type === 'teacher') return 'Manage your classes, students, and flagged letters.'
+    if (user.account_type === 'parent') return 'Stay connected to your child\'s language journey.'
+    return 'You are learning ' + user.learning_language + '. Keep writing!'
+  }
+
+  function renderCards(user) {
+    const cardDefs = getCards(user)
+    document.getElementById('cards').innerHTML = cardDefs.map(c =>
+      `<div class="card" onclick="window.location.href='${c.href}'">
+        <div class="card-icon">${c.icon}</div>
+        <div class="card-title">${c.title}${c.badge ? '<span class="chip">' + c.badge + '</span>' : ''}</div>
+        <div class="card-sub">${c.sub}</div>
+      </div>`
+    ).join('')
+  }
+
+  function getCards(user) {
+    if (user.account_type === 'student') return [
+      { icon: '📬', title: 'My letters', sub: 'Read and write letters to your pen pals', href: '/inbox.html' },
+      { icon: '✏', title: 'Write a letter', sub: 'Send a new letter today', href: '/compose.html' },
+      { icon: '🌍', title: 'My pen pals', sub: 'See who you are connected with', href: '/penpals.html' },
+      { icon: '⚙', title: 'Settings', sub: 'Display language and account options', href: '/settings.html' },
+    ]
+    if (user.account_type === 'teacher') return [
+      { icon: '📊', title: 'Dashboard', sub: 'Overview of your classes this week', href: '/teacher.html' },
+      { icon: '👥', title: 'Students', sub: 'Manage your class roster', href: '/students.html' },
+      { icon: '🚩', title: 'Flagged letters', sub: 'Review held letters', href: '/flagged.html', badge: 'Review needed' },
+      { icon: '⚙', title: 'Flag controls', sub: 'Customize what gets flagged', href: '/flag-settings.html' },
+    ]
+    if (user.account_type === 'parent') return [
+      { icon: '📊', title: 'Overview', sub: 'See your child\'s activity', href: '/parent.html' },
+      { icon: '📬', title: 'All letters', sub: 'Read your child\'s correspondence', href: '/parent-letters.html' },
+      { icon: '🚩', title: 'Flagged letters', sub: 'Review any held letters', href: '/parent-flagged.html' },
+      { icon: '⚙', title: 'Controls', sub: 'Safety settings and flag rules', href: '/parent-settings.html' },
+    ]
+    return [
+      { icon: '📬', title: 'My letters', sub: 'Read and write letters', href: '/inbox.html' },
+      { icon: '✏', title: 'Write a letter', sub: 'Send a new letter today', href: '/compose.html' },
+      { icon: '🌍', title: 'My pen pals', sub: 'See who you are connected with', href: '/penpals.html' },
+      { icon: '⚙', title: 'Settings', sub: 'Account and display options', href: '/settings.html' },
+    ]
+  }
+
+  window.handleSignOut = async function() {
+    await supabase.auth.signOut()
+    window.location.href = '/login.html'
+  }
+
+  init()
+</script>
+</body>
+</html>
