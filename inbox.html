@@ -1,0 +1,287 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Lingua Letters — Inbox</title>
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; background: #F1EFE8; min-height: 100vh; }
+    .topbar { background: white; border-bottom: 1px solid #e5e3dc; padding: 14px 24px; display: flex; align-items: center; gap: 12px; }
+    .logo { display: flex; align-items: center; gap: 8px; font-size: 16px; font-weight: 500; color: #1a1a1a; text-decoration: none; }
+    .orb { width: 26px; height: 26px; border-radius: 50%; background: #1D9E75; display: flex; align-items: center; justify-content: center; font-size: 14px; }
+    .spacer { flex: 1; }
+    .user-name { font-size: 13px; color: #555; }
+    .signout { font-size: 12px; color: #aaa; cursor: pointer; background: none; border: none; }
+    .signout:hover { color: #555; }
+    .layout { display: flex; height: calc(100vh - 53px); }
+    .sidebar { width: 300px; border-right: 1px solid #e5e3dc; background: #F8F7F4; display: flex; flex-direction: column; flex-shrink: 0; }
+    .sb-header { padding: 16px; border-bottom: 1px solid #e5e3dc; }
+    .sb-title { font-size: 14px; font-weight: 500; color: #1a1a1a; margin-bottom: 10px; }
+    .write-btn { display: flex; align-items: center; justify-content: center; gap: 6px; width: 100%; padding: 8px; background: #1D9E75; color: white; border: none; border-radius: 8px; font-size: 13px; font-weight: 500; cursor: pointer; }
+    .write-btn:hover { background: #0F6E56; }
+    .letter-list { flex: 1; overflow-y: auto; }
+    .letter-item { padding: 14px 16px; border-bottom: 1px solid #e5e3dc; cursor: pointer; transition: background 0.1s; }
+    .letter-item:hover { background: white; }
+    .letter-item.active { background: white; border-left: 3px solid #1D9E75; }
+    .letter-item.unread .li-subject { font-weight: 600; }
+    .li-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 4px; }
+    .li-from { font-size: 13px; font-weight: 500; color: #1a1a1a; }
+    .li-date { font-size: 11px; color: #aaa; }
+    .li-subject { font-size: 12px; color: #555; margin-bottom: 3px; }
+    .li-preview { font-size: 11px; color: #aaa; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+    .unread-dot { width: 7px; height: 7px; border-radius: 50%; background: #1D9E75; flex-shrink: 0; }
+    .main { flex: 1; display: flex; flex-direction: column; overflow: hidden; }
+    .empty-state { flex: 1; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 12px; color: #aaa; }
+    .empty-state .icon { font-size: 48px; }
+    .empty-state p { font-size: 14px; }
+    .empty-state span { font-size: 12px; }
+    .letter-view { flex: 1; overflow-y: auto; padding: 28px 32px; }
+    .lv-header { margin-bottom: 24px; padding-bottom: 16px; border-bottom: 1px solid #e5e3dc; }
+    .lv-subject { font-size: 20px; font-weight: 500; color: #1a1a1a; margin-bottom: 10px; }
+    .lv-meta { display: flex; align-items: center; gap: 10px; flex-wrap: wrap; }
+    .lv-from { font-size: 13px; color: #555; }
+    .lv-date { font-size: 12px; color: #aaa; }
+    .chip { display: inline-flex; align-items: center; gap: 3px; font-size: 10px; padding: 2px 8px; border-radius: 20px; }
+    .cg { background: #E1F5EE; color: #0F6E56; }
+    .cb { background: #E6F1FB; color: #0C447C; }
+    .lang-toggle { display: flex; border: 1px solid #ddd; border-radius: 7px; overflow: hidden; margin-left: auto; }
+    .lt-btn { padding: 4px 10px; font-size: 11px; cursor: pointer; background: none; border: none; color: #888; }
+    .lt-btn.on { background: #1D9E75; color: white; font-weight: 500; }
+    .letter-card { background: white; border: 1px solid #e5e3dc; border-radius: 12px; overflow: hidden; margin-bottom: 20px; }
+    .lc-stamp { display: flex; align-items: center; justify-content: space-between; padding: 10px 16px; background: #F8F7F4; border-bottom: 1px solid #e5e3dc; }
+    .lc-sender { display: flex; align-items: center; gap: 8px; }
+    .av { border-radius: 50%; display: flex; align-items: center; justify-content: center; font-weight: 500; font-size: 11px; }
+    .lc-body { padding: 20px 22px; line-height: 1.85; font-size: 14px; color: #1a1a1a; }
+    .lc-greeting { font-weight: 500; margin-bottom: 14px; }
+    .lc-text { margin-bottom: 16px; white-space: pre-line; }
+    .lc-signoff { white-space: pre-line; }
+    .lc-footer { display: flex; align-items: center; padding: 8px 16px; border-top: 1px solid #e5e3dc; background: #F8F7F4; font-size: 10px; color: #0F6E56; gap: 5px; }
+    .gtip { background: #E6F1FB; border-left: 3px solid #378ADD; padding: 10px 14px; font-size: 12px; color: #0C447C; margin-top: 12px; line-height: 1.6; border-radius: 0 8px 8px 0; }
+    .trans-toggle { font-size: 11px; color: #0F6E56; cursor: pointer; display: flex; align-items: center; gap: 3px; margin-top: 8px; }
+    .trans-block { font-style: italic; color: #666; font-size: 12px; background: #F8F7F4; border-left: 2px solid #9FE1CB; padding: 8px 12px; border-radius: 0 8px 8px 0; margin-top: 6px; line-height: 1.75; white-space: pre-line; }
+    .reply-bar { padding: 14px 32px; border-top: 1px solid #e5e3dc; background: white; display: flex; align-items: center; gap: 10px; }
+    .reply-input { flex: 1; padding: 10px 14px; border: 1px solid #e5e3dc; border-radius: 9px; font-size: 13px; font-family: inherit; outline: none; }
+    .reply-input:focus { border-color: #1D9E75; }
+    .reply-btn { background: #1D9E75; color: white; border: none; border-radius: 8px; padding: 9px 18px; font-size: 13px; font-weight: 500; cursor: pointer; }
+    .reply-btn:hover { background: #0F6E56; }
+    .loading { text-align: center; padding: 40px; color: #aaa; font-size: 13px; }
+    .notice { display: flex; align-items: center; gap: 8px; padding: 10px 14px; border-radius: 10px; font-size: 12px; margin-bottom: 16px; }
+    .n-reply { background: #E1F5EE; border: 1px solid #9FE1CB; color: #0F6E56; }
+    .n-wait { background: #E6F1FB; border: 1px solid #B5D4F4; color: #0C447C; }
+  </style>
+</head>
+<body>
+<div class="topbar">
+  <a class="logo" href="/dashboard.html"><div class="orb">✉</div>Lingua Letters</a>
+  <div class="spacer"></div>
+  <span class="user-name" id="user-name"></span>
+  <button class="signout" onclick="handleSignOut()">Sign out</button>
+</div>
+
+<div class="layout">
+  <div class="sidebar">
+    <div class="sb-header">
+      <div class="sb-title">📬 Inbox</div>
+      <button class="write-btn" onclick="window.location.href='/compose.html'">✏ Write a letter</button>
+    </div>
+    <div class="letter-list" id="letter-list">
+      <div class="loading">Loading letters...</div>
+    </div>
+  </div>
+
+  <div class="main" id="main-panel">
+    <div class="empty-state">
+      <div class="icon">✉</div>
+      <p>Select a letter to read it</p>
+      <span>Your letters will appear here</span>
+    </div>
+  </div>
+</div>
+
+<script type="module">
+  import { createClient } from 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js/+esm'
+
+  const supabase = createClient(
+    'https://vfohvovtxklsdvpigycx.supabase.co',
+    'sb_publishable_iOcoEodjREKpEL1B7DqRSg_k4cKFSEu'
+  )
+
+  let currentUser = null
+  let letters = []
+  let selectedLetter = null
+  let langDisplay = 'target'
+  let showTrans = {}
+
+  async function init() {
+    const { data: { session } } = await supabase.auth.getSession()
+    if (!session) { window.location.href = '/login.html'; return }
+
+    const { data: user } = await supabase
+      .from('users')
+      .select('*')
+      .eq('id', session.user.id)
+      .single()
+
+    if (!user) { window.location.href = '/login.html'; return }
+
+    currentUser = user
+    document.getElementById('user-name').textContent = user.display_name
+    loadLetters()
+  }
+
+  async function loadLetters() {
+    const { data, error } = await supabase
+      .from('letters')
+      .select(`
+        *,
+        sender:users!letters_sender_id_fkey(display_name, learning_language),
+        recipient:users!letters_recipient_id_fkey(display_name)
+      `)
+      .or(`recipient_id.eq.${currentUser.id},sender_id.eq.${currentUser.id}`)
+      .eq('status', 'delivered')
+      .order('created_at', { ascending: false })
+
+    const list = document.getElementById('letter-list')
+
+    if (error || !data || data.length === 0) {
+      list.innerHTML = `
+        <div style="padding:24px 16px;text-align:center;color:#aaa;">
+          <div style="font-size:32px;margin-bottom:8px;">✉</div>
+          <p style="font-size:13px;margin-bottom:4px;">No letters yet!</p>
+          <p style="font-size:11px;">Write your first letter to get started.</p>
+        </div>`
+      return
+    }
+
+    letters = data
+    list.innerHTML = data.map((l, i) => {
+      const isMine = l.sender_id === currentUser.id
+      const fromName = isMine ? 'You → ' + (l.recipient?.display_name || 'Pen pal') : (l.sender?.display_name || 'Pen pal')
+      const preview = l.body ? l.body.substring(0, 60) + '...' : ''
+      const date = new Date(l.created_at).toLocaleDateString('en-US', { month: 'short', day: 'numeric' })
+      return `<div class="letter-item${i === 0 ? ' active' : ''}" onclick="selectLetter(${i})" id="letter-item-${i}">
+        <div class="li-header">
+          <span class="li-from">${fromName}</span>
+          <span class="li-date">${date}</span>
+        </div>
+        <div class="li-subject">${l.subject || 'No subject'}</div>
+        <div class="li-preview">${preview}</div>
+      </div>`
+    }).join('')
+
+    if (data.length > 0) selectLetter(0)
+  }
+
+  window.selectLetter = function(i) {
+    selectedLetter = letters[i]
+    showTrans = {}
+    document.querySelectorAll('.letter-item').forEach((el, idx) => {
+      el.classList.toggle('active', idx === i)
+    })
+    renderLetterView()
+  }
+
+  window.setLangDisplay = function(v) {
+    langDisplay = v
+    showTrans = {}
+    renderLetterView()
+  }
+
+  window.toggleTrans = function() {
+    showTrans.main = !showTrans.main
+    renderLetterView()
+  }
+
+  function renderLetterView() {
+    const l = selectedLetter
+    const isMine = l.sender_id === currentUser.id
+    const fromName = isMine ? 'You' : (l.sender?.display_name || 'Pen pal')
+    const date = new Date(l.created_at).toLocaleDateString('en-US', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' })
+
+    const useEng = langDisplay === 'english'
+    const useBoth = langDisplay === 'both'
+    const bodyText = useEng && l.translation ? l.translation : l.body
+    const greetText = l.greeting
+    const signText = l.signoff
+
+    let transSection = ''
+    if (!useBoth && l.translation) {
+      if (showTrans.main) {
+        const oppText = useEng ? l.body : l.translation
+        transSection = `<div class="trans-block">${oppText}</div>
+          <div class="trans-toggle" onclick="toggleTrans()">👁 Hide ${useEng ? 'original' : 'translation'}</div>`
+      } else {
+        transSection = `<div class="trans-toggle" onclick="toggleTrans()">🌐 Show ${useEng ? 'original' : 'English translation'}</div>`
+      }
+    }
+
+    const grammarSection = l.grammar_note && isMine
+      ? `<div class="gtip">✏ <strong>Grammar note:</strong> ${l.grammar_note}</div>`
+      : ''
+
+    const awaitingReply = isMine
+    const notice = awaitingReply
+      ? `<div class="notice n-wait">⏱ You wrote last — waiting for your pen pal to reply.</div>`
+      : `<div class="notice n-reply">✉ Reply to keep the conversation going!</div>`
+
+    document.getElementById('main-panel').innerHTML = `
+      <div style="flex:1;overflow-y:auto;">
+        <div class="letter-view">
+          ${notice}
+          <div class="lv-header">
+            <div class="lv-subject">${l.subject || 'No subject'}</div>
+            <div class="lv-meta">
+              <span class="lv-from">From: ${fromName}</span>
+              <span class="lv-date">${date}</span>
+              <span class="chip cg">✓ AI reviewed</span>
+              <div class="lang-toggle">
+                <button class="lt-btn${langDisplay === 'target' ? ' on' : ''}" onclick="setLangDisplay('target')">Target</button>
+                <button class="lt-btn${langDisplay === 'english' ? ' on' : ''}" onclick="setLangDisplay('english')">English</button>
+                <button class="lt-btn${langDisplay === 'both' ? ' on' : ''}" onclick="setLangDisplay('both')">Both</button>
+              </div>
+            </div>
+          </div>
+          <div class="letter-card">
+            <div class="lc-stamp">
+              <div class="lc-sender">
+                <div class="av" style="width:28px;height:28px;background:${isMine ? '#B5D4F4' : '#F5C4B3'};color:${isMine ? '#0C447C' : '#712B13'};">
+                  ${fromName.split(' ').map(x => x[0]).join('').substring(0,2)}
+                </div>
+                <div>
+                  <div style="font-size:12px;font-weight:500;">${fromName}</div>
+                  <div style="font-size:10px;color:#aaa;">${date}</div>
+                </div>
+              </div>
+              <span class="chip ${isMine ? 'cb' : 'cg'}">${isMine ? 'Sent by you' : 'Received'}</span>
+            </div>
+            <div class="lc-body">
+              <div class="lc-greeting">${greetText}</div>
+              <div class="lc-text">${useBoth && l.translation
+                ? bodyText + '\n\n<em style="font-size:12px;color:#888;">' + l.translation + '</em>'
+                : bodyText}</div>
+              <div class="lc-signoff">${signText}</div>
+              ${transSection}
+              ${grammarSection}
+            </div>
+            <div class="lc-footer">✓ AI reviewed — appropriate · ${isMine ? 'Sent' : 'Received'} ${date}</div>
+          </div>
+        </div>
+      </div>
+      ${!isMine ? `
+      <div class="reply-bar">
+        <input class="reply-input" id="quick-reply" placeholder="Write a quick reply... or click Write a letter for the full form">
+        <button class="reply-btn" onclick="window.location.href='/compose.html'">Write full letter ✏</button>
+      </div>` : ''}
+    `
+  }
+
+  window.handleSignOut = async function() {
+    await supabase.auth.signOut()
+    window.location.href = '/login.html'
+  }
+
+  init()
+</script>
+</body>
+</html>
