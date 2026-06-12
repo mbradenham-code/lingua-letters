@@ -152,7 +152,7 @@ export default async function handler(req, res) {
         'Content-Type': 'application/json'
       },
       body: JSON.stringify({
-        from: 'Lingua Letters <notifications@lingua-letters-x2ro.vercel.app>',
+        from: from: 'Lingua Letters <onboarding@resend.dev>',
         to: [to],
         subject,
         html
