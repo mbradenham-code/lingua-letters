@@ -51,6 +51,17 @@ ${letterText}`
     const text = data.content[0].text
     const clean = text.replace(/```json|```/g, '').trim()
     const result = JSON.parse(clean)
+
+    // Fail closed: if the AI didn't clearly say "not flagged", treat it as flagged
+    if (result.flagged !== true && result.flagged !== false) {
+      return res.status(200).json({
+        flagged: true,
+        reason: 'Automatic safety review could not be completed. A teacher or parent will review this letter manually.',
+        grammarNote: '',
+        translation: ''
+      })
+    }
+
     return res.status(200).json(result)
 
   } catch (err) {
