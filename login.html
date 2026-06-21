@@ -243,7 +243,8 @@
     const email = document.getElementById('signup-email').value
     const password = document.getElementById('signup-password').value
     const age = document.getElementById('signup-age').value
-    const classCode = document.getElementById('class-code')?.value || null
+    const classCode = document.getElementById('class-code')?.value?.trim().toUpperCase() || null
+    const parentEmail = document.getElementById('parent-email')?.value?.trim() || null
 
     const learningLanguage = typeRaw === 'solo'
       ? document.getElementById('solo-language').value
@@ -260,16 +261,42 @@
     }
 
     // Home account under 18 needs parent email
-    if (typeRaw === 'student_home' && age && parseInt(age) < 18) {
-      const parentEmail = document.getElementById('parent-email').value
-      if (!parentEmail) {
-        showError('A parent or guardian email is required for home accounts under 18.'); return
-      }
+    if (typeRaw === 'student_home' && age && parseInt(age) < 18 && !parentEmail) {
+      showError('A parent or guardian email is required for home accounts under 18.'); return
     }
 
     // Solo learner must be 18+
     if (typeRaw === 'solo' && age && parseInt(age) < 18) {
       showError('Solo learner accounts are for adults 18 and over. Please choose a student account type.'); return
+    }
+
+    // Look up the class BEFORE creating the account, so a bad code fails loudly
+    let classRow = null
+    if (typeRaw === 'student_school') {
+      const { data: foundClass } = await supabase
+        .from('classes')
+        .select('id, teacher_id')
+        .eq('class_code', classCode)
+        .single()
+
+      if (!foundClass) {
+        showError("That class code wasn't found. Double-check it with your teacher, or choose the home account option.")
+        return
+      }
+      classRow = foundClass
+    }
+
+    // See if the parent already has an account we can link immediately
+    let linkedParentId = null
+    if (parentEmail) {
+      const { data: existingParent } = await supabase
+        .from('users')
+        .select('id')
+        .eq('email', parentEmail)
+        .eq('account_type', 'parent')
+        .single()
+
+      if (existingParent) linkedParentId = existingParent.id
     }
 
     const { data, error } = await supabase.auth.signUp({ email, password })
@@ -283,10 +310,30 @@
       account_type: accountType,
       account_subtype: typeRaw,
       age: age ? parseInt(age) : null,
-      learning_language: learningLanguage || 'English'
+      learning_language: learningLanguage || 'English',
+      teacher_id: classRow ? classRow.teacher_id : null,
+      parent_id: linkedParentId,
+      pending_parent_email: (parentEmail && !linkedParentId) ? parentEmail : null
     })
 
     if (profileError) { showError(profileError.message); return }
+
+    // Add the student to the class roster
+    if (classRow) {
+      await supabase.from('class_members').insert({
+        class_id: classRow.id,
+        student_id: data.user.id
+      })
+    }
+
+    // If a parent just signed up, link any kids who were waiting on this email
+    if (accountType === 'parent') {
+      await supabase
+        .from('users')
+        .update({ parent_id: data.user.id, pending_parent_email: null })
+        .eq('pending_parent_email', email)
+    }
+
     showSuccess('Account created! You can now sign in.')
   }
 
@@ -305,9 +352,4 @@
   }
 
   function clearMessages() {
-    document.getElementById('error-box').style.display = 'none'
-    document.getElementById('success-box').style.display = 'none'
-  }
-</script>
-</body>
-</html>
+    document.getElementById('error-box').sty
