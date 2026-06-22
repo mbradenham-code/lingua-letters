@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+ <!DOCTYPE html>
 <html lang="en">
 <head>
   <meta charset="UTF-8">
@@ -21,6 +21,7 @@
     textarea { resize: vertical; min-height: 80px; }
     .btn { width: 100%; padding: 11px; background: #1D9E75; color: white; border: none; border-radius: 9px; font-size: 14px; font-weight: 500; cursor: pointer; margin-top: 6px; }
     .btn:hover { background: #0F6E56; }
+    .btn:disabled { opacity: 0.6; cursor: not-allowed; }
     .error { background: #FCEBEB; color: #A32D2D; padding: 10px 12px; border-radius: 9px; font-size: 12px; margin-bottom: 14px; display: none; }
     .success { background: #E1F5EE; color: #0F6E56; padding: 10px 12px; border-radius: 9px; font-size: 12px; margin-bottom: 14px; display: none; }
     .account-note { font-size: 11px; color: #555; background: #F8F7F4; padding: 10px 12px; border-radius: 9px; margin-bottom: 14px; line-height: 1.6; display: none; border-left: 3px solid #1D9E75; }
@@ -36,33 +37,27 @@
     <div class="orb">✉</div>
     <div class="logo-text">Lingua Letters</div>
   </div>
-
   <div class="tabs">
     <button class="tab on" onclick="showTab('login')">Sign in</button>
     <button class="tab" onclick="showTab('signup')">Create account</button>
   </div>
-
   <div id="error-box" class="error"></div>
   <div id="success-box" class="success"></div>
-
-  <!-- LOGIN FORM -->
   <div id="login-form">
     <div class="form-group">
       <label>Email address</label>
-      <input type="email" id="login-email" placeholder="you@email.com">
+      <input type="email" id="login-email" placeholder="you@email.com" autocomplete="email">
     </div>
     <div class="form-group">
       <label>Password</label>
-      <input type="password" id="login-password" placeholder="••••••••">
+      <input type="password" id="login-password" placeholder="••••••••" autocomplete="current-password">
     </div>
-    <button class="btn" onclick="handleLogin()">Sign in</button>
+    <button class="btn" id="login-btn" onclick="handleLogin()">Sign in</button>
   </div>
-
-  <!-- SIGNUP FORM -->
-  <div id="signup-form" style="display:none;">
+  <div id="signup-form" style="display:none;" autocomplete="off">
     <div class="form-group">
       <label>I am a...</label>
-      <select id="account-type" onchange="handleTypeChange()">
+      <select id="account-type" onchange="handleTypeChange()" autocomplete="off">
         <option value="">— Select account type —</option>
         <optgroup label="Students">
           <option value="student_school">Student — school account (I have a class code)</option>
@@ -75,35 +70,31 @@
         </optgroup>
       </select>
     </div>
-
     <div id="account-note" class="account-note"></div>
-
     <div class="form-group">
       <label>Full name</label>
-      <input type="text" id="signup-name" placeholder="Your full name">
+      <input type="text" id="signup-name" placeholder="Your full name" autocomplete="off">
     </div>
     <div class="form-group">
       <label>Display name (shown to pen pals)</label>
-      <input type="text" id="signup-display" placeholder="e.g. Alex or Ms. García">
+      <input type="text" id="signup-display" placeholder="e.g. Alex or Ms. Garcia" autocomplete="off">
     </div>
     <div class="form-group">
       <label>Email address</label>
-      <input type="email" id="signup-email" placeholder="you@email.com">
+      <input type="email" id="signup-email" placeholder="you@email.com" autocomplete="off">
     </div>
     <div class="form-group">
       <label>Password</label>
-      <input type="password" id="signup-password" placeholder="At least 8 characters">
+      <input type="password" id="signup-password" placeholder="At least 8 characters" autocomplete="new-password">
     </div>
-
-    <!-- STUDENT ONLY FIELDS -->
     <div id="student-fields" style="display:none;">
       <div class="form-group">
         <label>Your age</label>
-        <input type="number" id="signup-age" placeholder="e.g. 15" min="8" max="100">
+        <input type="number" id="signup-age" placeholder="e.g. 15" min="8" max="100" autocomplete="off">
       </div>
       <div class="form-group">
         <label>Language I am learning</label>
-        <select id="learning-language">
+        <select id="learning-language" autocomplete="off">
           <option value="English">English</option>
           <option value="Spanish">Spanish</option>
           <option value="French">French</option>
@@ -118,36 +109,34 @@
       <div id="class-code-group" style="display:none;">
         <div class="form-group">
           <label>Class code (from your teacher)</label>
-          <input type="text" id="class-code" placeholder="e.g. SP3-GARCIA" style="text-transform:uppercase;">
+          <input type="text" id="class-code" placeholder="e.g. SP3-GARCIA" style="text-transform:uppercase;" autocomplete="off">
           <div class="field-hint">Ask your teacher for this. No code? Choose the home account option instead.</div>
         </div>
       </div>
       <div id="parent-email-group" style="display:none;">
         <div class="form-group">
           <label id="parent-email-label">Parent or guardian email</label>
-          <input type="email" id="parent-email" placeholder="parent@email.com">
+          <input type="email" id="parent-email" placeholder="parent@email.com" autocomplete="off">
           <div class="field-hint" id="parent-email-hint"></div>
         </div>
       </div>
     </div>
-
-    <!-- TEACHER ONLY FIELDS -->
     <div id="teacher-fields" style="display:none;">
       <div class="form-group">
         <label>Bio (tell other teachers about yourself)</label>
-        <textarea id="teacher-bio" placeholder="e.g. I teach 8th grade Spanish in Dublin and love project-based learning..."></textarea>
+        <textarea id="teacher-bio" placeholder="e.g. I teach 8th grade Spanish in Dublin..." autocomplete="off"></textarea>
       </div>
       <div class="form-group">
         <label>School name</label>
-        <input type="text" id="school-name" placeholder="e.g. Lincoln High School">
+        <input type="text" id="school-name" placeholder="e.g. Lincoln High School" autocomplete="off">
       </div>
       <div class="form-group">
         <label>Country</label>
-        <input type="text" id="school-country" placeholder="e.g. United States">
+        <input type="text" id="school-country" placeholder="e.g. United States" autocomplete="off">
       </div>
       <div class="form-group">
         <label>Grade level you teach</label>
-        <select id="grade-level">
+        <select id="grade-level" autocomplete="off">
           <option value="">— Select —</option>
           <option value="Elementary (K-5)">Elementary (K-5)</option>
           <option value="Middle School (6-8)">Middle School (6-8)</option>
@@ -168,12 +157,10 @@
         </div>
       </div>
     </div>
-
-    <!-- SOLO LEARNER FIELDS -->
     <div id="solo-fields" style="display:none;">
       <div class="form-group">
         <label>Language I am learning</label>
-        <select id="solo-language">
+        <select id="solo-language" autocomplete="off">
           <option value="English">English</option>
           <option value="Spanish">Spanish</option>
           <option value="French">French</option>
@@ -186,189 +173,131 @@
         </select>
       </div>
     </div>
-
-    <button class="btn" onclick="handleSignup()">Create account</button>
+    <button class="btn" id="signup-btn" onclick="handleSignup()">Create account</button>
   </div>
 </div>
-
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <script>
   const { createClient } = supabase
-  const sb = createClient(
-    'https://vfohvovtxklsdvpigycx.supabase.co',
-    'sb_publishable_iOcoEodjREKpEL1B7DqRSg_k4cKFSEu'
-  )
-
+  const sb = createClient('https://vfohvovtxklsdvpigycx.supabase.co','sb_publishable_iOcoEodjREKpEL1B7DqRSg_k4cKFSEu')
   const NOTES = {
-    student_school: '🏫 School account — your teacher manages your class and can see your letters.',
-    student_home: '🏠 Home account — no teacher involved. If you are under 18 a parent must be connected.',
-    parent: '👨‍👩‍👧 Parent account — connect to your child\'s account to receive flag notifications.',
-    teacher: '📚 Teacher account — create a class, connect with teachers worldwide, and review flagged letters. Must be connected to a school.',
-    solo: '🌍 Solo learner — independent adult account. No teacher or parent needed. AI moderation is always on.'
+    student_school:'School account — your teacher manages your class and can see your letters.',
+    student_home:'Home account — no teacher involved. If you are under 18 a parent must be connected.',
+    parent:'Parent account — connect to your childs account to receive flag notifications.',
+    teacher:'Teacher account — create a class, connect with teachers worldwide, and review flagged letters. Must be connected to a school.',
+    solo:'Solo learner — independent adult account. No teacher or parent needed. AI moderation is always on.'
   }
-
   window.showTab = function(tab) {
-    document.getElementById('login-form').style.display = tab === 'login' ? 'block' : 'none'
-    document.getElementById('signup-form').style.display = tab === 'signup' ? 'block' : 'none'
-    document.querySelectorAll('.tab').forEach((t, i) => t.classList.toggle('on', (i === 0) === (tab === 'login')))
+    document.getElementById('login-form').style.display = tab==='login'?'block':'none'
+    document.getElementById('signup-form').style.display = tab==='signup'?'block':'none'
+    document.querySelectorAll('.tab').forEach((t,i)=>t.classList.toggle('on',(i===0)===(tab==='login')))
     clearMessages()
   }
-
   window.handleTypeChange = function() {
     const type = document.getElementById('account-type').value
     const note = document.getElementById('account-note')
-    note.textContent = NOTES[type] || ''
-    note.style.display = type ? 'block' : 'none'
-    const isStudent = type === 'student_school' || type === 'student_home'
-    document.getElementById('student-fields').style.display = isStudent ? 'block' : 'none'
-    document.getElementById('teacher-fields').style.display = type === 'teacher' ? 'block' : 'none'
-    document.getElementById('solo-fields').style.display = type === 'solo' ? 'block' : 'none'
-    document.getElementById('class-code-group').style.display = type === 'student_school' ? 'block' : 'none'
+    note.textContent = NOTES[type]||''
+    note.style.display = type?'block':'none'
+    const isStudent = type==='student_school'||type==='student_home'
+    document.getElementById('student-fields').style.display = isStudent?'block':'none'
+    document.getElementById('teacher-fields').style.display = type==='teacher'?'block':'none'
+    document.getElementById('solo-fields').style.display = type==='solo'?'block':'none'
+    document.getElementById('class-code-group').style.display = type==='student_school'?'block':'none'
     document.getElementById('parent-email-group').style.display = 'none'
   }
-
-  document.getElementById('signup-age').addEventListener('blur', function() {
-    const age = parseInt(this.value)
-    const type = document.getElementById('account-type').value
-    const group = document.getElementById('parent-email-group')
-    const lbl = document.getElementById('parent-email-label')
-    const hint = document.getElementById('parent-email-hint')
-    if (!age) { group.style.display = 'none'; return }
-    if (age < 18 && type === 'student_home') {
-      group.style.display = 'block'
-      lbl.textContent = 'Parent or guardian email (required)'
-      hint.textContent = 'Home accounts under 18 must have a parent or guardian connected.'
-    } else if (age < 18 && type === 'student_school') {
-      group.style.display = 'block'
-      lbl.textContent = 'Parent or guardian email (recommended)'
-      hint.textContent = 'Your teacher handles moderation, but a parent connection is strongly recommended.'
-    } else {
-      group.style.display = 'none'
-    }
+  document.getElementById('signup-age').addEventListener('change',function(){
+    const age=parseInt(this.value)
+    const type=document.getElementById('account-type').value
+    const group=document.getElementById('parent-email-group')
+    if(!age){group.style.display='none';return}
+    if(age<18&&type==='student_home'){
+      group.style.display='block'
+      document.getElementById('parent-email-label').textContent='Parent or guardian email (required)'
+      document.getElementById('parent-email-hint').textContent='Home accounts under 18 must have a parent connected.'
+    } else if(age<18&&type==='student_school'){
+      group.style.display='block'
+      document.getElementById('parent-email-label').textContent='Parent or guardian email (recommended)'
+      document.getElementById('parent-email-hint').textContent='Your teacher handles moderation but a parent connection is recommended.'
+    } else { group.style.display='none' }
   })
-
   window.handleLogin = async function() {
-    const email = document.getElementById('login-email').value
-    const password = document.getElementById('login-password').value
-    if (!email || !password) { showError('Please fill in all fields.'); return }
-    const { error } = await sb.auth.signInWithPassword({ email, password })
-    if (error) { showError(error.message); return }
-    window.location.href = '/dashboard.html'
+    const btn=document.getElementById('login-btn')
+    const email=document.getElementById('login-email').value.trim()
+    const password=document.getElementById('login-password').value
+    if(!email||!password){showError('Please fill in all fields.');return}
+    btn.disabled=true;btn.textContent='Signing in...'
+    const {error}=await sb.auth.signInWithPassword({email,password})
+    btn.disabled=false;btn.textContent='Sign in'
+    if(error){showError(error.message);return}
+    window.location.href='/dashboard.html'
   }
-
   window.handleSignup = async function() {
-    const typeRaw = document.getElementById('account-type').value
-    const accountType = typeRaw.startsWith('student') ? 'student' : typeRaw
-    const name = document.getElementById('signup-name').value.trim()
-    const displayName = document.getElementById('signup-display').value.trim()
-    const email = document.getElementById('signup-email').value.trim()
-    const password = document.getElementById('signup-password').value
-    const age = document.getElementById('signup-age').value
-    const classCode = document.getElementById('class-code')?.value?.trim().toUpperCase() || null
-    const parentEmail = document.getElementById('parent-email')?.value?.trim() || null
-
-    const learningLanguage = typeRaw === 'solo'
-      ? document.getElementById('solo-language').value
-      : (typeRaw.startsWith('student') ? document.getElementById('learning-language').value : null)
-
-    if (!typeRaw) { showError('Please select an account type.'); return }
-    if (!name || !displayName || !email || !password) { showError('Please fill in all required fields.'); return }
-    if (password.length < 8) { showError('Password must be at least 8 characters.'); return }
-    if (typeRaw === 'student_school' && !classCode) { showError('Please enter your class code.'); return }
-    if (typeRaw === 'student_home' && age && parseInt(age) < 18 && !parentEmail) { showError('A parent email is required for home accounts under 18.'); return }
-    if (typeRaw === 'solo' && age && parseInt(age) < 18) { showError('Solo learner accounts are for adults 18 and over.'); return }
-    if (typeRaw === 'teacher') {
-      const schoolName = document.getElementById('school-name').value.trim()
-      const schoolCountry = document.getElementById('school-country').value.trim()
-      const gradeLevel = document.getElementById('grade-level').value
-      if (!schoolName || !schoolCountry) { showError('Please enter your school name and country.'); return }
-      if (!gradeLevel) { showError('Please select the grade level you teach.'); return }
+    clearMessages()
+    const btn=document.getElementById('signup-btn')
+    const typeRaw=document.getElementById('account-type').value
+    const accountType=typeRaw.startsWith('student')?'student':typeRaw
+    const name=document.getElementById('signup-name').value.trim()
+    const displayName=document.getElementById('signup-display').value.trim()
+    const email=document.getElementById('signup-email').value.trim()
+    const password=document.getElementById('signup-password').value
+    const age=document.getElementById('signup-age').value
+    const classCode=document.getElementById('class-code')?.value?.trim().toUpperCase()||null
+    const parentEmail=document.getElementById('parent-email')?.value?.trim()||null
+    const learningLanguage=typeRaw==='solo'?document.getElementById('solo-language').value:(typeRaw.startsWith('student')?document.getElementById('learning-language').value:null)
+    if(!typeRaw){showError('Please select an account type.');return}
+    if(!name){showError('Please enter your full name.');return}
+    if(!displayName){showError('Please enter a display name.');return}
+    if(!email){showError('Please enter your email.');return}
+    if(!password||password.length<8){showError('Password must be at least 8 characters.');return}
+    if(typeRaw==='student_school'&&!classCode){showError('Please enter your class code.');return}
+    if(typeRaw==='student_home'&&age&&parseInt(age)<18&&!parentEmail){showError('A parent email is required for home accounts under 18.');return}
+    if(typeRaw==='solo'&&age&&parseInt(age)<18){showError('Solo learner accounts are for adults 18 and over.');return}
+    if(typeRaw==='teacher'){
+      if(!document.getElementById('school-name').value.trim()||!document.getElementById('school-country').value.trim()){showError('Please enter your school name and country.');return}
+      if(!document.getElementById('grade-level').value){showError('Please select the grade level you teach.');return}
     }
-
-    // Look up class code
-    let classRow = null
-    if (typeRaw === 'student_school') {
-      const { data: foundClass } = await sb.from('classes').select('id, teacher_id').eq('class_code', classCode).single()
-      if (!foundClass) { showError("That class code wasn't found. Double-check it with your teacher."); return }
-      classRow = foundClass
+    btn.disabled=true;btn.textContent='Creating account...'
+    try {
+      let classRow=null
+      if(typeRaw==='student_school'){
+        const {data:fc}=await sb.from('classes').select('id,teacher_id').eq('class_code',classCode).single()
+        if(!fc){showError("Class code not found.");btn.disabled=false;btn.textContent='Create account';return}
+        classRow=fc
+      }
+      let linkedParentId=null
+      if(parentEmail){
+        const {data:ep}=await sb.from('users').select('id').eq('email',parentEmail).eq('account_type','parent').single()
+        if(ep) linkedParentId=ep.id
+      }
+      const {data,error}=await sb.auth.signUp({email,password,options:{emailRedirectTo:'https://lingualetters.com/confirmed.html'}})
+      if(error){showError(error.message);btn.disabled=false;btn.textContent='Create account';return}
+      if(!data.user){showError('Signup failed. Please try again.');btn.disabled=false;btn.textContent='Create account';return}
+      const teachingStyle=typeRaw==='teacher'?Array.from(document.querySelectorAll('#teacher-fields input[type=checkbox]:checked')).map(c=>c.value):null
+      const {error:pe}=await sb.from('users').insert({
+        id:data.user.id,email,full_name:name,display_name:displayName,
+        account_type:accountType,account_subtype:typeRaw,
+        age:age?parseInt(age):null,learning_language:learningLanguage||null,
+        teacher_id:classRow?classRow.teacher_id:null,parent_id:linkedParentId,
+        pending_parent_email:(parentEmail&&!linkedParentId)?parentEmail:null,
+        bio:typeRaw==='teacher'?document.getElementById('teacher-bio').value.trim():null,
+        school_name:typeRaw==='teacher'?document.getElementById('school-name').value.trim():null,
+        school_country:typeRaw==='teacher'?document.getElementById('school-country').value.trim():null,
+        grade_level:typeRaw==='teacher'?document.getElementById('grade-level').value:null,
+        teaching_style:teachingStyle
+      })
+      if(pe){showError('Profile error: '+(pe.message||pe.details||pe.hint||JSON.stringify(pe)));btn.disabled=false;btn.textContent='Create account';return}
+      if(classRow) await sb.from('class_members').insert({class_id:classRow.id,student_id:data.user.id})
+      if(accountType==='parent') await sb.from('users').update({parent_id:data.user.id,pending_parent_email:null}).eq('pending_parent_email',email)
+      btn.textContent='Account created!'
+      showSuccess('Account created! Check your email to confirm, then sign in.')
+    } catch(e) {
+      showError('Unexpected error: '+e.message)
+      btn.disabled=false;btn.textContent='Create account'
     }
-
-    // Check if parent already exists
-    let linkedParentId = null
-    if (parentEmail) {
-      const { data: existingParent } = await sb.from('users').select('id').eq('email', parentEmail).eq('account_type', 'parent').single()
-      if (existingParent) linkedParentId = existingParent.id
-    }
-
-    // Create auth account
-    const { data, error } = await sb.auth.signUp({
-      email,
-      password,
-      options: { emailRedirectTo: 'https://lingualetters.com/confirmed.html' }
-    })
-    if (error) { showError(error.message); return }
-    if (!data.user) { showError('Signup failed — please try again.'); return }
-
-    const teachingStyle = typeRaw === 'teacher'
-      ? Array.from(document.querySelectorAll('#teacher-fields input[type=checkbox]:checked')).map(c => c.value)
-      : null
-
-    // Create profile row
-    const { error: profileError } = await sb.from('users').insert({
-      id: data.user.id,
-      email,
-      full_name: name,
-      display_name: displayName,
-      account_type: accountType,
-      account_subtype: typeRaw,
-      age: age ? parseInt(age) : null,
-      learning_language: learningLanguage || null,
-      teacher_id: classRow ? classRow.teacher_id : null,
-      parent_id: linkedParentId,
-      pending_parent_email: (parentEmail && !linkedParentId) ? parentEmail : null,
-      bio: typeRaw === 'teacher' ? document.getElementById('teacher-bio').value.trim() : null,
-      school_name: typeRaw === 'teacher' ? document.getElementById('school-name').value.trim() : null,
-      school_country: typeRaw === 'teacher' ? document.getElementById('school-country').value.trim() : null,
-      grade_level: typeRaw === 'teacher' ? document.getElementById('grade-level').value : null,
-      teaching_style: teachingStyle
-    })
-
-    if (profileError) {
-      showError(profileError.message || profileError.details || JSON.stringify(profileError))
-      return
-    }
-
-    // Add to class roster
-    if (classRow) {
-      await sb.from('class_members').insert({ class_id: classRow.id, student_id: data.user.id })
-    }
-
-    // Link waiting children to new parent
-    if (accountType === 'parent') {
-      await sb.from('users').update({ parent_id: data.user.id, pending_parent_email: null }).eq('pending_parent_email', email)
-    }
-
-    showSuccess('Account created! Check your email to confirm, then sign in.')
   }
-
-  function showError(msg) {
-    const el = document.getElementById('error-box')
-    el.textContent = msg
-    el.style.display = 'block'
-    document.getElementById('success-box').style.display = 'none'
-  }
-
-  function showSuccess(msg) {
-    const el = document.getElementById('success-box')
-    el.textContent = msg
-    el.style.display = 'block'
-    document.getElementById('error-box').style.display = 'none'
-  }
-
-  function clearMessages() {
-    document.getElementById('error-box').style.display = 'none'
-    document.getElementById('success-box').style.display = 'none'
-  }
+  function showError(msg){const el=document.getElementById('error-box');el.textContent=msg;el.style.display='block';document.getElementById('success-box').style.display='none'}
+  function showSuccess(msg){const el=document.getElementById('success-box');el.textContent=msg;el.style.display='block';document.getElementById('error-box').style.display='none'}
+  function clearMessages(){document.getElementById('error-box').style.display='none';document.getElementById('success-box').style.display='none'}
 </script>
 </body>
 </html>
