@@ -42,7 +42,7 @@
     .tag.connected { background: #E1F5EE; color: #0F6E56; font-weight: 500; }
     .tag.pending { background: #FFF8E6; color: #9A6700; }
     .empty { text-align: center; padding: 60px 20px; color: #aaa; font-size: 14px; }
-    .error { text-align: center; padding: 60px 20px; color: #A32D2D; font-size: 14px; }
+    .error-msg { text-align: center; padding: 60px 20px; color: #A32D2D; font-size: 14px; }
   </style>
 </head>
 <body>
@@ -99,108 +99,120 @@
   <div id="grid" class="grid"><div class="empty">Loading teachers…</div></div>
 </div>
 
-<script type="module">
-  import { createClient } from 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js/+esm'
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script>
+  const { createClient } = supabase
 
-  const supabase = createClient(
+  const sb = createClient(
     'https://vfohvovtxklsdvpigycx.supabase.co',
     'sb_publishable_iOcoEodjREKpEL1B7DqRSg_k4cKFSEu'
   )
 
-  // Check auth
-  const { data: { session }, error: sessionError } = await supabase.auth.getSession()
-  if (!session) { window.location.href = '/login.html'; return }
-
-  // Get current user
-  const { data: me, error: meError } = await supabase
-    .from('users')
-    .select('id, account_type')
-    .eq('id', session.user.id)
-    .single()
-
-  if (meError || !me) {
-    document.getElementById('grid').innerHTML = `<div class="error">Could not load your account: ${meError?.message}</div>`
-    return
-  }
-
-  if (me.account_type !== 'teacher') {
-    document.getElementById('grid').innerHTML = '<div class="empty">This page is only available to teacher accounts.</div>'
-    return
-  }
-
-  // Load connections
+  let me = null
   let connectionMap = {}
-  const { data: myConnections } = await supabase
-    .from('teacher_connections')
-    .select('sender_id, receiver_id, status')
-    .or(`sender_id.eq.${me.id},receiver_id.eq.${me.id}`)
 
-  if (myConnections) {
-    myConnections.forEach(c => {
-      const otherId = c.sender_id === me.id ? c.receiver_id : c.sender_id
-      connectionMap[otherId] = c.status
-    })
+  function showError(msg) {
+    document.getElementById('grid').innerHTML = `<div class="error-msg">${msg}</div>`
+  }
+
+  async function init() {
+    try {
+      const { data: { session }, error: sessionError } = await sb.auth.getSession()
+      if (sessionError) { showError('Session error: ' + sessionError.message); return }
+      if (!session) { window.location.href = '/login.html'; return }
+
+      const { data: user, error: userError } = await sb
+        .from('users')
+        .select('id, account_type')
+        .eq('id', session.user.id)
+        .single()
+
+      if (userError) { showError('User error: ' + userError.message); return }
+      if (!user) { showError('Could not find your account.'); return }
+      if (user.account_type !== 'teacher') {
+        showError('This page is only available to teacher accounts.')
+        return
+      }
+
+      me = user
+
+      const { data: connections } = await sb
+        .from('teacher_connections')
+        .select('sender_id, receiver_id, status')
+        .or(`sender_id.eq.${me.id},receiver_id.eq.${me.id}`)
+
+      if (connections) {
+        connections.forEach(c => {
+          const otherId = c.sender_id === me.id ? c.receiver_id : c.sender_id
+          connectionMap[otherId] = c.status
+        })
+      }
+
+      await loadTeachers()
+    } catch(e) {
+      showError('Unexpected error: ' + e.message)
+    }
   }
 
   async function loadTeachers(filters = {}) {
     document.getElementById('grid').innerHTML = '<div class="empty">Loading teachers…</div>'
 
-    let query = supabase
-      .from('users')
-      .select('id, display_name, full_name, school_name, school_country, bio, grade_level, teaching_style')
-      .eq('account_type', 'teacher')
-      .neq('id', me.id)
+    try {
+      let query = sb
+        .from('users')
+        .select('id, display_name, full_name, school_name, school_country, bio, grade_level, teaching_style')
+        .eq('account_type', 'teacher')
+        .neq('id', me.id)
 
-    if (filters.country) query = query.ilike('school_country', `%${filters.country}%`)
-    if (filters.grade) query = query.eq('grade_level', filters.grade)
-    if (filters.style) query = query.contains('teaching_style', [filters.style])
+      if (filters.country) query = query.ilike('school_country', `%${filters.country}%`)
+      if (filters.grade) query = query.eq('grade_level', filters.grade)
+      if (filters.style) query = query.contains('teaching_style', [filters.style])
 
-    const { data, error } = await query
+      const { data, error } = await query
 
-    if (error) {
-      document.getElementById('grid').innerHTML = `<div class="error">Error loading teachers: ${error.message}</div>`
-      return
-    }
+      if (error) { showError('Query error: ' + error.message); return }
 
-    if (!data || data.length === 0) {
-      document.getElementById('results-header').textContent = ''
-      document.getElementById('grid').innerHTML = '<div class="empty">No other teachers found yet. Invite colleagues to join!</div>'
-      return
-    }
+      if (!data || data.length === 0) {
+        document.getElementById('results-header').textContent = ''
+        document.getElementById('grid').innerHTML = '<div class="empty">No other teachers found yet.</div>'
+        return
+      }
 
-    const avatarColors = ['', 'alt', 'alt2']
-    document.getElementById('results-header').textContent = `${data.length} teacher${data.length === 1 ? '' : 's'} found`
+      const avatarColors = ['', 'alt', 'alt2']
+      document.getElementById('results-header').textContent = `${data.length} teacher${data.length === 1 ? '' : 's'} found`
 
-    document.getElementById('grid').innerHTML = data.map((t, i) => {
-      const initials = (t.display_name || t.full_name || '?').split(' ').map(w => w[0]).join('').toUpperCase().slice(0, 2)
-      const colorClass = avatarColors[i % 3]
-      const bio = t.bio ? t.bio.slice(0, 100) + (t.bio.length > 100 ? '…' : '') : 'No bio yet.'
-      const connStatus = connectionMap[t.id]
+      document.getElementById('grid').innerHTML = data.map((t, i) => {
+        const initials = (t.display_name || t.full_name || '?').split(' ').map(w => w[0]).join('').toUpperCase().slice(0, 2)
+        const colorClass = avatarColors[i % 3]
+        const bio = t.bio ? t.bio.slice(0, 100) + (t.bio.length > 100 ? '…' : '') : 'No bio yet.'
+        const connStatus = connectionMap[t.id]
+        let statusTag = ''
+        if (connStatus === 'accepted') statusTag = '<span class="tag connected">✓ Connected</span>'
+        else if (connStatus === 'pending') statusTag = '<span class="tag pending">⏳ Pending</span>'
+        const styleTags = (t.teaching_style || []).slice(0, 2).map(s => `<span class="tag">${s}</span>`).join('')
+        const gradeTag = t.grade_level ? `<span class="tag green">${t.grade_level}</span>` : ''
 
-      let statusTag = ''
-      if (connStatus === 'accepted') statusTag = '<span class="tag connected">✓ Connected</span>'
-      else if (connStatus === 'pending') statusTag = '<span class="tag pending">⏳ Pending</span>'
-
-      const styleTags = (t.teaching_style || []).slice(0, 2).map(s => `<span class="tag">${s}</span>`).join('')
-      const gradeTag = t.grade_level ? `<span class="tag green">${t.grade_level}</span>` : ''
-
-      return `
-        <a class="teacher-card" href="/teacher-profile.html?id=${t.id}">
-          <div class="card-header">
-            <div class="avatar ${colorClass}">${initials}</div>
-            <div>
-              <div class="card-name">${t.display_name || t.full_name}</div>
-              <div class="card-school">${t.school_name || 'School not listed'} · ${t.school_country || ''}</div>
+        return `
+          <a class="teacher-card" href="/teacher-profile.html?id=${t.id}">
+            <div class="card-header">
+              <div class="avatar ${colorClass}">${initials}</div>
+              <div>
+                <div class="card-name">${t.display_name || t.full_name}</div>
+                <div class="card-school">${t.school_name || 'School not listed'} · ${t.school_country || ''}</div>
+              </div>
             </div>
-          </div>
-          <div class="card-bio">${bio}</div>
-          <div class="tags">${gradeTag}${styleTags}${statusTag}</div>
-        </a>
-      `
-    }).join('')
+            <div class="card-bio">${bio}</div>
+            <div class="tags">${gradeTag}${styleTags}${statusTag}</div>
+          </a>
+        `
+      }).join('')
+    } catch(e) {
+      showError('Load error: ' + e.message)
+    }
   }
 
   window.applyFilters = function() {
+    if (!me) return
     loadTeachers({
       country: document.getElementById('filter-country').value.trim(),
       grade: document.getElementById('filter-grade').value,
@@ -212,10 +224,10 @@
     document.getElementById('filter-country').value = ''
     document.getElementById('filter-grade').value = ''
     document.getElementById('filter-style').value = ''
-    loadTeachers()
+    if (me) loadTeachers()
   }
 
-  loadTeachers()
+  init()
 </script>
 </body>
 </html>
