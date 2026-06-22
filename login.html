@@ -16,16 +16,18 @@
     .tab.on { background: #1D9E75; color: white; font-weight: 500; }
     .form-group { margin-bottom: 14px; }
     label { display: block; font-size: 12px; color: #888; margin-bottom: 5px; }
-    input, select { width: 100%; padding: 10px 12px; border: 1px solid #e5e3dc; border-radius: 9px; font-size: 13px; font-family: inherit; color: #1a1a1a; background: white; outline: none; }
-    input:focus, select:focus { border-color: #1D9E75; }
+    input, select, textarea { width: 100%; padding: 10px 12px; border: 1px solid #e5e3dc; border-radius: 9px; font-size: 13px; font-family: inherit; color: #1a1a1a; background: white; outline: none; }
+    input:focus, select:focus, textarea:focus { border-color: #1D9E75; }
+    textarea { resize: vertical; min-height: 80px; }
     .btn { width: 100%; padding: 11px; background: #1D9E75; color: white; border: none; border-radius: 9px; font-size: 14px; font-weight: 500; cursor: pointer; margin-top: 6px; }
     .btn:hover { background: #0F6E56; }
     .error { background: #FCEBEB; color: #A32D2D; padding: 10px 12px; border-radius: 9px; font-size: 12px; margin-bottom: 14px; display: none; }
     .success { background: #E1F5EE; color: #0F6E56; padding: 10px 12px; border-radius: 9px; font-size: 12px; margin-bottom: 14px; display: none; }
     .account-note { font-size: 11px; color: #555; background: #F8F7F4; padding: 10px 12px; border-radius: 9px; margin-bottom: 14px; line-height: 1.6; display: none; border-left: 3px solid #1D9E75; }
     .field-hint { font-size: 11px; color: #aaa; margin-top: 4px; }
-    .divider { height: 1px; background: #e5e3dc; margin: 16px 0; }
-    .section-label { font-size: 10px; color: #aaa; letter-spacing: .06em; text-transform: uppercase; font-weight: 500; margin-bottom: 10px; margin-top: 16px; }
+    .checkbox-group { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 4px; }
+    .checkbox-group label { display: flex; align-items: center; gap: 5px; font-size: 12px; color: #555; margin-bottom: 0; }
+    .checkbox-group input[type=checkbox] { width: auto; padding: 0; }
   </style>
 </head>
 <body>
@@ -103,23 +105,20 @@
         <label>Your age</label>
         <input type="number" id="signup-age" placeholder="e.g. 15" min="8" max="100">
       </div>
-
       <div class="form-group">
         <label>Language I am learning</label>
         <select id="learning-language">
-  <option value="English">English</option>
-  <option value="Spanish">Spanish</option>
-  <option value="French">French</option>
-  <option value="Italian">Italian</option>
-  <option value="Korean">Korean</option>
-  <option value="Japanese">Japanese</option>
-  <option value="German">German</option>
-  <option value="Portuguese">Portuguese</option>
-  <option value="Mandarin">Mandarin</option>
-</select>
+          <option value="English">English</option>
+          <option value="Spanish">Spanish</option>
+          <option value="French">French</option>
+          <option value="Italian">Italian</option>
+          <option value="Korean">Korean</option>
+          <option value="Japanese">Japanese</option>
+          <option value="German">German</option>
+          <option value="Portuguese">Portuguese</option>
+          <option value="Mandarin">Mandarin</option>
+        </select>
       </div>
-
-      <!-- SCHOOL ONLY -->
       <div id="class-code-group" style="display:none;">
         <div class="form-group">
           <label>Class code (from your teacher)</label>
@@ -127,8 +126,6 @@
           <div class="field-hint">Ask your teacher for this. No code? Choose the home account option instead.</div>
         </div>
       </div>
-
-      <!-- UNDER 18 ONLY -->
       <div id="parent-email-group" style="display:none;">
         <div class="form-group">
           <label id="parent-email-label">Parent or guardian email</label>
@@ -138,21 +135,59 @@
       </div>
     </div>
 
-    <!-- SOLO LEARNER LANGUAGE -->
+    <!-- TEACHER ONLY FIELDS -->
+    <div id="teacher-fields" style="display:none;">
+      <div class="form-group">
+        <label>Bio (tell other teachers about yourself)</label>
+        <textarea id="teacher-bio" placeholder="e.g. I teach 8th grade Spanish in Dublin and love project-based learning..."></textarea>
+      </div>
+      <div class="form-group">
+        <label>School name</label>
+        <input type="text" id="school-name" placeholder="e.g. Lincoln High School">
+      </div>
+      <div class="form-group">
+        <label>Country</label>
+        <input type="text" id="school-country" placeholder="e.g. United States">
+      </div>
+      <div class="form-group">
+        <label>Grade level you teach</label>
+        <select id="grade-level">
+          <option value="">— Select —</option>
+          <option value="Elementary (K-5)">Elementary (K-5)</option>
+          <option value="Middle School (6-8)">Middle School (6-8)</option>
+          <option value="High School (9-12)">High School (9-12)</option>
+          <option value="University">University</option>
+          <option value="Adult Education">Adult Education</option>
+        </select>
+      </div>
+      <div class="form-group">
+        <label>Teaching style (select all that apply)</label>
+        <div class="checkbox-group">
+          <label><input type="checkbox" value="Structured"> Structured</label>
+          <label><input type="checkbox" value="Conversational"> Conversational</label>
+          <label><input type="checkbox" value="Project-based"> Project-based</label>
+          <label><input type="checkbox" value="Grammar-focused"> Grammar-focused</label>
+          <label><input type="checkbox" value="Immersive"> Immersive</label>
+          <label><input type="checkbox" value="Mixed methods"> Mixed methods</label>
+        </div>
+      </div>
+    </div>
+
+    <!-- SOLO LEARNER FIELDS -->
     <div id="solo-fields" style="display:none;">
       <div class="form-group">
         <label>Language I am learning</label>
         <select id="solo-language">
-  <option value="English">English</option>
-  <option value="Spanish">Spanish</option>
-  <option value="French">French</option>
-  <option value="Italian">Italian</option>
-  <option value="Korean">Korean</option>
-  <option value="Japanese">Japanese</option>
-  <option value="German">German</option>
-  <option value="Portuguese">Portuguese</option>
-  <option value="Mandarin">Mandarin</option>
-</select>
+          <option value="English">English</option>
+          <option value="Spanish">Spanish</option>
+          <option value="French">French</option>
+          <option value="Italian">Italian</option>
+          <option value="Korean">Korean</option>
+          <option value="Japanese">Japanese</option>
+          <option value="German">German</option>
+          <option value="Portuguese">Portuguese</option>
+          <option value="Mandarin">Mandarin</option>
+        </select>
       </div>
     </div>
 
@@ -171,9 +206,9 @@
   const NOTES = {
     student_school: '🏫 School account — your teacher manages your class and can see your letters. A parent connection is recommended for under 18 but the teacher handles day-to-day moderation.',
     student_home: '🏠 Home account — no teacher involved. You control your own experience. If you are under 18 a parent or guardian must be connected.',
-    parent: '👨‍👩‍👧 Parent account — connect to your child\'s account to receive flag notifications and manage their safety settings. Works with both school and home student accounts. You are completely separate from any teacher.',
-    teacher: '📚 Teacher account — create a class, match students with pen pals, and review flagged letters. You only see students who have signed up with your class code. You never see home account students.',
-    solo: '🌍 Solo learner — independent adult account. No teacher or parent needed. AI moderation is always on. 5 flags without adequate explanation will disable your account.'
+    parent: '👨‍👩‍👧 Parent account — connect to your child\'s account to receive flag notifications and manage their safety settings.',
+    teacher: '📚 Teacher account — create a class, connect with teachers worldwide, match students as pen pals, and review flagged letters. Must be connected to a school.',
+    solo: '🌍 Solo learner — independent adult account. No teacher or parent needed. AI moderation is always on.'
   }
 
   window.showTab = function(tab) {
@@ -186,33 +221,23 @@
   window.handleTypeChange = function() {
     const type = document.getElementById('account-type').value
     const note = document.getElementById('account-note')
-
-    // Show account note
     note.textContent = NOTES[type] || ''
     note.style.display = type ? 'block' : 'none'
-
-    // Show/hide student fields
     const isStudent = type === 'student_school' || type === 'student_home'
     document.getElementById('student-fields').style.display = isStudent ? 'block' : 'none'
+    document.getElementById('teacher-fields').style.display = type === 'teacher' ? 'block' : 'none'
     document.getElementById('solo-fields').style.display = type === 'solo' ? 'block' : 'none'
-
-    // Show class code only for school accounts
     document.getElementById('class-code-group').style.display = type === 'student_school' ? 'block' : 'none'
-
-    // Reset parent email
     document.getElementById('parent-email-group').style.display = 'none'
   }
 
-  // Show parent email field based on age and account type
   document.getElementById('signup-age').addEventListener('blur', function() {
     const age = parseInt(this.value)
     const type = document.getElementById('account-type').value
     const group = document.getElementById('parent-email-group')
     const lbl = document.getElementById('parent-email-label')
     const hint = document.getElementById('parent-email-hint')
-
     if (!age) { group.style.display = 'none'; return }
-
     if (age < 18 && type === 'student_home') {
       group.style.display = 'block'
       lbl.textContent = 'Parent or guardian email (required)'
@@ -248,29 +273,32 @@
 
     const learningLanguage = typeRaw === 'solo'
       ? document.getElementById('solo-language').value
-      : document.getElementById('learning-language').value
+      : (typeRaw.startsWith('student') ? document.getElementById('learning-language').value : null)
 
-    // Basic validation
     if (!typeRaw) { showError('Please select an account type.'); return }
     if (!name || !displayName || !email || !password) { showError('Please fill in all required fields.'); return }
     if (password.length < 8) { showError('Password must be at least 8 characters.'); return }
 
-    // School account needs class code
     if (typeRaw === 'student_school' && !classCode) {
       showError('Please enter your class code. No code? Choose the home account option.'); return
     }
 
-    // Home account under 18 needs parent email
     if (typeRaw === 'student_home' && age && parseInt(age) < 18 && !parentEmail) {
       showError('A parent or guardian email is required for home accounts under 18.'); return
     }
 
-    // Solo learner must be 18+
     if (typeRaw === 'solo' && age && parseInt(age) < 18) {
       showError('Solo learner accounts are for adults 18 and over. Please choose a student account type.'); return
     }
 
-    // Look up the class BEFORE creating the account, so a bad code fails loudly
+    if (typeRaw === 'teacher') {
+      const schoolName = document.getElementById('school-name').value.trim()
+      const schoolCountry = document.getElementById('school-country').value.trim()
+      const gradeLevel = document.getElementById('grade-level').value
+      if (!schoolName || !schoolCountry) { showError('Please enter your school name and country.'); return }
+      if (!gradeLevel) { showError('Please select the grade level you teach.'); return }
+    }
+
     let classRow = null
     if (typeRaw === 'student_school') {
       const { data: foundClass } = await supabase
@@ -278,7 +306,6 @@
         .select('id, teacher_id')
         .eq('class_code', classCode)
         .single()
-
       if (!foundClass) {
         showError("That class code wasn't found. Double-check it with your teacher, or choose the home account option.")
         return
@@ -286,7 +313,6 @@
       classRow = foundClass
     }
 
-    // See if the parent already has an account we can link immediately
     let linkedParentId = null
     if (parentEmail) {
       const { data: existingParent } = await supabase
@@ -295,12 +321,15 @@
         .eq('email', parentEmail)
         .eq('account_type', 'parent')
         .single()
-
       if (existingParent) linkedParentId = existingParent.id
     }
 
     const { data, error } = await supabase.auth.signUp({ email, password })
     if (error) { showError(error.message); return }
+
+    const teachingStyle = typeRaw === 'teacher'
+      ? Array.from(document.querySelectorAll('#teacher-fields input[type=checkbox]:checked')).map(c => c.value)
+      : null
 
     const { error: profileError } = await supabase.from('users').insert({
       id: data.user.id,
@@ -310,15 +339,19 @@
       account_type: accountType,
       account_subtype: typeRaw,
       age: age ? parseInt(age) : null,
-      learning_language: learningLanguage || 'English',
+      learning_language: learningLanguage || null,
       teacher_id: classRow ? classRow.teacher_id : null,
       parent_id: linkedParentId,
-      pending_parent_email: (parentEmail && !linkedParentId) ? parentEmail : null
+      pending_parent_email: (parentEmail && !linkedParentId) ? parentEmail : null,
+      bio: typeRaw === 'teacher' ? document.getElementById('teacher-bio').value.trim() : null,
+      school_name: typeRaw === 'teacher' ? document.getElementById('school-name').value.trim() : null,
+      school_country: typeRaw === 'teacher' ? document.getElementById('school-country').value.trim() : null,
+      grade_level: typeRaw === 'teacher' ? document.getElementById('grade-level').value : null,
+      teaching_style: teachingStyle
     })
 
     if (profileError) { showError(profileError.message); return }
 
-    // Add the student to the class roster
     if (classRow) {
       await supabase.from('class_members').insert({
         class_id: classRow.id,
@@ -326,7 +359,6 @@
       })
     }
 
-    // If a parent just signed up, link any kids who were waiting on this email
     if (accountType === 'parent') {
       await supabase
         .from('users')
@@ -334,7 +366,7 @@
         .eq('pending_parent_email', email)
     }
 
-    showSuccess('Account created! You can now sign in.')
+    showSuccess('Account created! Check your email to confirm, then sign in.')
   }
 
   function showError(msg) {
