@@ -1,0 +1,222 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Lingua Letters — Teacher Network</title>
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; background: #F1EFE8; min-height: 100vh; padding: 24px 20px; }
+    .topbar { max-width: 900px; margin: 0 auto 20px; display: flex; align-items: center; justify-content: space-between; }
+    .logo { display: flex; align-items: center; gap: 10px; }
+    .orb { width: 32px; height: 32px; border-radius: 50%; background: #1D9E75; display: flex; align-items: center; justify-content: center; font-size: 16px; }
+    .logo-text { font-size: 18px; font-weight: 500; color: #1a1a1a; }
+    .back { font-size: 13px; color: #1D9E75; text-decoration: none; }
+    .back:hover { text-decoration: underline; }
+    h1 { font-size: 22px; font-weight: 600; color: #1a1a1a; margin-bottom: 4px; }
+    .subtitle { font-size: 13px; color: #888; margin-bottom: 20px; }
+    .filters { background: white; border-radius: 14px; padding: 20px; max-width: 900px; margin: 0 auto 20px; box-shadow: 0 2px 12px rgba(0,0,0,0.06); display: flex; flex-wrap: wrap; gap: 12px; align-items: flex-end; }
+    .filter-group { display: flex; flex-direction: column; gap: 5px; min-width: 160px; flex: 1; }
+    .filter-group label { font-size: 11px; color: #aaa; text-transform: uppercase; letter-spacing: .06em; font-weight: 500; }
+    select, input { padding: 9px 12px; border: 1px solid #e5e3dc; border-radius: 9px; font-size: 13px; font-family: inherit; color: #1a1a1a; background: white; outline: none; width: 100%; }
+    select:focus, input:focus { border-color: #1D9E75; }
+    .btn { padding: 9px 18px; border-radius: 9px; font-size: 13px; font-weight: 500; cursor: pointer; border: none; white-space: nowrap; }
+    .btn-primary { background: #1D9E75; color: white; }
+    .btn-primary:hover { background: #0F6E56; }
+    .btn-ghost { background: none; color: #888; }
+    .btn-ghost:hover { color: #444; }
+    .results { max-width: 900px; margin: 0 auto; }
+    .results-header { font-size: 12px; color: #aaa; margin-bottom: 12px; }
+    .grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(260px, 1fr)); gap: 16px; }
+    .teacher-card { background: white; border-radius: 14px; padding: 20px; box-shadow: 0 2px 12px rgba(0,0,0,0.06); cursor: pointer; transition: box-shadow .15s, transform .15s; text-decoration: none; display: block; }
+    .teacher-card:hover { box-shadow: 0 4px 20px rgba(0,0,0,0.1); transform: translateY(-2px); }
+    .card-header { display: flex; align-items: center; gap: 12px; margin-bottom: 12px; }
+    .avatar { width: 44px; height: 44px; border-radius: 50%; background: #1D9E75; display: flex; align-items: center; justify-content: center; font-size: 16px; color: white; font-weight: 600; flex-shrink: 0; }
+    .avatar.alt { background: #0F6E56; }
+    .avatar.alt2 { background: #5B9E75; }
+    .card-name { font-size: 15px; font-weight: 600; color: #1a1a1a; margin-bottom: 2px; }
+    .card-school { font-size: 12px; color: #888; }
+    .card-bio { font-size: 12px; color: #666; line-height: 1.5; margin-bottom: 12px; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; }
+    .tags { display: flex; flex-wrap: wrap; gap: 6px; }
+    .tag { font-size: 11px; padding: 3px 10px; border-radius: 20px; background: #F1EFE8; color: #555; }
+    .tag.green { background: #E1F5EE; color: #0F6E56; }
+    .tag.connected { background: #E1F5EE; color: #0F6E56; font-weight: 500; }
+    .tag.pending { background: #FFF8E6; color: #9A6700; }
+    .empty { text-align: center; padding: 60px 20px; color: #aaa; font-size: 14px; }
+    .loading { text-align: center; padding: 60px 20px; color: #aaa; font-size: 14px; }
+  </style>
+</head>
+<body>
+
+<div class="topbar" style="max-width:900px;margin:0 auto 20px;">
+  <div class="logo">
+    <div class="orb">✉</div>
+    <div class="logo-text">Lingua Letters</div>
+  </div>
+  <a class="back" href="/dashboard.html">← Dashboard</a>
+</div>
+
+<div style="max-width:900px;margin:0 auto 16px;">
+  <h1>🌍 Teacher Network</h1>
+  <div class="subtitle">Find teachers around the world and match your classes as pen pals.</div>
+</div>
+
+<div class="filters">
+  <div class="filter-group">
+    <label>Country</label>
+    <input type="text" id="filter-country" placeholder="e.g. France">
+  </div>
+  <div class="filter-group">
+    <label>Grade level</label>
+    <select id="filter-grade">
+      <option value="">All grades</option>
+      <option value="Elementary (K-5)">Elementary (K-5)</option>
+      <option value="Middle School (6-8)">Middle School (6-8)</option>
+      <option value="High School (9-12)">High School (9-12)</option>
+      <option value="University">University</option>
+      <option value="Adult Education">Adult Education</option>
+    </select>
+  </div>
+  <div class="filter-group">
+    <label>Teaching style</label>
+    <select id="filter-style">
+      <option value="">Any style</option>
+      <option value="Structured">Structured</option>
+      <option value="Conversational">Conversational</option>
+      <option value="Project-based">Project-based</option>
+      <option value="Grammar-focused">Grammar-focused</option>
+      <option value="Immersive">Immersive</option>
+      <option value="Mixed methods">Mixed methods</option>
+    </select>
+  </div>
+  <div style="display:flex;gap:8px;align-items:flex-end;">
+    <button class="btn btn-primary" onclick="applyFilters()">Search</button>
+    <button class="btn btn-ghost" onclick="clearFilters()">Clear</button>
+  </div>
+</div>
+
+<div class="results">
+  <div id="results-header" class="results-header"></div>
+  <div id="grid" class="grid"><div class="loading">Loading teachers…</div></div>
+</div>
+
+<script type="module">
+  import { createClient } from 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js/+esm'
+
+  const supabase = createClient(
+    'https://vfohvovtxklsdvpigycx.supabase.co',
+    'sb_publishable_iOcoEodjREKpEL1B7DqRSg_k4cKFSEu'
+  )
+
+  const { data: { user } } = await supabase.auth.getUser()
+  if (!user) { window.location.href = '/login.html'; return }
+
+  const { data: me } = await supabase.from('users').select('id, account_type').eq('id', user.id).single()
+  if (me.account_type !== 'teacher') {
+    document.getElementById('grid').innerHTML = '<div class="empty">This page is only available to teacher accounts.</div>'
+    return
+  }
+
+  // Load all connections for current user so we can show status badges
+  const { data: myConnections } = await supabase
+    .from('teacher_connections')
+    .select('sender_id, receiver_id, status')
+    .or(`sender_id.eq.${me.id},receiver_id.eq.${me.id}`)
+
+  const connectionMap = {}
+  if (myConnections) {
+    myConnections.forEach(c => {
+      const otherId = c.sender_id === me.id ? c.receiver_id : c.sender_id
+      connectionMap[otherId] = c.status
+    })
+  }
+
+  let allTeachers = []
+
+  async function loadTeachers(filters = {}) {
+    document.getElementById('grid').innerHTML = '<div class="loading">Loading teachers…</div>'
+
+    let query = supabase
+      .from('users')
+      .select('id, display_name, full_name, school_name, school_country, bio, grade_level, teaching_style')
+      .eq('account_type', 'teacher')
+      .neq('id', me.id)
+
+    if (filters.country) query = query.ilike('school_country', `%${filters.country}%`)
+    if (filters.grade) query = query.eq('grade_level', filters.grade)
+    if (filters.style) query = query.contains('teaching_style', [filters.style])
+
+    const { data, error } = await query
+
+    if (error || !data) {
+      document.getElementById('grid').innerHTML = '<div class="empty">Could not load teachers. Please try again.</div>'
+      return
+    }
+
+    allTeachers = data
+    renderTeachers(data)
+  }
+
+  function renderTeachers(teachers) {
+    const header = document.getElementById('results-header')
+    const grid = document.getElementById('grid')
+
+    if (teachers.length === 0) {
+      header.textContent = ''
+      grid.innerHTML = '<div class="empty">No teachers found matching your filters. Try broadening your search.</div>'
+      return
+    }
+
+    header.textContent = `${teachers.length} teacher${teachers.length === 1 ? '' : 's'} found`
+
+    const avatarColors = ['', 'alt', 'alt2']
+
+    grid.innerHTML = teachers.map((t, i) => {
+      const initials = (t.display_name || t.full_name || '?').split(' ').map(w => w[0]).join('').toUpperCase().slice(0, 2)
+      const colorClass = avatarColors[i % 3]
+      const bio = t.bio ? t.bio.slice(0, 100) + (t.bio.length > 100 ? '…' : '') : 'No bio yet.'
+      const connStatus = connectionMap[t.id]
+
+      let statusTag = ''
+      if (connStatus === 'accepted') statusTag = '<span class="tag connected">✓ Connected</span>'
+      else if (connStatus === 'pending') statusTag = '<span class="tag pending">⏳ Pending</span>'
+
+      const styleTags = (t.teaching_style || []).slice(0, 2).map(s => `<span class="tag">${s}</span>`).join('')
+      const gradeTag = t.grade_level ? `<span class="tag green">${t.grade_level}</span>` : ''
+
+      return `
+        <a class="teacher-card" href="/teacher-profile.html?id=${t.id}">
+          <div class="card-header">
+            <div class="avatar ${colorClass}">${initials}</div>
+            <div>
+              <div class="card-name">${t.display_name || t.full_name}</div>
+              <div class="card-school">${t.school_name || 'School not listed'} · ${t.school_country || ''}</div>
+            </div>
+          </div>
+          <div class="card-bio">${bio}</div>
+          <div class="tags">${gradeTag}${styleTags}${statusTag}</div>
+        </a>
+      `
+    }).join('')
+  }
+
+  window.applyFilters = function() {
+    loadTeachers({
+      country: document.getElementById('filter-country').value.trim(),
+      grade: document.getElementById('filter-grade').value,
+      style: document.getElementById('filter-style').value
+    })
+  }
+
+  window.clearFilters = function() {
+    document.getElementById('filter-country').value = ''
+    document.getElementById('filter-grade').value = ''
+    document.getElementById('filter-style').value = ''
+    loadTeachers()
+  }
+
+  // Initial load
+  loadTeachers()
+</script>
+</body>
+</html>
