@@ -1,0 +1,240 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Lingua Letters — Solo Learner Network</title>
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; background: #F1EFE8; min-height: 100vh; padding: 24px 20px; }
+    .topbar { max-width: 900px; margin: 0 auto 20px; display: flex; align-items: center; justify-content: space-between; }
+    .logo { display: flex; align-items: center; gap: 10px; }
+    .orb { width: 32px; height: 32px; border-radius: 50%; background: #1D9E75; display: flex; align-items: center; justify-content: center; font-size: 16px; }
+    .logo-text { font-size: 18px; font-weight: 500; color: #1a1a1a; }
+    .back { font-size: 13px; color: #1D9E75; text-decoration: none; }
+    .back:hover { text-decoration: underline; }
+    h1 { font-size: 22px; font-weight: 600; color: #1a1a1a; margin-bottom: 4px; }
+    .subtitle { font-size: 13px; color: #888; margin-bottom: 20px; }
+    .filters { background: white; border-radius: 14px; padding: 20px; max-width: 900px; margin: 0 auto 20px; box-shadow: 0 2px 12px rgba(0,0,0,0.06); display: flex; flex-wrap: wrap; gap: 12px; align-items: flex-end; }
+    .filter-group { display: flex; flex-direction: column; gap: 5px; min-width: 160px; flex: 1; }
+    .filter-group label { font-size: 11px; color: #aaa; text-transform: uppercase; letter-spacing: .06em; font-weight: 500; }
+    select, input { padding: 9px 12px; border: 1px solid #e5e3dc; border-radius: 9px; font-size: 13px; font-family: inherit; color: #1a1a1a; background: white; outline: none; width: 100%; }
+    select:focus, input:focus { border-color: #1D9E75; }
+    .btn { padding: 9px 18px; border-radius: 9px; font-size: 13px; font-weight: 500; cursor: pointer; border: none; white-space: nowrap; }
+    .btn-primary { background: #1D9E75; color: white; }
+    .btn-primary:hover { background: #0F6E56; }
+    .btn-ghost { background: none; color: #888; }
+    .results { max-width: 900px; margin: 0 auto; }
+    .results-header { font-size: 12px; color: #aaa; margin-bottom: 12px; }
+    .grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(260px, 1fr)); gap: 16px; }
+    .solo-card { background: white; border-radius: 14px; padding: 20px; box-shadow: 0 2px 12px rgba(0,0,0,0.06); display: flex; flex-direction: column; gap: 12px; }
+    .card-header { display: flex; align-items: center; gap: 12px; }
+    .avatar { width: 44px; height: 44px; border-radius: 50%; background: #1D9E75; display: flex; align-items: center; justify-content: center; font-size: 16px; color: white; font-weight: 600; flex-shrink: 0; overflow: hidden; }
+    .avatar.alt { background: #0F6E56; }
+    .avatar.alt2 { background: #5B9E75; }
+    .card-name { font-size: 15px; font-weight: 600; color: #1a1a1a; margin-bottom: 2px; }
+    .card-sub { font-size: 12px; color: #888; }
+    .card-bio { font-size: 12px; color: #666; line-height: 1.5; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; }
+    .tags { display: flex; flex-wrap: wrap; gap: 6px; }
+    .tag { font-size: 11px; padding: 3px 10px; border-radius: 20px; background: #F1EFE8; color: #555; }
+    .tag.green { background: #E1F5EE; color: #0F6E56; }
+    .tag.connected { background: #E1F5EE; color: #0F6E56; font-weight: 500; }
+    .tag.pending { background: #FFF8E6; color: #9A6700; }
+    .connect-btn { width: 100%; padding: 8px; background: #1D9E75; color: white; border: none; border-radius: 9px; font-size: 12px; font-weight: 500; cursor: pointer; }
+    .connect-btn:hover { background: #0F6E56; }
+    .connect-btn:disabled { opacity: 0.5; cursor: not-allowed; }
+    .empty { text-align: center; padding: 60px 20px; color: #aaa; font-size: 14px; }
+    .error-msg { text-align: center; padding: 60px 20px; color: #A32D2D; font-size: 14px; }
+  </style>
+</head>
+<body>
+
+<div class="topbar">
+  <div class="logo">
+    <div class="orb">✉</div>
+    <div class="logo-text">Lingua Letters</div>
+  </div>
+  <a class="back" href="/dashboard.html">← Dashboard</a>
+</div>
+
+<div style="max-width:900px;margin:0 auto 16px;">
+  <h1>🌍 Solo Learner Network</h1>
+  <div class="subtitle">Find adult pen pals who are learning the same language as you.</div>
+</div>
+
+<div class="filters">
+  <div class="filter-group">
+    <label>Learning language</label>
+    <select id="filter-language">
+      <option value="">Any language</option>
+      <option value="English">English</option>
+      <option value="Spanish">Spanish</option>
+      <option value="French">French</option>
+      <option value="Italian">Italian</option>
+      <option value="Korean">Korean</option>
+      <option value="Japanese">Japanese</option>
+      <option value="German">German</option>
+      <option value="Portuguese">Portuguese</option>
+      <option value="Mandarin">Mandarin</option>
+    </select>
+  </div>
+  <div class="filter-group">
+    <label>Country</label>
+    <input type="text" id="filter-country" placeholder="e.g. Brazil">
+  </div>
+  <div style="display:flex;gap:8px;align-items:flex-end;">
+    <button class="btn btn-primary" onclick="applyFilters()">Search</button>
+    <button class="btn btn-ghost" onclick="clearFilters()">Clear</button>
+  </div>
+</div>
+
+<div class="results">
+  <div id="results-header" class="results-header"></div>
+  <div id="grid" class="grid"><div class="empty">Loading learners…</div></div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script>
+  const { createClient } = supabase
+  const sb = createClient(
+    'https://vfohvovtxklsdvpigycx.supabase.co',
+    'sb_publishable_iOcoEodjREKpEL1B7DqRSg_k4cKFSEu'
+  )
+
+  let me = null
+  let connectionMap = {}
+
+  async function init() {
+    const { data: { session } } = await sb.auth.getSession()
+    if (!session) { window.location.href = '/login.html'; return }
+
+    const { data: user, error } = await sb.from('users').select('*').eq('id', session.user.id).single()
+    if (error || !user) { showError('Could not load your account.'); return }
+    if (user.account_type !== 'solo') { window.location.href = '/dashboard.html'; return }
+
+    me = user
+
+    // Pre-fill language filter with their own language
+    if (me.learning_language) {
+      document.getElementById('filter-language').value = me.learning_language
+    }
+
+    // Load existing connections
+    const { data: connections } = await sb
+      .from('pen_pal_connections')
+      .select('student_a, student_b')
+      .or(`student_a.eq.${me.id},student_b.eq.${me.id}`)
+
+    if (connections) {
+      connections.forEach(c => {
+        const otherId = c.student_a === me.id ? c.student_b : c.student_a
+        connectionMap[otherId] = 'connected'
+      })
+    }
+
+    await loadLearners()
+  }
+
+  function showError(msg) {
+    document.getElementById('grid').innerHTML = `<div class="error-msg">${msg}</div>`
+  }
+
+  async function loadLearners(filters = {}) {
+    document.getElementById('grid').innerHTML = '<div class="empty">Loading learners…</div>'
+
+    let query = sb
+      .from('users')
+      .select('id, display_name, full_name, bio, learning_language, profile_photo_url')
+      .eq('account_type', 'solo')
+      .neq('id', me.id)
+
+    if (filters.language) query = query.eq('learning_language', filters.language)
+    if (filters.country) query = query.ilike('school_country', `%${filters.country}%`)
+
+    const { data, error } = await query
+
+    if (error) { showError('Error loading learners: ' + error.message); return }
+
+    if (!data || data.length === 0) {
+      document.getElementById('results-header').textContent = ''
+      document.getElementById('grid').innerHTML = '<div class="empty">No solo learners found matching your filters.</div>'
+      return
+    }
+
+    const avatarColors = ['', 'alt', 'alt2']
+    document.getElementById('results-header').textContent = `${data.length} learner${data.length === 1 ? '' : 's'} found`
+
+    document.getElementById('grid').innerHTML = data.map((u, i) => {
+      const initials = (u.display_name || u.full_name || '?').split(' ').map(w => w[0]).join('').toUpperCase().slice(0,2)
+      const colorClass = avatarColors[i % 3]
+      const bio = u.bio ? u.bio.slice(0, 100) + (u.bio.length > 100 ? '…' : '') : 'No bio yet.'
+      const connStatus = connectionMap[u.id]
+
+      let avatarHtml = `<div class="avatar ${colorClass}">${initials}</div>`
+      if (u.profile_photo_url) {
+        avatarHtml = `<div class="avatar ${colorClass}" style="padding:0;"><img src="${u.profile_photo_url}" style="width:100%;height:100%;object-fit:cover;" onerror="this.parentElement.innerHTML='${initials}'"></div>`
+      }
+
+      let statusTag = ''
+      let connectBtn = `<button class="connect-btn" onclick="connect('${u.id}', this)">✉ Write to this learner</button>`
+      if (connStatus === 'connected') {
+        statusTag = '<span class="tag connected">✓ Pen pal</span>'
+        connectBtn = ''
+      }
+
+      const langTag = u.learning_language ? `<span class="tag green">Learning ${u.learning_language}</span>` : ''
+
+      return `
+        <div class="solo-card">
+          <div class="card-header">
+            ${avatarHtml}
+            <div>
+              <div class="card-name">${u.display_name || u.full_name}</div>
+              <div class="card-sub">Solo learner</div>
+            </div>
+          </div>
+          <div class="card-bio">${bio}</div>
+          <div class="tags">${langTag}${statusTag}</div>
+          ${connectBtn}
+        </div>
+      `
+    }).join('')
+  }
+
+  window.connect = async function(otherId, btn) {
+    btn.disabled = true
+    btn.textContent = 'Connecting…'
+
+    const { error } = await sb.from('pen_pal_connections').insert({
+      student_a: me.id,
+      student_b: otherId
+    })
+
+    if (error) {
+      btn.disabled = false
+      btn.textContent = '✉ Write to this learner'
+      alert('Error: ' + error.message)
+    } else {
+      connectionMap[otherId] = 'connected'
+      btn.textContent = '✓ Pen pal added!'
+      btn.disabled = true
+    }
+  }
+
+  window.applyFilters = function() {
+    loadLearners({
+      language: document.getElementById('filter-language').value,
+      country: document.getElementById('filter-country').value.trim()
+    })
+  }
+
+  window.clearFilters = function() {
+    document.getElementById('filter-language').value = me?.learning_language || ''
+    document.getElementById('filter-country').value = ''
+    loadLearners()
+  }
+
+  init()
+</script>
+</body>
+</html>
