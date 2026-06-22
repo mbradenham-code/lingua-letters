@@ -98,12 +98,13 @@
       { icon: '🌍', title: 'My pen pals', sub: 'See who you are connected with', href: '/penpals.html' },
       { icon: '⚙', title: 'Settings', sub: 'Display language and account options', href: '/settings.html' },
     ]
-    if (user.account_type === 'teacher') return [
+   if (user.account_type === 'teacher') return [
       { icon: '📊', title: 'Dashboard', sub: 'Overview of your classes this week', href: '/teacher.html' },
       { icon: '👥', title: 'Students', sub: 'Manage your class roster', href: '/students.html' },
       { icon: '🚩', title: 'Flagged letters', sub: 'Review held letters', href: '/flagged.html', badge: 'Review needed' },
       { icon: '⚙', title: 'Flag controls', sub: 'Customize what gets flagged', href: '/flag-settings.html' },
       { icon: '🌍', title: 'Teacher Network', sub: 'Find teachers and match classes', href: '/teacher-network.html' },
+      { icon: '👤', title: 'My profile', sub: 'Edit your teacher profile and photo', href: '/teacher-settings.html' },
     ]
     if (user.account_type === 'parent') return [
       { icon: '📊', title: 'Overview', sub: 'See your child\'s activity', href: '/parent.html' },
