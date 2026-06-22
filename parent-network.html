@@ -1,0 +1,270 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Lingua Letters — Parent Network</title>
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; background: #F1EFE8; min-height: 100vh; padding: 24px 20px; }
+    .topbar { max-width: 900px; margin: 0 auto 20px; display: flex; align-items: center; justify-content: space-between; }
+    .logo { display: flex; align-items: center; gap: 10px; }
+    .orb { width: 32px; height: 32px; border-radius: 50%; background: #1D9E75; display: flex; align-items: center; justify-content: center; font-size: 16px; }
+    .logo-text { font-size: 18px; font-weight: 500; color: #1a1a1a; }
+    .back { font-size: 13px; color: #1D9E75; text-decoration: none; }
+    .back:hover { text-decoration: underline; }
+    h1 { font-size: 22px; font-weight: 600; color: #1a1a1a; margin-bottom: 4px; }
+    .subtitle { font-size: 13px; color: #888; margin-bottom: 20px; }
+    .filters { background: white; border-radius: 14px; padding: 20px; max-width: 900px; margin: 0 auto 20px; box-shadow: 0 2px 12px rgba(0,0,0,0.06); display: flex; flex-wrap: wrap; gap: 12px; align-items: flex-end; }
+    .filter-group { display: flex; flex-direction: column; gap: 5px; min-width: 160px; flex: 1; }
+    .filter-group label { font-size: 11px; color: #aaa; text-transform: uppercase; letter-spacing: .06em; font-weight: 500; }
+    select, input { padding: 9px 12px; border: 1px solid #e5e3dc; border-radius: 9px; font-size: 13px; font-family: inherit; color: #1a1a1a; background: white; outline: none; width: 100%; }
+    select:focus, input:focus { border-color: #1D9E75; }
+    .btn { padding: 9px 18px; border-radius: 9px; font-size: 13px; font-weight: 500; cursor: pointer; border: none; white-space: nowrap; }
+    .btn-primary { background: #1D9E75; color: white; }
+    .btn-primary:hover { background: #0F6E56; }
+    .btn-ghost { background: none; color: #888; }
+    .results { max-width: 900px; margin: 0 auto; }
+    .results-header { font-size: 12px; color: #aaa; margin-bottom: 12px; }
+    .grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(260px, 1fr)); gap: 16px; }
+    .parent-card { background: white; border-radius: 14px; padding: 20px; box-shadow: 0 2px 12px rgba(0,0,0,0.06); display: flex; flex-direction: column; gap: 12px; }
+    .card-header { display: flex; align-items: center; gap: 12px; }
+    .avatar { width: 44px; height: 44px; border-radius: 50%; background: #1D9E75; display: flex; align-items: center; justify-content: center; font-size: 16px; color: white; font-weight: 600; flex-shrink: 0; }
+    .avatar.alt { background: #0F6E56; }
+    .avatar.alt2 { background: #5B9E75; }
+    .card-name { font-size: 15px; font-weight: 600; color: #1a1a1a; margin-bottom: 2px; }
+    .card-sub { font-size: 12px; color: #888; }
+    .card-bio { font-size: 12px; color: #666; line-height: 1.5; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; }
+    .tags { display: flex; flex-wrap: wrap; gap: 6px; }
+    .tag { font-size: 11px; padding: 3px 10px; border-radius: 20px; background: #F1EFE8; color: #555; }
+    .tag.green { background: #E1F5EE; color: #0F6E56; }
+    .tag.connected { background: #E1F5EE; color: #0F6E56; font-weight: 500; }
+    .tag.pending { background: #FFF8E6; color: #9A6700; }
+    .connect-btn { width: 100%; padding: 8px; background: #1D9E75; color: white; border: none; border-radius: 9px; font-size: 12px; font-weight: 500; cursor: pointer; }
+    .connect-btn:hover { background: #0F6E56; }
+    .connect-btn:disabled { opacity: 0.5; cursor: not-allowed; }
+    .empty { text-align: center; padding: 60px 20px; color: #aaa; font-size: 14px; }
+    .error-msg { text-align: center; padding: 60px 20px; color: #A32D2D; font-size: 14px; }
+  </style>
+</head>
+<body>
+
+<div class="topbar">
+  <div class="logo">
+    <div class="orb">✉</div>
+    <div class="logo-text">Lingua Letters</div>
+  </div>
+  <a class="back" href="/dashboard.html">← Dashboard</a>
+</div>
+
+<div style="max-width:900px;margin:0 auto 16px;">
+  <h1>👨‍👩‍👧 Parent Network</h1>
+  <div class="subtitle">Connect with other parents, share tips, and find pen pals for your children.</div>
+</div>
+
+<div class="filters">
+  <div class="filter-group">
+    <label>Country</label>
+    <input type="text" id="filter-country" placeholder="e.g. United States">
+  </div>
+  <div class="filter-group">
+    <label>Child's target language</label>
+    <select id="filter-language">
+      <option value="">Any language</option>
+      <option value="English">English</option>
+      <option value="Spanish">Spanish</option>
+      <option value="French">French</option>
+      <option value="Italian">Italian</option>
+      <option value="Korean">Korean</option>
+      <option value="Japanese">Japanese</option>
+      <option value="German">German</option>
+      <option value="Portuguese">Portuguese</option>
+      <option value="Mandarin">Mandarin</option>
+    </select>
+  </div>
+  <div style="display:flex;gap:8px;align-items:flex-end;">
+    <button class="btn btn-primary" onclick="applyFilters()">Search</button>
+    <button class="btn btn-ghost" onclick="clearFilters()">Clear</button>
+  </div>
+</div>
+
+<div class="results">
+  <div id="results-header" class="results-header"></div>
+  <div id="grid" class="grid"><div class="empty">Loading parents…</div></div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script>
+  const { createClient } = supabase
+  const sb = createClient(
+    'https://vfohvovtxklsdvpigycx.supabase.co',
+    'sb_publishable_iOcoEodjREKpEL1B7DqRSg_k4cKFSEu'
+  )
+
+  let me = null
+  let myChildLanguage = null
+  let connectionMap = {}
+
+  async function init() {
+    const { data: { session } } = await sb.auth.getSession()
+    if (!session) { window.location.href = '/login.html'; return }
+
+    const { data: user, error } = await sb.from('users').select('*').eq('id', session.user.id).single()
+    if (error || !user) { showError('Could not load your account.'); return }
+    if (user.account_type !== 'parent') { window.location.href = '/dashboard.html'; return }
+
+    me = user
+
+    // Get child's learning language for smart filtering
+    const { data: child } = await sb.from('users').select('learning_language').eq('parent_id', me.id).single()
+    if (child) {
+      myChildLanguage = child.learning_language
+      document.getElementById('filter-language').value = myChildLanguage || ''
+    }
+
+    // Load existing connections
+    const { data: connections } = await sb
+      .from('teacher_connections')
+      .select('sender_id, receiver_id, status')
+      .or(`sender_id.eq.${me.id},receiver_id.eq.${me.id}`)
+
+    if (connections) {
+      connections.forEach(c => {
+        const otherId = c.sender_id === me.id ? c.receiver_id : c.sender_id
+        connectionMap[otherId] = c.status
+      })
+    }
+
+    await loadParents()
+  }
+
+  function showError(msg) {
+    document.getElementById('grid').innerHTML = `<div class="error-msg">${msg}</div>`
+  }
+
+  async function loadParents(filters = {}) {
+    document.getElementById('grid').innerHTML = '<div class="empty">Loading parents…</div>'
+
+    let query = sb
+      .from('users')
+      .select('id, display_name, full_name, bio, profile_photo_url')
+      .eq('account_type', 'parent')
+      .neq('id', me.id)
+
+    if (filters.country) query = query.ilike('school_country', `%${filters.country}%`)
+
+    const { data: parents, error } = await query
+
+    if (error) { showError('Error loading parents: ' + error.message); return }
+
+    // If language filter set, load children of these parents and filter
+    let filtered = parents || []
+    if (filters.language && filtered.length > 0) {
+      const parentIds = filtered.map(p => p.id)
+      const { data: children } = await sb
+        .from('users')
+        .select('parent_id, learning_language')
+        .in('parent_id', parentIds)
+        .eq('learning_language', filters.language)
+
+      const matchingParentIds = new Set((children || []).map(c => c.parent_id))
+      filtered = filtered.filter(p => matchingParentIds.has(p.id))
+    }
+
+    if (filtered.length === 0) {
+      document.getElementById('results-header').textContent = ''
+      document.getElementById('grid').innerHTML = '<div class="empty">No parents found matching your filters.</div>'
+      return
+    }
+
+    // Get children's languages for display
+    const parentIds = filtered.map(p => p.id)
+    const { data: allChildren } = await sb
+      .from('users')
+      .select('parent_id, learning_language, age')
+      .in('parent_id', parentIds)
+
+    const childMap = {}
+    if (allChildren) allChildren.forEach(c => { childMap[c.parent_id] = c })
+
+    const avatarColors = ['', 'alt', 'alt2']
+    document.getElementById('results-header').textContent = `${filtered.length} parent${filtered.length === 1 ? '' : 's'} found`
+
+    document.getElementById('grid').innerHTML = filtered.map((p, i) => {
+      const initials = (p.display_name || p.full_name || '?').split(' ').map(w => w[0]).join('').toUpperCase().slice(0,2)
+      const colorClass = avatarColors[i % 3]
+      const bio = p.bio ? p.bio.slice(0, 100) + (p.bio.length > 100 ? '…' : '') : 'No bio yet.'
+      const child = childMap[p.id]
+      const connStatus = connectionMap[p.id]
+
+      let avatarHtml = `<div class="avatar ${colorClass}">${initials}</div>`
+      if (p.profile_photo_url) {
+        avatarHtml = `<div class="avatar ${colorClass}" style="padding:0;overflow:hidden;"><img src="${p.profile_photo_url}" style="width:100%;height:100%;object-fit:cover;" onerror="this.parentElement.innerHTML='${initials}'"></div>`
+      }
+
+      let statusTag = ''
+      let connectBtn = `<button class="connect-btn" onclick="connect('${p.id}', this)">Connect</button>`
+      if (connStatus === 'accepted') {
+        statusTag = '<span class="tag connected">✓ Connected</span>'
+        connectBtn = ''
+      } else if (connStatus === 'pending') {
+        statusTag = '<span class="tag pending">⏳ Pending</span>'
+        connectBtn = ''
+      }
+
+      const childTag = child ? `<span class="tag green">Learning ${child.learning_language}</span>` : ''
+
+      return `
+        <div class="parent-card">
+          <div class="card-header">
+            ${avatarHtml}
+            <div>
+              <div class="card-name">${p.display_name || p.full_name}</div>
+              <div class="card-sub">${child ? `Child · Age ${child.age || '—'}` : 'Parent'}</div>
+            </div>
+          </div>
+          <div class="card-bio">${bio}</div>
+          <div class="tags">${childTag}${statusTag}</div>
+          ${connectBtn}
+        </div>
+      `
+    }).join('')
+  }
+
+  window.connect = async function(receiverId, btn) {
+    btn.disabled = true
+    btn.textContent = 'Sending…'
+
+    const { error } = await sb.from('teacher_connections').insert({
+      sender_id: me.id,
+      receiver_id: receiverId,
+      status: 'pending'
+    })
+
+    if (error) {
+      btn.disabled = false
+      btn.textContent = 'Connect'
+      alert('Error: ' + error.message)
+    } else {
+      connectionMap[receiverId] = 'pending'
+      btn.textContent = '⏳ Pending'
+    }
+  }
+
+  window.applyFilters = function() {
+    loadParents({
+      country: document.getElementById('filter-country').value.trim(),
+      language: document.getElementById('filter-language').value
+    })
+  }
+
+  window.clearFilters = function() {
+    document.getElementById('filter-country').value = ''
+    document.getElementById('filter-language').value = ''
+    loadParents()
+  }
+
+  init()
+</script>
+</body>
+</html>
