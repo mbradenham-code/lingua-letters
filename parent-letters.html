@@ -1,0 +1,102 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Lingua Letters — All Letters</title>
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; background: #F1EFE8; min-height: 100vh; }
+    .topbar { background: white; border-bottom: 1px solid #e5e3dc; padding: 14px 24px; display: flex; align-items: center; gap: 12px; }
+    .logo { display: flex; align-items: center; gap: 8px; font-size: 16px; font-weight: 500; color: #1a1a1a; }
+    .orb { width: 26px; height: 26px; border-radius: 50%; background: #1D9E75; display: flex; align-items: center; justify-content: center; font-size: 14px; }
+    .spacer { flex: 1; }
+    .back { font-size: 13px; color: #1D9E75; text-decoration: none; }
+    .back:hover { text-decoration: underline; }
+    .content { max-width: 800px; margin: 40px auto; padding: 0 20px; }
+    .page-header { background: white; border-radius: 14px; padding: 24px 28px; margin-bottom: 20px; border: 1px solid #e5e3dc; }
+    .page-header h1 { font-size: 20px; font-weight: 500; }
+    .page-header p { font-size: 13px; color: #888; margin-top: 4px; }
+    .letter-card { background: white; border-radius: 14px; border: 1px solid #e5e3dc; margin-bottom: 14px; overflow: hidden; }
+    .letter-header { padding: 14px 20px; border-bottom: 1px solid #f0ede6; display: flex; align-items: center; justify-content: space-between; }
+    .letter-from { font-size: 13px; font-weight: 500; color: #1a1a1a; }
+    .letter-date { font-size: 12px; color: #aaa; }
+    .letter-direction { font-size: 11px; padding: 3px 10px; border-radius: 20px; margin-left: 8px; }
+    .sent { background: #E1F5EE; color: #0F6E56; }
+    .received { background: #F1EFE8; color: #555; }
+    .letter-body { padding: 20px; font-size: 14px; color: #333; line-height: 1.7; }
+    .empty { text-align: center; padding: 60px 20px; color: #aaa; font-size: 14px; }
+    .loading { text-align: center; padding: 60px 20px; color: #aaa; font-size: 14px; }
+    .no-child { text-align: center; padding: 60px 20px; color: #aaa; font-size: 14px; line-height: 1.7; }
+  </style>
+</head>
+<body>
+<div class="topbar">
+  <div class="logo"><div class="orb">✉</div>Lingua Letters</div>
+  <div class="spacer"></div>
+  <a class="back" href="/dashboard.html">← Dashboard</a>
+</div>
+<div class="content">
+  <div class="page-header">
+    <h1>📬 All Letters</h1>
+    <p id="header-sub">Your child's full letter history.</p>
+  </div>
+  <div id="loading" class="loading">Loading letters…</div>
+  <div id="letter-list"></div>
+</div>
+<script type="module">
+  import { createClient } from 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js/+esm'
+  const supabase = createClient(
+    'https://vfohvovtxklsdvpigycx.supabase.co',
+    'sb_publishable_iOcoEodjREKpEL1B7DqRSg_k4cKFSEu'
+  )
+
+  const { data: { session } } = await supabase.auth.getSession()
+  if (!session) { window.location.href = '/login.html' }
+
+  const { data: me } = await supabase.from('users').select('*').eq('id', session.user.id).single()
+  if (!me || me.account_type !== 'parent') { window.location.href = '/dashboard.html' }
+
+  const { data: child } = await supabase.from('users').select('*').eq('parent_id', me.id).single()
+
+  document.getElementById('loading').style.display = 'none'
+  const list = document.getElementById('letter-list')
+
+  if (!child) {
+    list.innerHTML = '<div class="no-child">No child account linked yet.<br>Ask your child to sign up with your email as their parent email.</div>'
+    return
+  }
+
+  document.getElementById('header-sub').textContent = `${child.display_name}'s full letter history.`
+
+  const { data: letters } = await supabase
+    .from('letters')
+    .select('*, sender:users!letters_sender_id_fkey(display_name), recipient:users!letters_recipient_id_fkey(display_name)')
+    .or(`sender_id.eq.${child.id},recipient_id.eq.${child.id}`)
+    .eq('status', 'delivered')
+    .order('created_at', { ascending: false })
+
+  if (!letters || letters.length === 0) {
+    list.innerHTML = '<div class="empty">No letters yet. Your child hasn\'t sent or received any letters.</div>'
+    return
+  }
+
+  list.innerHTML = letters.map(l => {
+    const isSent = l.sender_id === child.id
+    const otherPerson = isSent ? l.recipient?.display_name : l.sender?.display_name
+    return `
+      <div class="letter-card">
+        <div class="letter-header">
+          <div class="letter-from">
+            ${isSent ? `To ${otherPerson}` : `From ${otherPerson}`}
+            <span class="letter-direction ${isSent ? 'sent' : 'received'}">${isSent ? 'Sent' : 'Received'}</span>
+          </div>
+          <div class="letter-date">${new Date(l.created_at).toLocaleDateString()}</div>
+        </div>
+        <div class="letter-body">${l.body}</div>
+      </div>
+    `
+  }).join('')
+</script>
+</body>
+</html>
