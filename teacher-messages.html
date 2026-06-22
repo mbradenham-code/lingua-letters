@@ -1,0 +1,201 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Lingua Letters — Messages</title>
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; background: #F1EFE8; min-height: 100vh; }
+    .topbar { background: white; border-bottom: 1px solid #e5e3dc; padding: 14px 24px; display: flex; align-items: center; gap: 12px; }
+    .logo { display: flex; align-items: center; gap: 8px; font-size: 16px; font-weight: 500; color: #1a1a1a; }
+    .orb { width: 26px; height: 26px; border-radius: 50%; background: #1D9E75; display: flex; align-items: center; justify-content: center; font-size: 14px; }
+    .spacer { flex: 1; }
+    .back { font-size: 13px; color: #1D9E75; text-decoration: none; }
+    .back:hover { text-decoration: underline; }
+    .layout { display: flex; max-width: 900px; margin: 30px auto; padding: 0 20px; gap: 16px; height: calc(100vh - 120px); }
+    .sidebar { width: 260px; flex-shrink: 0; background: white; border-radius: 14px; border: 1px solid #e5e3dc; overflow-y: auto; }
+    .sidebar-header { padding: 16px 20px; border-bottom: 1px solid #f0ede6; font-size: 13px; font-weight: 500; color: #1a1a1a; }
+    .contact { display: flex; align-items: center; gap: 10px; padding: 12px 16px; cursor: pointer; border-bottom: 1px solid #f0ede6; transition: background .1s; }
+    .contact:hover, .contact.on { background: #F8F7F4; }
+    .contact:last-child { border-bottom: none; }
+    .av { width: 34px; height: 34px; border-radius: 50%; background: #1D9E75; display: flex; align-items: center; justify-content: center; color: white; font-size: 12px; font-weight: 600; flex-shrink: 0; }
+    .contact-info { flex: 1; min-width: 0; }
+    .contact-name { font-size: 13px; font-weight: 500; color: #1a1a1a; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+    .contact-school { font-size: 11px; color: #aaa; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+    .chat-area { flex: 1; background: white; border-radius: 14px; border: 1px solid #e5e3dc; display: flex; flex-direction: column; }
+    .chat-header { padding: 16px 20px; border-bottom: 1px solid #f0ede6; display: flex; align-items: center; gap: 10px; }
+    .chat-name { font-size: 14px; font-weight: 500; }
+    .chat-school { font-size: 12px; color: #aaa; }
+    .messages { flex: 1; overflow-y: auto; padding: 20px; display: flex; flex-direction: column; gap: 12px; }
+    .msg { max-width: 70%; padding: 10px 14px; border-radius: 14px; font-size: 13px; line-height: 1.5; }
+    .msg.mine { background: #1D9E75; color: white; align-self: flex-end; border-bottom-right-radius: 4px; }
+    .msg.theirs { background: #F1EFE8; color: #1a1a1a; align-self: flex-start; border-bottom-left-radius: 4px; }
+    .msg-time { font-size: 10px; opacity: 0.6; margin-top: 4px; }
+    .compose { padding: 16px 20px; border-top: 1px solid #f0ede6; display: flex; gap: 10px; }
+    .compose input { flex: 1; padding: 10px 14px; border: 1px solid #e5e3dc; border-radius: 9px; font-size: 13px; font-family: inherit; outline: none; }
+    .compose input:focus { border-color: #1D9E75; }
+    .send-btn { padding: 10px 18px; background: #1D9E75; color: white; border: none; border-radius: 9px; font-size: 13px; font-weight: 500; cursor: pointer; }
+    .send-btn:hover { background: #0F6E56; }
+    .empty-chat { flex: 1; display: flex; align-items: center; justify-content: center; color: #aaa; font-size: 14px; }
+    .empty-contacts { padding: 30px 20px; text-align: center; color: #aaa; font-size: 13px; line-height: 1.7; }
+    .loading { padding: 30px 20px; text-align: center; color: #aaa; font-size: 13px; }
+  </style>
+</head>
+<body>
+<div class="topbar">
+  <div class="logo"><div class="orb">✉</div>Lingua Letters</div>
+  <div class="spacer"></div>
+  <a class="back" href="/teacher-network.html">← Network</a>
+</div>
+
+<div class="layout">
+  <div class="sidebar">
+    <div class="sidebar-header">💬 Messages</div>
+    <div id="contacts"><div class="loading">Loading…</div></div>
+  </div>
+  <div class="chat-area">
+    <div id="chat-header" class="chat-header" style="display:none;">
+      <div class="av" id="chat-av"></div>
+      <div>
+        <div class="chat-name" id="chat-name"></div>
+        <div class="chat-school" id="chat-school"></div>
+      </div>
+    </div>
+    <div id="messages" class="messages">
+      <div class="empty-chat">Select a conversation to start messaging</div>
+    </div>
+    <div id="compose" class="compose" style="display:none;">
+      <input type="text" id="msg-input" placeholder="Write a message…">
+      <button class="send-btn" onclick="sendMessage()">Send</button>
+    </div>
+  </div>
+</div>
+
+<script type="module">
+  import { createClient } from 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js/+esm'
+  const supabase = createClient(
+    'https://vfohvovtxklsdvpigycx.supabase.co',
+    'sb_publishable_iOcoEodjREKpEL1B7DqRSg_k4cKFSEu'
+  )
+
+  const { data: { session } } = await supabase.auth.getSession()
+  if (!session) { window.location.href = '/login.html' }
+
+  const { data: me } = await supabase.from('users').select('*').eq('id', session.user.id).single()
+  if (!me || me.account_type !== 'teacher') { window.location.href = '/dashboard.html' }
+
+  let currentPartner = null
+  const params = new URLSearchParams(window.location.search)
+  const preloadWith = params.get('with')
+
+  // Load accepted connections
+  const { data: connections } = await supabase
+    .from('teacher_connections')
+    .select('sender_id, receiver_id')
+    .or(`sender_id.eq.${me.id},receiver_id.eq.${me.id}`)
+    .eq('status', 'accepted')
+
+  const partnerIds = (connections || []).map(c => c.sender_id === me.id ? c.receiver_id : c.sender_id)
+
+  const contactsEl = document.getElementById('contacts')
+
+  if (partnerIds.length === 0) {
+    contactsEl.innerHTML = '<div class="empty-contacts">No connections yet.<br>Connect with teachers in the network first.</div>'
+  } else {
+    const { data: partners } = await supabase
+      .from('users')
+      .select('id, display_name, full_name, school_name')
+      .in('id', partnerIds)
+
+    contactsEl.innerHTML = (partners || []).map(p => {
+      const initials = (p.display_name || p.full_name || '?').split(' ').map(w => w[0]).join('').toUpperCase().slice(0,2)
+      return `
+        <div class="contact" id="contact-${p.id}" onclick="openChat('${p.id}', '${p.display_name || p.full_name}', '${p.school_name || ''}', '${initials}')">
+          <div class="av">${initials}</div>
+          <div class="contact-info">
+            <div class="contact-name">${p.display_name || p.full_name}</div>
+            <div class="contact-school">${p.school_name || 'School not listed'}</div>
+          </div>
+        </div>
+      `
+    }).join('')
+
+    // Auto-open if ?with= param present
+    if (preloadWith && partners) {
+      const p = partners.find(p => p.id === preloadWith)
+      if (p) {
+        const initials = (p.display_name || p.full_name || '?').split(' ').map(w => w[0]).join('').toUpperCase().slice(0,2)
+        openChat(p.id, p.display_name || p.full_name, p.school_name || '', initials)
+      }
+    }
+  }
+
+  window.openChat = async function(partnerId, name, school, initials) {
+    currentPartner = partnerId
+
+    document.querySelectorAll('.contact').forEach(c => c.classList.remove('on'))
+    const contactEl = document.getElementById('contact-' + partnerId)
+    if (contactEl) contactEl.classList.add('on')
+
+    document.getElementById('chat-header').style.display = 'flex'
+    document.getElementById('chat-av').textContent = initials
+    document.getElementById('chat-name').textContent = name
+    document.getElementById('chat-school').textContent = school
+    document.getElementById('compose').style.display = 'flex'
+
+    await loadMessages(partnerId)
+  }
+
+  async function loadMessages(partnerId) {
+    const messagesEl = document.getElementById('messages')
+    messagesEl.innerHTML = '<div style="text-align:center;color:#aaa;font-size:13px;padding:20px;">Loading…</div>'
+
+    const { data: msgs } = await supabase
+      .from('teacher_messages')
+      .select('*')
+      .or(`and(sender_id.eq.${me.id},receiver_id.eq.${partnerId}),and(sender_id.eq.${partnerId},receiver_id.eq.${me.id})`)
+      .order('created_at', { ascending: true })
+
+    if (!msgs || msgs.length === 0) {
+      messagesEl.innerHTML = '<div class="empty-chat">No messages yet. Say hello!</div>'
+      return
+    }
+
+    messagesEl.innerHTML = msgs.map(m => {
+      const mine = m.sender_id === me.id
+      const time = new Date(m.created_at).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })
+      return `
+        <div class="msg ${mine ? 'mine' : 'theirs'}">
+          ${m.content}
+          <div class="msg-time">${time}</div>
+        </div>
+      `
+    }).join('')
+
+    messagesEl.scrollTop = messagesEl.scrollHeight
+  }
+
+  window.sendMessage = async function() {
+    const input = document.getElementById('msg-input')
+    const content = input.value.trim()
+    if (!content || !currentPartner) return
+
+    input.value = ''
+
+    const { error } = await supabase.from('teacher_messages').insert({
+      sender_id: me.id,
+      receiver_id: currentPartner,
+      content
+    })
+
+    if (!error) await loadMessages(currentPartner)
+  }
+
+  // Send on Enter key
+  document.getElementById('msg-input').addEventListener('keydown', function(e) {
+    if (e.key === 'Enter') sendMessage()
+  })
+</script>
+</body>
+</html>
