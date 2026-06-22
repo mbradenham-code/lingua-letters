@@ -1,0 +1,182 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Lingua Letters — Teacher Profile</title>
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; background: #F1EFE8; min-height: 100vh; padding: 24px 20px; }
+    .topbar { max-width: 700px; margin: 0 auto 20px; display: flex; align-items: center; gap: 12px; }
+    .back { font-size: 13px; color: #1D9E75; text-decoration: none; }
+    .back:hover { text-decoration: underline; }
+    .card { background: white; border-radius: 16px; padding: 32px; max-width: 700px; margin: 0 auto 20px; box-shadow: 0 2px 20px rgba(0,0,0,0.07); }
+    .profile-header { display: flex; align-items: center; gap: 20px; margin-bottom: 24px; }
+    .avatar { width: 72px; height: 72px; border-radius: 50%; background: #1D9E75; display: flex; align-items: center; justify-content: center; font-size: 28px; color: white; font-weight: 600; flex-shrink: 0; }
+    .header-info h1 { font-size: 22px; font-weight: 600; color: #1a1a1a; margin-bottom: 4px; }
+    .header-info .school { font-size: 14px; color: #888; }
+    .header-info .country { font-size: 13px; color: #aaa; margin-top: 2px; }
+    .section { margin-bottom: 24px; }
+    .section-title { font-size: 11px; color: #aaa; text-transform: uppercase; letter-spacing: .06em; font-weight: 500; margin-bottom: 10px; }
+    .bio { font-size: 14px; color: #444; line-height: 1.7; }
+    .tags { display: flex; flex-wrap: wrap; gap: 8px; }
+    .tag { background: #F1EFE8; color: #555; font-size: 12px; padding: 5px 12px; border-radius: 20px; }
+    .tag.green { background: #E1F5EE; color: #0F6E56; }
+    .divider { height: 1px; background: #e5e3dc; margin: 20px 0; }
+    .actions { display: flex; gap: 10px; flex-wrap: wrap; }
+    .btn { padding: 10px 20px; border-radius: 9px; font-size: 13px; font-weight: 500; cursor: pointer; border: none; }
+    .btn-primary { background: #1D9E75; color: white; }
+    .btn-primary:hover { background: #0F6E56; }
+    .btn-secondary { background: #F1EFE8; color: #444; }
+    .btn-secondary:hover { background: #e5e3dc; }
+    .btn:disabled { opacity: 0.5; cursor: not-allowed; }
+    .status-msg { font-size: 13px; color: #1D9E75; margin-top: 10px; display: none; }
+    .loading { text-align: center; padding: 60px 20px; color: #aaa; font-size: 14px; }
+    .error-state { text-align: center; padding: 60px 20px; color: #A32D2D; font-size: 14px; }
+  </style>
+</head>
+<body>
+
+<div class="topbar">
+  <a class="back" href="/teacher-network.html">← Back to network</a>
+</div>
+
+<div id="loading" class="card loading">Loading profile…</div>
+<div id="error-state" class="card error-state" style="display:none;">Could not load this profile.</div>
+
+<div id="profile-card" class="card" style="display:none;">
+  <div class="profile-header">
+    <div class="avatar" id="avatar-initials"></div>
+    <div class="header-info">
+      <h1 id="display-name"></h1>
+      <div class="school" id="school-name"></div>
+      <div class="country" id="school-country"></div>
+    </div>
+  </div>
+
+  <div class="section" id="bio-section">
+    <div class="section-title">About</div>
+    <div class="bio" id="bio-text"></div>
+  </div>
+
+  <div class="divider"></div>
+
+  <div class="section">
+    <div class="section-title">Grade level</div>
+    <div class="tags"><span class="tag green" id="grade-level"></span></div>
+  </div>
+
+  <div class="section" id="style-section">
+    <div class="section-title">Teaching style</div>
+    <div class="tags" id="teaching-style-tags"></div>
+  </div>
+
+  <div class="divider"></div>
+
+  <div id="actions-section" class="actions"></div>
+  <div id="status-msg" class="status-msg"></div>
+</div>
+
+<script type="module">
+  import { createClient } from 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js/+esm'
+
+  const supabase = createClient(
+    'https://vfohvovtxklsdvpigycx.supabase.co',
+    'sb_publishable_iOcoEodjREKpEL1B7DqRSg_k4cKFSEu'
+  )
+
+  const params = new URLSearchParams(window.location.search)
+  const profileId = params.get('id')
+
+  const { data: { user } } = await supabase.auth.getUser()
+  if (!user) { window.location.href = '/login.html'; return }
+
+  const { data: me } = await supabase.from('users').select('id, account_type').eq('id', user.id).single()
+
+  if (!profileId) {
+    document.getElementById('loading').style.display = 'none'
+    document.getElementById('error-state').style.display = 'block'
+    document.getElementById('error-state').textContent = 'No profile specified.'
+    return
+  }
+
+  // Load the profile
+  const { data: profile, error } = await supabase
+    .from('users')
+    .select('id, display_name, full_name, school_name, school_country, bio, grade_level, teaching_style')
+    .eq('id', profileId)
+    .eq('account_type', 'teacher')
+    .single()
+
+  document.getElementById('loading').style.display = 'none'
+
+  if (error || !profile) {
+    document.getElementById('error-state').style.display = 'block'
+    return
+  }
+
+  // Populate profile
+  const initials = (profile.display_name || profile.full_name || '?').split(' ').map(w => w[0]).join('').toUpperCase().slice(0, 2)
+  document.getElementById('avatar-initials').textContent = initials
+  document.getElementById('display-name').textContent = profile.display_name || profile.full_name
+  document.getElementById('school-name').textContent = profile.school_name || 'School not listed'
+  document.getElementById('school-country').textContent = profile.school_country || ''
+  document.getElementById('bio-text').textContent = profile.bio || 'No bio yet.'
+  document.getElementById('grade-level').textContent = profile.grade_level || 'Not specified'
+
+  if (profile.teaching_style && profile.teaching_style.length > 0) {
+    document.getElementById('teaching-style-tags').innerHTML = profile.teaching_style.map(s => `<span class="tag">${s}</span>`).join('')
+  } else {
+    document.getElementById('style-section').style.display = 'none'
+  }
+
+  document.getElementById('profile-card').style.display = 'block'
+
+  // Actions — only show if viewing someone else's profile and you're a teacher
+  const actionsEl = document.getElementById('actions-section')
+  const statusMsg = document.getElementById('status-msg')
+
+  if (me.account_type === 'teacher' && profileId !== me.id) {
+    // Check existing connection status
+    const { data: existing } = await supabase
+      .from('teacher_connections')
+      .select('id, status')
+      .or(`and(sender_id.eq.${me.id},receiver_id.eq.${profileId}),and(sender_id.eq.${profileId},receiver_id.eq.${me.id})`)
+      .single()
+
+    if (!existing) {
+      actionsEl.innerHTML = `
+        <button class="btn btn-primary" id="connect-btn">Send connection request</button>
+        <button class="btn btn-secondary" id="email-btn">Share email</button>
+      `
+      document.getElementById('connect-btn').onclick = async () => {
+        document.getElementById('connect-btn').disabled = true
+        const { error } = await supabase.from('teacher_connections').insert({
+          sender_id: me.id,
+          receiver_id: profileId,
+          status: 'pending'
+        })
+        if (error) {
+          statusMsg.textContent = 'Something went wrong. Please try again.'
+          statusMsg.style.color = '#A32D2D'
+        } else {
+          statusMsg.textContent = 'Connection request sent!'
+        }
+        statusMsg.style.display = 'block'
+      }
+      document.getElementById('email-btn').onclick = () => {
+        statusMsg.textContent = `You can reach this teacher at their registered email. Connect first to exchange contact details.`
+        statusMsg.style.display = 'block'
+      }
+    } else if (existing.status === 'pending') {
+      actionsEl.innerHTML = `<button class="btn btn-secondary" disabled>Request pending…</button>`
+    } else if (existing.status === 'accepted') {
+      actionsEl.innerHTML = `
+        <a href="/teacher-messages.html?with=${profileId}" class="btn btn-primary">Send message</a>
+        <a href="/class-matching.html?partner=${profileId}" class="btn btn-secondary">Match our classes</a>
+      `
+    }
+  }
+</script>
+</body>
+</html>
