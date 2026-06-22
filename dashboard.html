@@ -113,12 +113,18 @@
       { icon: '⚙', title: 'Controls', sub: 'Safety settings and flag rules', href: '/parent-settings.html' },
       { icon: '👨‍👩‍👧', title: 'Parent Network', sub: 'Connect with other parents', href: '/parent-network.html' },
     ]
+    if (user.account_type === 'solo') return [
+      { icon: '📬', title: 'My letters', sub: 'Read and write letters', href: '/inbox.html' },
+      { icon: '✏', title: 'Write a letter', sub: 'Send a new letter today', href: '/compose.html' },
+      { icon: '🌍', title: 'My pen pals', sub: 'See who you are connected with', href: '/penpals.html' },
+      { icon: '🔍', title: 'Find pen pals', sub: 'Browse solo learners like you', href: '/solo-network.html' },
+      { icon: '⚙', title: 'Settings', sub: 'Account and display options', href: '/settings.html' },
+    ]
     return [
       { icon: '📬', title: 'My letters', sub: 'Read and write letters', href: '/inbox.html' },
       { icon: '✏', title: 'Write a letter', sub: 'Send a new letter today', href: '/compose.html' },
       { icon: '🌍', title: 'My pen pals', sub: 'See who you are connected with', href: '/penpals.html' },
       { icon: '⚙', title: 'Settings', sub: 'Account and display options', href: '/settings.html' },
-      { icon: '🌍', title: 'Find pen pals', sub: 'Browse solo learners like you', href: '/solo-network.html' },
     ]
   }
 
