@@ -1,0 +1,221 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Lingua Letters — Parent Controls</title>
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; background: #F1EFE8; min-height: 100vh; }
+    .topbar { background: white; border-bottom: 1px solid #e5e3dc; padding: 14px 24px; display: flex; align-items: center; gap: 12px; }
+    .logo { display: flex; align-items: center; gap: 8px; font-size: 16px; font-weight: 500; color: #1a1a1a; }
+    .orb { width: 26px; height: 26px; border-radius: 50%; background: #1D9E75; display: flex; align-items: center; justify-content: center; font-size: 14px; }
+    .spacer { flex: 1; }
+    .back { font-size: 13px; color: #1D9E75; text-decoration: none; }
+    .back:hover { text-decoration: underline; }
+    .content { max-width: 800px; margin: 40px auto; padding: 0 20px; }
+    .page-header { background: white; border-radius: 14px; padding: 24px 28px; margin-bottom: 20px; border: 1px solid #e5e3dc; }
+    .page-header h1 { font-size: 20px; font-weight: 500; }
+    .page-header p { font-size: 13px; color: #888; margin-top: 4px; }
+    .presets { display: flex; gap: 10px; flex-wrap: wrap; margin-bottom: 24px; }
+    .preset-btn { padding: 8px 16px; border-radius: 9px; font-size: 12px; font-weight: 500; cursor: pointer; border: 1.5px solid #e5e3dc; background: white; color: #555; transition: all .15s; }
+    .preset-btn:hover, .preset-btn.on { background: #1D9E75; color: white; border-color: #1D9E75; }
+    .section { background: white; border-radius: 14px; border: 1px solid #e5e3dc; margin-bottom: 16px; overflow: hidden; }
+    .section-header { padding: 16px 20px; border-bottom: 1px solid #f0ede6; font-size: 13px; font-weight: 500; color: #1a1a1a; }
+    .toggle-row { display: flex; align-items: center; justify-content: space-between; padding: 14px 20px; border-bottom: 1px solid #f0ede6; }
+    .toggle-row:last-child { border-bottom: none; }
+    .toggle-info { flex: 1; }
+    .toggle-label { font-size: 13px; color: #1a1a1a; margin-bottom: 2px; }
+    .toggle-desc { font-size: 11px; color: #aaa; }
+    .toggle { position: relative; width: 40px; height: 22px; flex-shrink: 0; }
+    .toggle input { opacity: 0; width: 0; height: 0; }
+    .slider { position: absolute; inset: 0; background: #e5e3dc; border-radius: 22px; cursor: pointer; transition: .2s; }
+    .slider:before { content: ''; position: absolute; height: 16px; width: 16px; left: 3px; bottom: 3px; background: white; border-radius: 50%; transition: .2s; }
+    input:checked + .slider { background: #1D9E75; }
+    input:checked + .slider:before { transform: translateX(18px); }
+    .save-bar { background: white; border-radius: 14px; border: 1px solid #e5e3dc; padding: 16px 20px; display: flex; align-items: center; justify-content: space-between; }
+    .btn { padding: 10px 22px; border-radius: 9px; font-size: 13px; font-weight: 500; cursor: pointer; border: none; background: #1D9E75; color: white; }
+    .btn:hover { background: #0F6E56; }
+    .save-msg { font-size: 13px; color: #1D9E75; display: none; }
+  </style>
+</head>
+<body>
+<div class="topbar">
+  <div class="logo"><div class="orb">✉</div>Lingua Letters</div>
+  <div class="spacer"></div>
+  <a class="back" href="/dashboard.html">← Dashboard</a>
+</div>
+<div class="content">
+  <div class="page-header">
+    <h1>⚙ Parent Controls</h1>
+    <p>Set safety rules for your child's account. If your child also has a teacher, the stricter rule always wins.</p>
+  </div>
+
+  <div style="margin-bottom:16px;">
+    <div style="font-size:11px;color:#aaa;text-transform:uppercase;letter-spacing:.06em;margin-bottom:10px;font-weight:500;">Quick presets by age</div>
+    <div class="presets">
+      <button class="preset-btn" onclick="applyPreset('under13')">Under 13</button>
+      <button class="preset-btn" onclick="applyPreset('13to15')">13–15</button>
+      <button class="preset-btn" onclick="applyPreset('16to17')">16–17</button>
+      <button class="preset-btn" onclick="applyPreset('18plus')">18+</button>
+    </div>
+  </div>
+
+  <div class="section">
+    <div class="section-header">📞 Contact information</div>
+    <div class="toggle-row">
+      <div class="toggle-info">
+        <div class="toggle-label">Block phone numbers</div>
+        <div class="toggle-desc">Flag any message containing a phone number</div>
+      </div>
+      <label class="toggle"><input type="checkbox" id="flag_phone" checked><span class="slider"></span></label>
+    </div>
+    <div class="toggle-row">
+      <div class="toggle-info">
+        <div class="toggle-label">Block home addresses</div>
+        <div class="toggle-desc">Flag messages containing street addresses</div>
+      </div>
+      <label class="toggle"><input type="checkbox" id="flag_address" checked><span class="slider"></span></label>
+    </div>
+    <div class="toggle-row">
+      <div class="toggle-info">
+        <div class="toggle-label">Block social media handles</div>
+        <div class="toggle-desc">Flag Instagram, Snapchat, TikTok usernames etc.</div>
+      </div>
+      <label class="toggle"><input type="checkbox" id="flag_social" checked><span class="slider"></span></label>
+    </div>
+    <div class="toggle-row">
+      <div class="toggle-info">
+        <div class="toggle-label">Block email addresses</div>
+        <div class="toggle-desc">Flag attempts to move communication off-platform</div>
+      </div>
+      <label class="toggle"><input type="checkbox" id="flag_email" checked><span class="slider"></span></label>
+    </div>
+  </div>
+
+  <div class="section">
+    <div class="section-header">💬 Content</div>
+    <div class="toggle-row">
+      <div class="toggle-info">
+        <div class="toggle-label">Block meeting up in person</div>
+        <div class="toggle-desc">Flag requests to meet offline</div>
+      </div>
+      <label class="toggle"><input type="checkbox" id="flag_meetup" checked><span class="slider"></span></label>
+    </div>
+    <div class="toggle-row">
+      <div class="toggle-info">
+        <div class="toggle-label">Block inappropriate language</div>
+        <div class="toggle-desc">Flag profanity and offensive content</div>
+      </div>
+      <label class="toggle"><input type="checkbox" id="flag_language" checked><span class="slider"></span></label>
+    </div>
+    <div class="toggle-row">
+      <div class="toggle-info">
+        <div class="toggle-label">Block city/location mentions</div>
+        <div class="toggle-desc">Flag specific location details beyond country</div>
+      </div>
+      <label class="toggle"><input type="checkbox" id="flag_location" checked><span class="slider"></span></label>
+    </div>
+    <div class="toggle-row">
+      <div class="toggle-info">
+        <div class="toggle-label">Block romantic language</div>
+        <div class="toggle-desc">Flag flirtatious or romantic content</div>
+      </div>
+      <label class="toggle"><input type="checkbox" id="flag_romantic" checked><span class="slider"></span></label>
+    </div>
+  </div>
+
+  <div class="section">
+    <div class="section-header">⚙ Notifications</div>
+    <div class="toggle-row">
+      <div class="toggle-info">
+        <div class="toggle-label">Email me when a letter is flagged</div>
+        <div class="toggle-desc">Get an email alert each time a letter is held for review</div>
+      </div>
+      <label class="toggle"><input type="checkbox" id="notify_email" checked><span class="slider"></span></label>
+    </div>
+    <div class="toggle-row">
+      <div class="toggle-info">
+        <div class="toggle-label">Allow my child to submit an explanation</div>
+        <div class="toggle-desc">Let your child explain why a flagged letter should be delivered</div>
+      </div>
+      <label class="toggle"><input type="checkbox" id="allow_explanation" checked><span class="slider"></span></label>
+    </div>
+  </div>
+
+  <div class="save-bar">
+    <span class="save-msg" id="save-msg">✓ Settings saved</span>
+    <button class="btn" onclick="saveSettings()">Save settings</button>
+  </div>
+</div>
+
+<script type="module">
+  import { createClient } from 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js/+esm'
+  const supabase = createClient(
+    'https://vfohvovtxklsdvpigycx.supabase.co',
+    'sb_publishable_iOcoEodjREKpEL1B7DqRSg_k4cKFSEu'
+  )
+
+  const { data: { session } } = await supabase.auth.getSession()
+  if (!session) { window.location.href = '/login.html' }
+
+  const { data: me } = await supabase.from('users').select('*').eq('id', session.user.id).single()
+  if (!me || me.account_type !== 'parent') { window.location.href = '/dashboard.html' }
+
+  const FIELDS = ['flag_phone','flag_address','flag_social','flag_email','flag_meetup','flag_language','flag_location','flag_romantic','notify_email','allow_explanation']
+
+  const { data: existing } = await supabase
+    .from('flag_settings')
+    .select('*')
+    .eq('owner_id', me.id)
+    .single()
+
+  if (existing) {
+    FIELDS.forEach(f => {
+      const el = document.getElementById(f)
+      if (el && existing[f] !== undefined) el.checked = existing[f]
+    })
+  }
+
+  const PRESETS = {
+    under13: { flag_phone:true, flag_address:true, flag_social:true, flag_email:true, flag_meetup:true, flag_language:true, flag_location:true, flag_romantic:true, notify_email:true, allow_explanation:false },
+    '13to15': { flag_phone:true, flag_address:true, flag_social:true, flag_email:true, flag_meetup:true, flag_language:true, flag_location:true, flag_romantic:true, notify_email:true, allow_explanation:true },
+    '16to17': { flag_phone:true, flag_address:true, flag_social:true, flag_email:false, flag_meetup:true, flag_language:true, flag_location:false, flag_romantic:false, notify_email:true, allow_explanation:true },
+    '18plus': { flag_phone:false, flag_address:false, flag_social:false, flag_email:false, flag_meetup:false, flag_language:true, flag_location:false, flag_romantic:false, notify_email:false, allow_explanation:true }
+  }
+
+  window.applyPreset = function(preset) {
+    document.querySelectorAll('.preset-btn').forEach(b => b.classList.remove('on'))
+    event.target.classList.add('on')
+    const vals = PRESETS[preset]
+    FIELDS.forEach(f => {
+      const el = document.getElementById(f)
+      if (el) el.checked = vals[f]
+    })
+  }
+
+  window.saveSettings = async function() {
+    const settings = { owner_id: me.id }
+    FIELDS.forEach(f => {
+      const el = document.getElementById(f)
+      if (el) settings[f] = el.checked
+    })
+
+    const { error } = await supabase
+      .from('flag_settings')
+      .upsert(settings, { onConflict: 'owner_id' })
+
+    const msg = document.getElementById('save-msg')
+    if (error) {
+      msg.textContent = 'Error saving. Please try again.'
+      msg.style.color = '#A32D2D'
+    } else {
+      msg.textContent = '✓ Settings saved'
+      msg.style.color = '#1D9E75'
+    }
+    msg.style.display = 'block'
+    setTimeout(() => { msg.style.display = 'none' }, 3000)
+  }
+</script>
+</body>
+</html>
