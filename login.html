@@ -60,7 +60,6 @@
 
   <!-- SIGNUP FORM -->
   <div id="signup-form" style="display:none;">
-
     <div class="form-group">
       <label>I am a...</label>
       <select id="account-type" onchange="handleTypeChange()">
@@ -83,17 +82,14 @@
       <label>Full name</label>
       <input type="text" id="signup-name" placeholder="Your full name">
     </div>
-
     <div class="form-group">
       <label>Display name (shown to pen pals)</label>
       <input type="text" id="signup-display" placeholder="e.g. Alex or Ms. García">
     </div>
-
     <div class="form-group">
       <label>Email address</label>
       <input type="email" id="signup-email" placeholder="you@email.com">
     </div>
-
     <div class="form-group">
       <label>Password</label>
       <input type="password" id="signup-password" placeholder="At least 8 characters">
@@ -195,19 +191,19 @@
   </div>
 </div>
 
-<script type="module">
-  import { createClient } from 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js/+esm'
-
-  const supabase = createClient(
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script>
+  const { createClient } = supabase
+  const sb = createClient(
     'https://vfohvovtxklsdvpigycx.supabase.co',
     'sb_publishable_iOcoEodjREKpEL1B7DqRSg_k4cKFSEu'
   )
 
   const NOTES = {
-    student_school: '🏫 School account — your teacher manages your class and can see your letters. A parent connection is recommended for under 18 but the teacher handles day-to-day moderation.',
-    student_home: '🏠 Home account — no teacher involved. You control your own experience. If you are under 18 a parent or guardian must be connected.',
-    parent: '👨‍👩‍👧 Parent account — connect to your child\'s account to receive flag notifications and manage their safety settings.',
-    teacher: '📚 Teacher account — create a class, connect with teachers worldwide, match students as pen pals, and review flagged letters. Must be connected to a school.',
+    student_school: '🏫 School account — your teacher manages your class and can see your letters.',
+    student_home: '🏠 Home account — no teacher involved. If you are under 18 a parent must be connected.',
+    parent: '👨‍👩‍👧 Parent account — connect to your child\'s account to receive flag notifications.',
+    teacher: '📚 Teacher account — create a class, connect with teachers worldwide, and review flagged letters. Must be connected to a school.',
     solo: '🌍 Solo learner — independent adult account. No teacher or parent needed. AI moderation is always on.'
   }
 
@@ -255,7 +251,7 @@
     const email = document.getElementById('login-email').value
     const password = document.getElementById('login-password').value
     if (!email || !password) { showError('Please fill in all fields.'); return }
-    const { error } = await supabase.auth.signInWithPassword({ email, password })
+    const { error } = await sb.auth.signInWithPassword({ email, password })
     if (error) { showError(error.message); return }
     window.location.href = '/dashboard.html'
   }
@@ -263,9 +259,9 @@
   window.handleSignup = async function() {
     const typeRaw = document.getElementById('account-type').value
     const accountType = typeRaw.startsWith('student') ? 'student' : typeRaw
-    const name = document.getElementById('signup-name').value
-    const displayName = document.getElementById('signup-display').value
-    const email = document.getElementById('signup-email').value
+    const name = document.getElementById('signup-name').value.trim()
+    const displayName = document.getElementById('signup-display').value.trim()
+    const email = document.getElementById('signup-email').value.trim()
     const password = document.getElementById('signup-password').value
     const age = document.getElementById('signup-age').value
     const classCode = document.getElementById('class-code')?.value?.trim().toUpperCase() || null
@@ -278,19 +274,9 @@
     if (!typeRaw) { showError('Please select an account type.'); return }
     if (!name || !displayName || !email || !password) { showError('Please fill in all required fields.'); return }
     if (password.length < 8) { showError('Password must be at least 8 characters.'); return }
-
-    if (typeRaw === 'student_school' && !classCode) {
-      showError('Please enter your class code. No code? Choose the home account option.'); return
-    }
-
-    if (typeRaw === 'student_home' && age && parseInt(age) < 18 && !parentEmail) {
-      showError('A parent or guardian email is required for home accounts under 18.'); return
-    }
-
-    if (typeRaw === 'solo' && age && parseInt(age) < 18) {
-      showError('Solo learner accounts are for adults 18 and over. Please choose a student account type.'); return
-    }
-
+    if (typeRaw === 'student_school' && !classCode) { showError('Please enter your class code.'); return }
+    if (typeRaw === 'student_home' && age && parseInt(age) < 18 && !parentEmail) { showError('A parent email is required for home accounts under 18.'); return }
+    if (typeRaw === 'solo' && age && parseInt(age) < 18) { showError('Solo learner accounts are for adults 18 and over.'); return }
     if (typeRaw === 'teacher') {
       const schoolName = document.getElementById('school-name').value.trim()
       const schoolCountry = document.getElementById('school-country').value.trim()
@@ -299,39 +285,36 @@
       if (!gradeLevel) { showError('Please select the grade level you teach.'); return }
     }
 
+    // Look up class code
     let classRow = null
     if (typeRaw === 'student_school') {
-      const { data: foundClass } = await supabase
-        .from('classes')
-        .select('id, teacher_id')
-        .eq('class_code', classCode)
-        .single()
-      if (!foundClass) {
-        showError("That class code wasn't found. Double-check it with your teacher, or choose the home account option.")
-        return
-      }
+      const { data: foundClass } = await sb.from('classes').select('id, teacher_id').eq('class_code', classCode).single()
+      if (!foundClass) { showError("That class code wasn't found. Double-check it with your teacher."); return }
       classRow = foundClass
     }
 
+    // Check if parent already exists
     let linkedParentId = null
     if (parentEmail) {
-      const { data: existingParent } = await supabase
-        .from('users')
-        .select('id')
-        .eq('email', parentEmail)
-        .eq('account_type', 'parent')
-        .single()
+      const { data: existingParent } = await sb.from('users').select('id').eq('email', parentEmail).eq('account_type', 'parent').single()
       if (existingParent) linkedParentId = existingParent.id
     }
 
-    const { data, error } = await supabase.auth.signUp({ email, password })
+    // Create auth account
+    const { data, error } = await sb.auth.signUp({
+      email,
+      password,
+      options: { emailRedirectTo: 'https://lingualetters.com/confirmed.html' }
+    })
     if (error) { showError(error.message); return }
+    if (!data.user) { showError('Signup failed — please try again.'); return }
 
     const teachingStyle = typeRaw === 'teacher'
       ? Array.from(document.querySelectorAll('#teacher-fields input[type=checkbox]:checked')).map(c => c.value)
       : null
 
-    const { error: profileError } = await supabase.from('users').insert({
+    // Create profile row
+    const { error: profileError } = await sb.from('users').insert({
       id: data.user.id,
       email,
       full_name: name,
@@ -350,20 +333,19 @@
       teaching_style: teachingStyle
     })
 
-    if (profileError) { showError(profileError.message); return }
-
-    if (classRow) {
-      await supabase.from('class_members').insert({
-        class_id: classRow.id,
-        student_id: data.user.id
-      })
+    if (profileError) {
+      showError(profileError.message || profileError.details || JSON.stringify(profileError))
+      return
     }
 
+    // Add to class roster
+    if (classRow) {
+      await sb.from('class_members').insert({ class_id: classRow.id, student_id: data.user.id })
+    }
+
+    // Link waiting children to new parent
     if (accountType === 'parent') {
-      await supabase
-        .from('users')
-        .update({ parent_id: data.user.id, pending_parent_email: null })
-        .eq('pending_parent_email', email)
+      await sb.from('users').update({ parent_id: data.user.id, pending_parent_email: null }).eq('pending_parent_email', email)
     }
 
     showSuccess('Account created! Check your email to confirm, then sign in.')
