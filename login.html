@@ -205,7 +205,7 @@
     document.getElementById('class-code-group').style.display = type==='student_school'?'block':'none'
     document.getElementById('parent-email-group').style.display = 'none'
   }
-  document.getElementById('signup-age').addEventListener('change',function(){
+  document.getElementById('signup-age').addEventListener('blur',function(){
     const age=parseInt(this.value)
     const type=document.getElementById('account-type').value
     const group=document.getElementById('parent-email-group')
