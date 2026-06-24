@@ -288,8 +288,9 @@
       if(pe){showError('Profile error: '+(pe.message||pe.details||pe.hint||JSON.stringify(pe)));btn.disabled=false;btn.textContent='Create account';return}
       if(classRow) await sb.from('class_members').insert({class_id:classRow.id,student_id:data.user.id})
       if(accountType==='parent') await sb.from('users').update({parent_id:data.user.id,pending_parent_email:null}).eq('pending_parent_email',email)
-      btn.textContent='Account created!'
-      showSuccess('Account created! Check your email to confirm, then sign in.')
+if(typeRaw==='teacher'){fetch('/api/screen-teacher',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({teacherId:data.user.id,displayName:displayName,schoolName:document.getElementById('school-name').value.trim(),schoolCountry:document.getElementById('school-country').value.trim(),bio:document.getElementById('teacher-bio').value.trim(),gradeLevel:document.getElementById('grade-level').value})})}
+btn.textContent='Account created!'
+showSuccess('Account created! Check your email to confirm, then sign in.')
     } catch(e) {
       showError('Unexpected error: '+e.message)
       btn.disabled=false;btn.textContent='Create account'
