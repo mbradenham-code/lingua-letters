@@ -103,7 +103,7 @@
   // Load the profile
   const { data: profile, error } = await supabase
     .from('users')
-    .select('id, display_name, full_name, school_name, school_country, bio, grade_level, teaching_style')
+    .select('id, display_name, full_name, school_name, school_country, bio, grade_level, teaching_style, screening_status')
     .eq('id', profileId)
     .eq('account_type', 'teacher')
     .single()
@@ -118,7 +118,13 @@
   // Populate profile
   const initials = (profile.display_name || profile.full_name || '?').split(' ').map(w => w[0]).join('').toUpperCase().slice(0, 2)
   document.getElementById('avatar-initials').textContent = initials
-  document.getElementById('display-name').textContent = profile.display_name || profile.full_name
+ const nameEl = document.getElementById('display-name')
+  const nameText = profile.display_name || profile.full_name
+  if (profile.screening_status === 'approved') {
+    nameEl.innerHTML = nameText + ' <span style="font-size:12px;background:#E1F5EE;color:#0F6E56;padding:3px 10px;border-radius:20px;font-weight:500;vertical-align:middle;">✓ Verified</span>'
+  } else {
+    nameEl.innerHTML = nameText + ' <span style="font-size:12px;background:#FAEEDA;color:#854F0B;padding:3px 10px;border-radius:20px;font-weight:500;vertical-align:middle;">Unverified</span>'
+  }
   document.getElementById('school-name').textContent = profile.school_name || 'School not listed'
   document.getElementById('school-country').textContent = profile.school_country || ''
   document.getElementById('bio-text').textContent = profile.bio || 'No bio yet.'
