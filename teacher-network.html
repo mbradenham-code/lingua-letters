@@ -88,6 +88,13 @@
       <option value="Mixed methods">Mixed methods</option>
     </select>
   </div>
+  <div class="filter-group">
+    <label>Verification</label>
+    <select id="filter-verified">
+      <option value="">All teachers</option>
+      <option value="approved">Verified only</option>
+    </select>
+  </div>
   <div style="display:flex;gap:8px;align-items:flex-end;">
     <button class="btn btn-primary" onclick="applyFilters()">Search</button>
     <button class="btn btn-ghost" onclick="clearFilters()">Clear</button>
@@ -160,13 +167,15 @@
     try {
       let query = sb
         .from('users')
-        .select('id, display_name, full_name, school_name, school_country, bio, grade_level, teaching_style')
+        .select('id, display_name, full_name, school_name, school_country, bio, grade_level, teaching_style, screening_status')
         .eq('account_type', 'teacher')
+        .eq('is_suspended', false)
         .neq('id', me.id)
 
       if (filters.country) query = query.ilike('school_country', `%${filters.country}%`)
       if (filters.grade) query = query.eq('grade_level', filters.grade)
       if (filters.style) query = query.contains('teaching_style', [filters.style])
+      if (filters.verified) query = query.eq('screening_status', filters.verified)
 
       const { data, error } = await query
 
@@ -191,6 +200,9 @@
         else if (connStatus === 'pending') statusTag = '<span class="tag pending">⏳ Pending</span>'
         const styleTags = (t.teaching_style || []).slice(0, 2).map(s => `<span class="tag">${s}</span>`).join('')
         const gradeTag = t.grade_level ? `<span class="tag green">${t.grade_level}</span>` : ''
+        const verifiedTag = t.screening_status === 'approved'
+          ? '<span class="tag connected">✓ Verified</span>'
+          : '<span class="tag pending">Unverified</span>'
 
         return `
           <a class="teacher-card" href="/teacher-profile.html?id=${t.id}">
@@ -202,7 +214,7 @@
               </div>
             </div>
             <div class="card-bio">${bio}</div>
-            <div class="tags">${gradeTag}${styleTags}${statusTag}</div>
+            <div class="tags">${verifiedTag}${gradeTag}${styleTags}${statusTag}</div>
           </a>
         `
       }).join('')
@@ -216,7 +228,8 @@
     loadTeachers({
       country: document.getElementById('filter-country').value.trim(),
       grade: document.getElementById('filter-grade').value,
-      style: document.getElementById('filter-style').value
+      style: document.getElementById('filter-style').value,
+      verified: document.getElementById('filter-verified').value
     })
   }
 
@@ -224,6 +237,7 @@
     document.getElementById('filter-country').value = ''
     document.getElementById('filter-grade').value = ''
     document.getElementById('filter-style').value = ''
+    document.getElementById('filter-verified').value = ''
     if (me) loadTeachers()
   }
 
