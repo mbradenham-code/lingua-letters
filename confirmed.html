@@ -10,7 +10,6 @@
     .card { background: white; border-radius: 16px; padding: 48px 36px; width: 100%; max-width: 420px; box-shadow: 0 2px 20px rgba(0,0,0,0.08); text-align: center; }
     .orb { width: 64px; height: 64px; border-radius: 50%; background: #1D9E75; display: flex; align-items: center; justify-content: center; font-size: 28px; margin: 0 auto 20px; }
     .logo-text { font-size: 18px; font-weight: 500; color: #1a1a1a; margin-bottom: 32px; }
-    .check { width: 56px; height: 56px; border-radius: 50%; background: #E1F5EE; display: flex; align-items: center; justify-content: center; font-size: 24px; margin: 0 auto 20px; }
     h1 { font-size: 22px; font-weight: 600; color: #1a1a1a; margin-bottom: 10px; }
     p { font-size: 14px; color: #888; line-height: 1.6; margin-bottom: 28px; }
     .btn { display: block; background: #1D9E75; color: white; padding: 12px 24px; border-radius: 9px; font-size: 14px; font-weight: 500; text-decoration: none; border: none; cursor: pointer; width: 100%; }
@@ -34,43 +33,25 @@
   const sb = createClient('https://vfohvovtxklsdvpigycx.supabase.co','sb_publishable_iOcoEodjREKpEL1B7DqRSg_k4cKFSEu')
 
   async function init() {
-    // Exchange the code for a session
     const params = new URLSearchParams(window.location.search)
     const code = params.get('code')
 
     if (code) {
       const { error } = await sb.auth.exchangeCodeForSession(code)
-      if (error) {
-        showError('Confirmation failed: ' + error.message)
-        return
-      }
+      if (error) { showError('Confirmation failed: ' + error.message); return }
     }
 
-    // Get the confirmed session
     const { data: { session } } = await sb.auth.getSession()
-    if (!session) {
-      showError('Could not confirm your email. Please try signing up again.')
-      return
-    }
+    if (!session) { showError('Could not confirm your email. Please try signing up again.'); return }
 
-    // Check if profile already exists
     const { data: existing } = await sb.from('users').select('id').eq('id', session.user.id).single()
-    if (existing) {
-      showSuccess()
-      return
-    }
+    if (existing) { showSuccess(); return }
 
-    // Get pending profile data from localStorage
     const pending = localStorage.getItem('ll_pending_profile')
-    if (!pending) {
-      // Profile data missing but email confirmed — just redirect to login
-      showSuccess()
-      return
-    }
+    if (!pending) { showSuccess(); return }
 
     const profile = JSON.parse(pending)
 
-    // Insert the profile row now that user is confirmed
     const { error: profileError } = await sb.from('users').insert({
       id: session.user.id,
       email: profile.email,
@@ -90,10 +71,7 @@
       teaching_style: profile.teaching_style
     })
 
-    if (profileError) {
-      showError('Account confirmed but profile setup failed: ' + profileError.message)
-      return
-    }
+    if (profileError) { showError('Account confirmed but profile setup failed: ' + profileError.message); return }
 
     // Add to class roster if needed
     if (profile.class_id) {
@@ -103,6 +81,18 @@
     // Link waiting children to new parent
     if (profile.account_type === 'parent') {
       await sb.from('users').update({ parent_id: session.user.id, pending_parent_email: null }).eq('pending_parent_email', profile.email)
+    }
+
+    // Send parent invitation email only for home accounts
+    if (profile.pending_parent_email && profile.account_subtype === 'student_home') {
+      fetch('/api/invite-parent', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          parentEmail: profile.pending_parent_email,
+          studentName: profile.display_name
+        })
+      })
     }
 
     // Run teacher screening in background
@@ -122,9 +112,7 @@
       })
     }
 
-    // Clear localStorage
     localStorage.removeItem('ll_pending_profile')
-
     showSuccess()
   }
 
