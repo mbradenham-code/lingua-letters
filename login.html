@@ -1,4 +1,4 @@
- <!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="en">
 <head>
   <meta charset="UTF-8">
@@ -205,7 +205,7 @@
     document.getElementById('class-code-group').style.display = type==='student_school'?'block':'none'
     document.getElementById('parent-email-group').style.display = 'none'
   }
-  document.getElementById('signup-age').addEventListener('blur',function(){
+  document.getElementById('signup-age').addEventListener('blur', function() {
     const age=parseInt(this.value)
     const type=document.getElementById('account-type').value
     const group=document.getElementById('parent-email-group')
@@ -269,28 +269,37 @@
         const {data:ep}=await sb.from('users').select('id').eq('email',parentEmail).eq('account_type','parent').single()
         if(ep) linkedParentId=ep.id
       }
-      const {data,error}=await sb.auth.signUp({email,password,options:{emailRedirectTo:'https://lingualetters.com/confirmed.html'}})
+      const {data,error}=await sb.auth.signUp({
+        email,password,
+        options:{emailRedirectTo:'https://lingualetters.com/confirmed.html'}
+      })
       if(error){showError(error.message);btn.disabled=false;btn.textContent='Create account';return}
       if(!data.user){showError('Signup failed. Please try again.');btn.disabled=false;btn.textContent='Create account';return}
-      const teachingStyle=typeRaw==='teacher'?Array.from(document.querySelectorAll('#teacher-fields input[type=checkbox]:checked')).map(c=>c.value):null
-      const {error:pe}=await sb.from('users').insert({
-        id:data.user.id,email,full_name:name,display_name:displayName,
-        account_type:accountType,account_subtype:typeRaw,
-        age:age?parseInt(age):null,learning_language:learningLanguage||null,
-        teacher_id:classRow?classRow.teacher_id:null,parent_id:linkedParentId,
-        pending_parent_email:(parentEmail&&!linkedParentId)?parentEmail:null,
-        bio:typeRaw==='teacher'?document.getElementById('teacher-bio').value.trim():null,
-        school_name:typeRaw==='teacher'?document.getElementById('school-name').value.trim():null,
-        school_country:typeRaw==='teacher'?document.getElementById('school-country').value.trim():null,
-        grade_level:typeRaw==='teacher'?document.getElementById('grade-level').value:null,
-        teaching_style:teachingStyle
-      })
-      if(pe){showError('Profile error: '+(pe.message||pe.details||pe.hint||JSON.stringify(pe)));btn.disabled=false;btn.textContent='Create account';return}
-      if(classRow) await sb.from('class_members').insert({class_id:classRow.id,student_id:data.user.id})
-      if(accountType==='parent') await sb.from('users').update({parent_id:data.user.id,pending_parent_email:null}).eq('pending_parent_email',email)
-if(typeRaw==='teacher'){fetch('/api/screen-teacher',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({teacherId:data.user.id,email:email,displayName:displayName,schoolName:document.getElementById('school-name').value.trim(),schoolCountry:document.getElementById('school-country').value.trim(),bio:document.getElementById('teacher-bio').value.trim(),gradeLevel:document.getElementById('grade-level').value})})}
-btn.textContent='Account created!'
-showSuccess('Account created! Check your email to confirm, then sign in.')
+
+      // Save profile data to localStorage for confirmed.html to pick up
+      const profileData = {
+        id: data.user.id,
+        email,
+        full_name: name,
+        display_name: displayName,
+        account_type: accountType,
+        account_subtype: typeRaw,
+        age: age ? parseInt(age) : null,
+        learning_language: learningLanguage||null,
+        teacher_id: classRow ? classRow.teacher_id : null,
+        parent_id: linkedParentId,
+        pending_parent_email: (parentEmail&&!linkedParentId)?parentEmail:null,
+        bio: typeRaw==='teacher'?document.getElementById('teacher-bio').value.trim():null,
+        school_name: typeRaw==='teacher'?document.getElementById('school-name').value.trim():null,
+        school_country: typeRaw==='teacher'?document.getElementById('school-country').value.trim():null,
+        grade_level: typeRaw==='teacher'?document.getElementById('grade-level').value:null,
+        teaching_style: typeRaw==='teacher'?Array.from(document.querySelectorAll('#teacher-fields input[type=checkbox]:checked')).map(c=>c.value):null,
+        class_id: classRow ? classRow.id : null
+      }
+      localStorage.setItem('ll_pending_profile', JSON.stringify(profileData))
+
+      btn.textContent='Account created!'
+      showSuccess('Check your email to confirm your account, then sign in.')
     } catch(e) {
       showError('Unexpected error: '+e.message)
       btn.disabled=false;btn.textContent='Create account'
