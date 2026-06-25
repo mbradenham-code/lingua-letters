@@ -13,18 +13,139 @@
     .check { width: 56px; height: 56px; border-radius: 50%; background: #E1F5EE; display: flex; align-items: center; justify-content: center; font-size: 24px; margin: 0 auto 20px; }
     h1 { font-size: 22px; font-weight: 600; color: #1a1a1a; margin-bottom: 10px; }
     p { font-size: 14px; color: #888; line-height: 1.6; margin-bottom: 28px; }
-    .btn { display: block; background: #1D9E75; color: white; padding: 12px 24px; border-radius: 9px; font-size: 14px; font-weight: 500; text-decoration: none; }
+    .btn { display: block; background: #1D9E75; color: white; padding: 12px 24px; border-radius: 9px; font-size: 14px; font-weight: 500; text-decoration: none; border: none; cursor: pointer; width: 100%; }
     .btn:hover { background: #0F6E56; }
+    .spinner { width: 32px; height: 32px; border: 3px solid #e5e3dc; border-top-color: #1D9E75; border-radius: 50%; animation: spin 0.8s linear infinite; margin: 0 auto 16px; }
+    @keyframes spin { to { transform: rotate(360deg); } }
   </style>
 </head>
 <body>
   <div class="card">
     <div class="orb">✉</div>
     <div class="logo-text">Lingua Letters</div>
-    <div class="check">✓</div>
-    <h1>Email confirmed!</h1>
-    <p>Your account is now active. You can sign in and start connecting with pen pals around the world.</p>
-    <a href="/login.html" class="btn">Sign in to Lingua Letters</a>
+    <div class="spinner" id="spinner"></div>
+    <h1 id="title">Setting up your account…</h1>
+    <p id="msg">Just a moment while we get everything ready.</p>
+    <button class="btn" id="action-btn" style="display:none;" onclick="window.location.href='/login.html'">Sign in</button>
   </div>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script>
+  const { createClient } = supabase
+  const sb = createClient('https://vfohvovtxklsdvpigycx.supabase.co','sb_publishable_iOcoEodjREKpEL1B7DqRSg_k4cKFSEu')
+
+  async function init() {
+    // Exchange the code for a session
+    const params = new URLSearchParams(window.location.search)
+    const code = params.get('code')
+
+    if (code) {
+      const { error } = await sb.auth.exchangeCodeForSession(code)
+      if (error) {
+        showError('Confirmation failed: ' + error.message)
+        return
+      }
+    }
+
+    // Get the confirmed session
+    const { data: { session } } = await sb.auth.getSession()
+    if (!session) {
+      showError('Could not confirm your email. Please try signing up again.')
+      return
+    }
+
+    // Check if profile already exists
+    const { data: existing } = await sb.from('users').select('id').eq('id', session.user.id).single()
+    if (existing) {
+      showSuccess()
+      return
+    }
+
+    // Get pending profile data from localStorage
+    const pending = localStorage.getItem('ll_pending_profile')
+    if (!pending) {
+      // Profile data missing but email confirmed — just redirect to login
+      showSuccess()
+      return
+    }
+
+    const profile = JSON.parse(pending)
+
+    // Insert the profile row now that user is confirmed
+    const { error: profileError } = await sb.from('users').insert({
+      id: session.user.id,
+      email: profile.email,
+      full_name: profile.full_name,
+      display_name: profile.display_name,
+      account_type: profile.account_type,
+      account_subtype: profile.account_subtype,
+      age: profile.age,
+      learning_language: profile.learning_language,
+      teacher_id: profile.teacher_id,
+      parent_id: profile.parent_id,
+      pending_parent_email: profile.pending_parent_email,
+      bio: profile.bio,
+      school_name: profile.school_name,
+      school_country: profile.school_country,
+      grade_level: profile.grade_level,
+      teaching_style: profile.teaching_style
+    })
+
+    if (profileError) {
+      showError('Account confirmed but profile setup failed: ' + profileError.message)
+      return
+    }
+
+    // Add to class roster if needed
+    if (profile.class_id) {
+      await sb.from('class_members').insert({ class_id: profile.class_id, student_id: session.user.id })
+    }
+
+    // Link waiting children to new parent
+    if (profile.account_type === 'parent') {
+      await sb.from('users').update({ parent_id: session.user.id, pending_parent_email: null }).eq('pending_parent_email', profile.email)
+    }
+
+    // Run teacher screening in background
+    if (profile.account_subtype === 'teacher') {
+      fetch('/api/screen-teacher', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          teacherId: session.user.id,
+          email: profile.email,
+          displayName: profile.display_name,
+          schoolName: profile.school_name,
+          schoolCountry: profile.school_country,
+          bio: profile.bio,
+          gradeLevel: profile.grade_level
+        })
+      })
+    }
+
+    // Clear localStorage
+    localStorage.removeItem('ll_pending_profile')
+
+    showSuccess()
+  }
+
+  function showSuccess() {
+    document.getElementById('spinner').style.display = 'none'
+    document.getElementById('title').textContent = 'Email confirmed!'
+    document.getElementById('msg').textContent = 'Your account is ready. Sign in to get started.'
+    const btn = document.getElementById('action-btn')
+    btn.style.display = 'block'
+    btn.textContent = 'Sign in to Lingua Letters'
+    btn.onclick = () => window.location.href = '/dashboard.html'
+  }
+
+  function showError(msg) {
+    document.getElementById('spinner').style.display = 'none'
+    document.getElementById('title').textContent = 'Something went wrong'
+    document.getElementById('msg').textContent = msg
+    document.getElementById('action-btn').style.display = 'block'
+  }
+
+  init()
+</script>
 </body>
 </html>
