@@ -45,6 +45,19 @@
     .save-msg { font-size: 13px; display: none; }
     .loading { text-align: center; padding: 60px 20px; color: #aaa; font-size: 14px; }
     .field-hint { font-size: 11px; color: #aaa; margin-top: 4px; }
+    .pref-toggle { display: flex; align-items: center; justify-content: space-between; padding: 12px 0; border-bottom: 1px solid #f0ede6; }
+    .pref-toggle:last-child { border-bottom: none; padding-bottom: 0; }
+    .pref-info { flex: 1; }
+    .pref-label { font-size: 13px; color: #1a1a1a; margin-bottom: 2px; }
+    .pref-hint { font-size: 11px; color: #aaa; }
+    .toggle { position: relative; width: 40px; height: 22px; flex-shrink: 0; }
+    .toggle input { opacity: 0; width: 0; height: 0; }
+    .slider { position: absolute; inset: 0; background: #e5e3dc; border-radius: 22px; cursor: pointer; transition: .2s; }
+    .slider:before { content: ''; position: absolute; height: 16px; width: 16px; left: 3px; bottom: 3px; background: white; border-radius: 50%; transition: .2s; }
+    input:checked + .slider { background: #1D9E75; }
+    input:checked + .slider:before { transform: translateX(18px); }
+    .pref-value { margin-top: 10px; display: none; }
+    .pref-value.visible { display: block; }
   </style>
 </head>
 <body>
@@ -100,6 +113,32 @@
           <label>Bio (2–3 sentences about yourself and your class)</label>
           <textarea id="bio" placeholder="e.g. I teach 8th grade Spanish at Lincoln High in Dublin. I love project-based learning and connecting students with real-world pen pals."></textarea>
         </div>
+        <div class="form-group">
+          <label>Religion (optional — used for match recommendations)</label>
+          <select id="religion">
+            <option value="">Prefer not to say</option>
+            <option value="Christian">Christian</option>
+            <option value="Catholic">Catholic</option>
+            <option value="Muslim">Muslim</option>
+            <option value="Jewish">Jewish</option>
+            <option value="Hindu">Hindu</option>
+            <option value="Buddhist">Buddhist</option>
+            <option value="Sikh">Sikh</option>
+            <option value="Non-religious">Non-religious</option>
+            <option value="Other">Other</option>
+          </select>
+          <div class="field-hint">This is never shown publicly — only used to suggest compatible matches if you choose.</div>
+        </div>
+        <div class="form-group">
+          <label>Gender</label>
+          <select id="gender">
+            <option value="">Prefer not to say</option>
+            <option value="Female">Female</option>
+            <option value="Male">Male</option>
+            <option value="Non-binary">Non-binary</option>
+            <option value="Other">Other</option>
+          </select>
+        </div>
       </div>
     </div>
 
@@ -145,6 +184,112 @@
       </div>
     </div>
 
+    <div class="card">
+      <div class="card-header">🤝 Match preferences</div>
+      <div class="card-body">
+        <p style="font-size:13px;color:#888;margin-bottom:16px;line-height:1.6;">Tell us what matters to you when finding a partner teacher. We'll use this to show you the most compatible matches first. Everything here is optional.</p>
+
+        <div class="pref-toggle">
+          <div class="pref-info">
+            <div class="pref-label">Match by religion</div>
+            <div class="pref-hint">Prioritise teachers from a similar religious background</div>
+          </div>
+          <label class="toggle">
+            <input type="checkbox" id="pref-religion" onchange="togglePrefValue('religion-val', this.checked)">
+            <span class="slider"></span>
+          </label>
+        </div>
+        <div class="pref-value" id="religion-val">
+          <select id="pref-religion-val" style="margin-top:8px;">
+            <option value="Same as mine">Same religion as me</option>
+            <option value="Christian">Christian</option>
+            <option value="Catholic">Catholic</option>
+            <option value="Muslim">Muslim</option>
+            <option value="Jewish">Jewish</option>
+            <option value="Hindu">Hindu</option>
+            <option value="Buddhist">Buddhist</option>
+            <option value="Non-religious">Non-religious</option>
+            <option value="Any">Any — just show me compatible values</option>
+          </select>
+        </div>
+
+        <div class="pref-toggle">
+          <div class="pref-info">
+            <div class="pref-label">Match by country/region</div>
+            <div class="pref-hint">Prioritise teachers from a specific part of the world</div>
+          </div>
+          <label class="toggle">
+            <input type="checkbox" id="pref-country" onchange="togglePrefValue('country-val', this.checked)">
+            <span class="slider"></span>
+          </label>
+        </div>
+        <div class="pref-value" id="country-val">
+          <input type="text" id="pref-country-val" placeholder="e.g. Europe, Latin America, Japan..." style="margin-top:8px;">
+        </div>
+
+        <div class="pref-toggle">
+          <div class="pref-info">
+            <div class="pref-label">Match by grade level</div>
+            <div class="pref-hint">Find teachers working with students the same age as yours</div>
+          </div>
+          <label class="toggle">
+            <input type="checkbox" id="pref-grade" onchange="togglePrefValue('grade-val', this.checked)">
+            <span class="slider"></span>
+          </label>
+        </div>
+        <div class="pref-value" id="grade-val">
+          <select id="pref-grade-val" style="margin-top:8px;">
+            <option value="Same as mine">Same grade as my class</option>
+            <option value="Elementary (K-5)">Elementary (K-5)</option>
+            <option value="Middle School (6-8)">Middle School (6-8)</option>
+            <option value="High School (9-12)">High School (9-12)</option>
+            <option value="University">University</option>
+          </select>
+        </div>
+
+        <div class="pref-toggle">
+          <div class="pref-info">
+            <div class="pref-label">Match by teaching style</div>
+            <div class="pref-hint">Find teachers who approach language learning similarly</div>
+          </div>
+          <label class="toggle">
+            <input type="checkbox" id="pref-style" onchange="togglePrefValue('style-val', this.checked)">
+            <span class="slider"></span>
+          </label>
+        </div>
+        <div class="pref-value" id="style-val">
+          <select id="pref-style-val" style="margin-top:8px;">
+            <option value="Same as mine">Same teaching style as me</option>
+            <option value="Structured">Structured</option>
+            <option value="Conversational">Conversational</option>
+            <option value="Project-based">Project-based</option>
+            <option value="Grammar-focused">Grammar-focused</option>
+            <option value="Immersive">Immersive</option>
+            <option value="Mixed methods">Mixed methods</option>
+          </select>
+        </div>
+
+        <div class="pref-toggle">
+          <div class="pref-info">
+            <div class="pref-label">Match by gender of teacher</div>
+            <div class="pref-hint">Some schools or families have preferences</div>
+          </div>
+          <label class="toggle">
+            <input type="checkbox" id="pref-gender" onchange="togglePrefValue('gender-val', this.checked)">
+            <span class="slider"></span>
+          </label>
+        </div>
+        <div class="pref-value" id="gender-val">
+          <select id="pref-gender-val" style="margin-top:8px;">
+            <option value="Female">Female teacher</option>
+            <option value="Male">Male teacher</option>
+            <option value="Any">Any</option>
+          </select>
+        </div>
+
+      </div>
+    </div>
+
     <div class="save-bar">
       <span class="save-msg" id="save-msg"></span>
       <button class="btn" id="save-btn" onclick="saveProfile()">Save profile</button>
@@ -165,6 +310,10 @@
   let uploadedFile = null
   let finalPhotoUrl = null
 
+  window.togglePrefValue = function(id, show) {
+    document.getElementById(id).classList.toggle('visible', show)
+  }
+
   async function init() {
     const { data: { session } } = await sb.auth.getSession()
     if (!session) { window.location.href = '/login.html'; return }
@@ -176,20 +325,19 @@
     document.getElementById('loading').style.display = 'none'
     document.getElementById('form-content').style.display = 'block'
 
-    // Populate fields
     document.getElementById('display-name').value = user.display_name || ''
     document.getElementById('bio').value = user.bio || ''
     document.getElementById('school-name').value = user.school_name || ''
     document.getElementById('school-country').value = user.school_country || ''
     document.getElementById('grade-level').value = user.grade_level || ''
+    document.getElementById('religion').value = user.religion || ''
+    document.getElementById('gender').value = user.gender || ''
 
-    // Teaching style checkboxes
     const styles = user.teaching_style || []
     document.querySelectorAll('.checkbox-group input[type=checkbox]').forEach(cb => {
       cb.checked = styles.includes(cb.value)
     })
 
-    // Photo
     const initials = (user.display_name || user.full_name || '?').split(' ').map(w => w[0]).join('').toUpperCase().slice(0,2)
     document.getElementById('photo-initials').textContent = initials
 
@@ -198,11 +346,39 @@
       showPhotoPreview(user.profile_photo_url)
       document.getElementById('photo-url').value = user.profile_photo_url
     }
+
+    // Load match preferences
+    const prefs = user.match_preferences || {}
+    if (prefs.religion) {
+      document.getElementById('pref-religion').checked = true
+      togglePrefValue('religion-val', true)
+      document.getElementById('pref-religion-val').value = prefs.religion_value || 'Same as mine'
+    }
+    if (prefs.country) {
+      document.getElementById('pref-country').checked = true
+      togglePrefValue('country-val', true)
+      document.getElementById('pref-country-val').value = prefs.country_value || ''
+    }
+    if (prefs.grade) {
+      document.getElementById('pref-grade').checked = true
+      togglePrefValue('grade-val', true)
+      document.getElementById('pref-grade-val').value = prefs.grade_value || 'Same as mine'
+    }
+    if (prefs.style) {
+      document.getElementById('pref-style').checked = true
+      togglePrefValue('style-val', true)
+      document.getElementById('pref-style-val').value = prefs.style_value || 'Same as mine'
+    }
+    if (prefs.gender) {
+      document.getElementById('pref-gender').checked = true
+      togglePrefValue('gender-val', true)
+      document.getElementById('pref-gender-val').value = prefs.gender_value || 'Any'
+    }
   }
 
   function showPhotoPreview(url) {
     const preview = document.getElementById('photo-preview')
-    preview.innerHTML = `<img src="${url}" onerror="this.parentElement.innerHTML='<span id=photo-initials>${document.getElementById('photo-initials')?.textContent || '?'}</span>'">`
+    preview.innerHTML = `<img src="${url}" onerror="this.parentElement.innerHTML='<span>${document.getElementById('photo-initials')?.textContent || '?'}</span>'">`
   }
 
   window.switchPhotoTab = function(tab) {
@@ -233,14 +409,10 @@
     btn.disabled = true
     btn.textContent = 'Saving…'
 
-    // Upload photo if file selected
     if (uploadedFile) {
       const ext = uploadedFile.name.split('.').pop()
       const path = `${me.id}/avatar.${ext}`
-      const { error: uploadError } = await sb.storage
-        .from('avatars')
-        .upload(path, uploadedFile, { upsert: true })
-
+      const { error: uploadError } = await sb.storage.from('avatars').upload(path, uploadedFile, { upsert: true })
       if (uploadError) {
         msg.textContent = 'Photo upload failed: ' + uploadError.message
         msg.style.color = '#A32D2D'
@@ -249,7 +421,6 @@
         btn.textContent = 'Save profile'
         return
       }
-
       const { data: urlData } = sb.storage.from('avatars').getPublicUrl(path)
       finalPhotoUrl = urlData.publicUrl
     } else if (document.getElementById('tab-url').style.display !== 'none') {
@@ -258,6 +429,29 @@
 
     const teachingStyle = Array.from(document.querySelectorAll('.checkbox-group input[type=checkbox]:checked')).map(c => c.value)
 
+    // Build match preferences object
+    const matchPreferences = {}
+    if (document.getElementById('pref-religion').checked) {
+      matchPreferences.religion = true
+      matchPreferences.religion_value = document.getElementById('pref-religion-val').value
+    }
+    if (document.getElementById('pref-country').checked) {
+      matchPreferences.country = true
+      matchPreferences.country_value = document.getElementById('pref-country-val').value
+    }
+    if (document.getElementById('pref-grade').checked) {
+      matchPreferences.grade = true
+      matchPreferences.grade_value = document.getElementById('pref-grade-val').value
+    }
+    if (document.getElementById('pref-style').checked) {
+      matchPreferences.style = true
+      matchPreferences.style_value = document.getElementById('pref-style-val').value
+    }
+    if (document.getElementById('pref-gender').checked) {
+      matchPreferences.gender = true
+      matchPreferences.gender_value = document.getElementById('pref-gender-val').value
+    }
+
     const { error } = await sb.from('users').update({
       display_name: document.getElementById('display-name').value.trim(),
       bio: document.getElementById('bio').value.trim(),
@@ -265,7 +459,10 @@
       school_country: document.getElementById('school-country').value.trim(),
       grade_level: document.getElementById('grade-level').value,
       teaching_style: teachingStyle,
-      profile_photo_url: finalPhotoUrl
+      profile_photo_url: finalPhotoUrl,
+      religion: document.getElementById('religion').value || null,
+      gender: document.getElementById('gender').value || null,
+      match_preferences: matchPreferences
     }).eq('id', me.id)
 
     btn.disabled = false
