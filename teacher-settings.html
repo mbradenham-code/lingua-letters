@@ -148,16 +148,8 @@
             <option value="Adult Education">Adult Education</option>
           </select>
         </div>
-       <div class="form-group">
-          <label>Student body (optional)</label>
-          <select id="school-gender">
-            <option value="">— Select —</option>
-            <option value="Coed">Co-ed (boys and girls)</option>
-            <option value="Girls">Girls only</option>
-            <option value="Boys">Boys only</option>
-          </select>
-          <div class="field-hint">Helps match students with compatible pen pals.</div>
-        </div>>
+        <div class="form-group">
+          <label>School affiliation (optional)</label>
           <select id="religion">
             <option value="">— Select —</option>
             <option value="Non-denominational">Non-denominational</option>
@@ -171,6 +163,16 @@
             <option value="Other">Other</option>
           </select>
           <div class="field-hint">The religious or cultural affiliation of your school, if applicable. Helps students find common ground with their pen pals.</div>
+        </div>
+        <div class="form-group">
+          <label>Student body (optional)</label>
+          <select id="school-gender">
+            <option value="">— Select —</option>
+            <option value="Coed">Co-ed (boys and girls)</option>
+            <option value="Girls">Girls only</option>
+            <option value="Boys">Boys only</option>
+          </select>
+          <div class="field-hint">Helps match students with compatible pen pals.</div>
         </div>
         <div class="form-group">
           <label>Teaching philosophy (optional)</label>
@@ -233,6 +235,26 @@
             <option value="Hindu">Hindu</option>
             <option value="Sikh">Sikh</option>
             <option value="Any">Any — open to all</option>
+          </select>
+        </div>
+
+        <div class="pref-toggle">
+          <div class="pref-info">
+            <div class="pref-label">Match by student body</div>
+            <div class="pref-hint">Find partner classes with a similar student body composition</div>
+          </div>
+          <label class="toggle">
+            <input type="checkbox" id="pref-school-gender" onchange="togglePrefValue('school-gender-val', this.checked)">
+            <span class="slider"></span>
+          </label>
+        </div>
+        <div class="pref-value" id="school-gender-val">
+          <select id="pref-school-gender-val" style="margin-top:8px;">
+            <option value="Same as mine">Same as my school</option>
+            <option value="Coed">Co-ed</option>
+            <option value="Girls">Girls only</option>
+            <option value="Boys">Boys only</option>
+            <option value="Any">Any</option>
           </select>
         </div>
 
@@ -378,6 +400,7 @@
     document.getElementById('grade-level').value = user.grade_level || ''
     document.getElementById('religion').value = user.religion || ''
     document.getElementById('gender').value = user.gender || ''
+    document.getElementById('school-gender').value = user.school_gender || ''
 
     const styles = user.teaching_style || []
     document.querySelectorAll('.checkbox-group input[type=checkbox]').forEach(cb => {
@@ -398,6 +421,11 @@
       document.getElementById('pref-religion').checked = true
       togglePrefValue('religion-val', true)
       document.getElementById('pref-religion-val').value = prefs.religion_value || 'Same as mine'
+    }
+    if (prefs.school_gender) {
+      document.getElementById('pref-school-gender').checked = true
+      togglePrefValue('school-gender-val', true)
+      document.getElementById('pref-school-gender-val').value = prefs.school_gender_value || 'Same as mine'
     }
     if (prefs.philosophy) {
       document.getElementById('pref-philosophy').checked = true
@@ -424,8 +452,6 @@
       togglePrefValue('gender-val', true)
       document.getElementById('pref-gender-val').value = prefs.gender_value || 'Any'
     }
-
-    // Load teaching philosophy
     if (prefs.teaching_philosophy) {
       document.getElementById('teaching-philosophy').value = prefs.teaching_philosophy
     }
@@ -489,6 +515,10 @@
       matchPreferences.religion = true
       matchPreferences.religion_value = document.getElementById('pref-religion-val').value
     }
+    if (document.getElementById('pref-school-gender').checked) {
+      matchPreferences.school_gender = true
+      matchPreferences.school_gender_value = document.getElementById('pref-school-gender-val').value
+    }
     if (document.getElementById('pref-philosophy').checked) {
       matchPreferences.philosophy = true
       matchPreferences.philosophy_value = document.getElementById('pref-philosophy-val').value
@@ -509,8 +539,6 @@
       matchPreferences.gender = true
       matchPreferences.gender_value = document.getElementById('pref-gender-val').value
     }
-
-    // Save teaching philosophy in match_preferences
     const teachingPhilosophy = document.getElementById('teaching-philosophy').value
     if (teachingPhilosophy) matchPreferences.teaching_philosophy = teachingPhilosophy
 
@@ -524,6 +552,7 @@
       profile_photo_url: finalPhotoUrl,
       religion: document.getElementById('religion').value || null,
       gender: document.getElementById('gender').value || null,
+      school_gender: document.getElementById('school-gender').value || null,
       match_preferences: matchPreferences
     }).eq('id', me.id)
 
