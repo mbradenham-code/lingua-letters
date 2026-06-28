@@ -24,8 +24,17 @@
     .page-sub { font-size: 13px; color: #888; margin-bottom: 24px; }
     .stats-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 12px; margin-bottom: 24px; }
     .stat-card { background: white; border: 1px solid #e5e3dc; border-radius: 12px; padding: 16px; }
-    .stat-val { font-size: 24px; font-weight: 500; color: #1a1a1a; margin-bottom: 4px; }
-    .stat-lbl { font-size: 11px; color: #aaa; }
+    .stat-card.green { background: #E1F5EE; border-color: #9FE1CB; }
+    .stat-card.amber { background: #FAEEDA; border-color: #FAC775; }
+    .stat-card.purple { background: #EEEDFE; border-color: #CECBF6; }
+    .stat-card.coral { background: #FAECE7; border-color: #F5C4B4; }
+    .stat-val { font-size: 28px; font-weight: 500; color: #1a1a1a; margin-bottom: 4px; }
+    .stat-card.green .stat-val { color: #0F6E56; }
+    .stat-card.amber .stat-val { color: #854F0B; }
+    .stat-card.purple .stat-val { color: #3C3489; }
+    .stat-card.coral .stat-val { color: #993C1D; }
+    .stat-lbl { font-size: 11px; color: #888; }
+    .stat-sub { font-size: 10px; color: #aaa; margin-top: 2px; }
     .section-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 12px; }
     .section-title { font-size: 14px; font-weight: 500; color: #1a1a1a; }
     .view-all { font-size: 12px; color: #0F6E56; cursor: pointer; background: none; border: none; }
@@ -50,6 +59,12 @@
     .fa { background: #E1F5EE; color: #0F6E56; }
     .fr { background: #FCEBEB; color: #A32D2D; }
     .fn { background: #F8F7F4; color: #555; border: 1px solid #e5e3dc; }
+    .spotlight-card { background: white; border: 1px solid #e5e3dc; border-radius: 12px; padding: 20px; margin-bottom: 12px; position: relative; overflow: hidden; }
+    .spotlight-card::before { content: ''; position: absolute; top: 0; left: 0; right: 0; height: 3px; background: linear-gradient(90deg, #1D9E75, #EEEDFE); }
+    .spotlight-badge { display: inline-flex; align-items: center; gap: 4px; font-size: 10px; background: #FAEEDA; color: #854F0B; padding: 2px 8px; border-radius: 20px; font-weight: 500; margin-bottom: 10px; }
+    .spotlight-student { font-size: 12px; font-weight: 500; color: #1a1a1a; margin-bottom: 4px; }
+    .spotlight-preview { font-size: 13px; color: #555; font-style: italic; line-height: 1.6; margin-bottom: 8px; }
+    .spotlight-why { font-size: 11px; color: #0F6E56; background: #E1F5EE; padding: 5px 10px; border-radius: 8px; }
     .connect-section { background: white; border: 1px solid #e5e3dc; border-radius: 12px; padding: 20px; margin-bottom: 20px; }
     .class-code-display { font-size: 24px; font-weight: 500; color: #1D9E75; letter-spacing: 3px; background: #E1F5EE; border-radius: 8px; padding: 12px 20px; text-align: center; margin: 12px 0; }
     .input-row { display: flex; gap: 10px; }
@@ -95,10 +110,10 @@
   </div>
 </div>
 
-<script type="module">
-  import { createClient } from 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js/+esm'
-
-  const supabase = createClient(
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script>
+  const { createClient } = supabase
+  const sb = createClient(
     'https://vfohvovtxklsdvpigycx.supabase.co',
     'sb_publishable_iOcoEodjREKpEL1B7DqRSg_k4cKFSEu'
   )
@@ -106,22 +121,18 @@
   let currentUser = null
   let students = []
   let flags = []
+  let letters = []
+  let penPalPairs = 0
+  let spotlightLetters = []
   let currentView = 'dashboard'
 
   async function init() {
-    const { data: { session } } = await supabase.auth.getSession()
+    const { data: { session } } = await sb.auth.getSession()
     if (!session) { window.location.href = '/login.html'; return }
 
-    const { data: user } = await supabase
-      .from('users')
-      .select('*')
-      .eq('id', session.user.id)
-      .single()
-
+    const { data: user } = await sb.from('users').select('*').eq('id', session.user.id).single()
     if (!user) { window.location.href = '/login.html'; return }
-    if (user.account_type !== 'teacher') {
-      window.location.href = '/dashboard.html'; return
-    }
+    if (user.account_type !== 'teacher') { window.location.href = '/dashboard.html'; return }
 
     currentUser = user
     document.getElementById('user-name').textContent = user.display_name
@@ -130,21 +141,86 @@
   }
 
   async function loadData() {
-    const { data: studs } = await supabase
+    // Load students
+    const { data: studs } = await sb
       .from('users')
       .select('*')
       .eq('account_type', 'student')
       .eq('teacher_id', currentUser.id)
-
     students = studs || []
 
-    const { data: flagData } = await supabase
+    // Load flags
+    const { data: flagData } = await sb
       .from('flags')
       .select('*, student:users!flags_student_id_fkey(display_name,email)')
       .eq('outcome', 'pending')
-
     flags = flagData || []
     document.getElementById('flag-count').textContent = flags.length
+
+    // Load this week's letters
+    const weekAgo = new Date()
+    weekAgo.setDate(weekAgo.getDate() - 7)
+    const studentIds = students.map(s => s.id)
+
+    if (studentIds.length > 0) {
+      const { data: letterData } = await sb
+        .from('letters')
+        .select('*')
+        .in('sender_id', studentIds)
+        .gte('created_at', weekAgo.toISOString())
+        .eq('status', 'delivered')
+      letters = letterData || []
+
+      // Load pen pal pairs
+      const { data: pairs } = await sb
+        .from('pen_pal_connections')
+        .select('id')
+        .in('student_a', studentIds)
+        .eq('status', 'active')
+      penPalPairs = pairs?.length || 0
+
+      // Get spotlight letters (longest/most thoughtful this week)
+      if (letters.length > 0) {
+        await loadSpotlight(letters, studentIds)
+      }
+    }
+  }
+
+  async function loadSpotlight(letters, studentIds) {
+    // Pick top 2-3 letters by length as candidates
+    const candidates = [...letters]
+      .sort((a, b) => (b.body?.length || 0) - (a.body?.length || 0))
+      .slice(0, 5)
+
+    if (candidates.length === 0) return
+
+    // Get student names
+    const { data: senderData } = await sb
+      .from('users')
+      .select('id, display_name')
+      .in('id', candidates.map(l => l.sender_id))
+
+    const senderMap = {}
+    if (senderData) senderData.forEach(s => { senderMap[s.id] = s.display_name })
+
+    try {
+      const response = await fetch('https://api.anthropic.com/v1/messages', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'x-api-key': '',  // handled server-side — skip for now
+        }
+      })
+    } catch(e) {}
+
+    // For now show top 2 by length with a generated reason
+    spotlightLetters = candidates.slice(0, 2).map(l => ({
+      studentName: senderMap[l.sender_id] || 'A student',
+      preview: l.body ? l.body.slice(0, 120) + '…' : '',
+      why: l.body?.length > 300
+        ? 'Wrote an exceptionally detailed and thoughtful letter this week'
+        : 'Showed great effort and curiosity in their letter this week'
+    }))
   }
 
   window.showView = function(view) {
@@ -165,17 +241,56 @@
   }
 
   function renderDashboard(panel) {
+    const hour = new Date().getHours()
+    const greeting = hour < 12 ? 'Good morning' : hour < 17 ? 'Good afternoon' : 'Good evening'
+
     panel.innerHTML = `
-      <div class="page-title">Good to see you, ${currentUser.display_name}!</div>
-      <div class="page-sub">Here's what's happening in your classes this week.</div>
+      <div class="page-title">${greeting}, ${currentUser.display_name}! 👋</div>
+      <div class="page-sub">Here's what's been happening in your class this week.</div>
+
       <div class="stats-grid">
-        <div class="stat-card"><div class="stat-val">${students.length}</div><div class="stat-lbl">Students</div></div>
-        <div class="stat-card"><div class="stat-val">0</div><div class="stat-lbl">Letters this week</div></div>
-        <div class="stat-card"><div class="stat-val" style="color:${flags.length > 0 ? '#854F0B' : '#1a1a1a'}">${flags.length}</div><div class="stat-lbl">Flagged</div></div>
-        <div class="stat-card"><div class="stat-val">0</div><div class="stat-lbl">Active pen pal pairs</div></div>
+        <div class="stat-card green">
+          <div class="stat-val">${penPalPairs}</div>
+          <div class="stat-lbl">✨ Friendships created</div>
+          <div class="stat-sub">Active pen pal pairs</div>
+        </div>
+        <div class="stat-card purple">
+          <div class="stat-val">${letters.length}</div>
+          <div class="stat-lbl">✉ Letters this week</div>
+          <div class="stat-sub">Delivered successfully</div>
+        </div>
+        <div class="stat-card amber">
+          <div class="stat-val">${students.length}</div>
+          <div class="stat-lbl">👥 Students</div>
+          <div class="stat-sub">In your class</div>
+        </div>
+        <div class="stat-card coral">
+          <div class="stat-val">${flags.length}</div>
+          <div class="stat-lbl">🚩 Needs review</div>
+          <div class="stat-sub">${flags.length === 0 ? 'All clear!' : 'Tap to review'}</div>
+        </div>
       </div>
+
+      ${spotlightLetters.length > 0 ? `
       <div class="section-header">
-        <div class="section-title">Students</div>
+        <div class="section-title">✨ Spotlight — standout letters this week</div>
+      </div>
+      ${spotlightLetters.map(l => `
+        <div class="spotlight-card">
+          <div class="spotlight-badge">⭐ Standout letter</div>
+          <div class="spotlight-student">${l.studentName}</div>
+          <div class="spotlight-preview">"${l.preview}"</div>
+          <div class="spotlight-why">💡 ${l.why}</div>
+        </div>
+      `).join('')}
+      ` : letters.length === 0 ? `
+      <div class="card">
+        <div class="empty">No letters sent yet this week. Once your students start writing, their best letters will be highlighted here! 🌟</div>
+      </div>
+      ` : ''}
+
+      <div class="section-header">
+        <div class="section-title">👥 Your students</div>
         <button class="view-all" onclick="showView('students')">View all →</button>
       </div>
       <div class="card">
@@ -183,12 +298,14 @@
           ? `<div class="empty">No students yet. Share your class code so students can join!</div>`
           : students.slice(0,5).map(s => studentRow(s)).join('')}
       </div>
+
       ${flags.length > 0 ? `
       <div class="section-header">
         <div class="section-title">🚩 Needs your review</div>
         <button class="view-all" onclick="showView('flagged')">View all →</button>
       </div>
-      ${flags.slice(0,2).map(f => flagCard(f)).join('')}` : ''}
+      ${flags.slice(0,2).map(f => flagCard(f)).join('')}
+      ` : ''}
     `
   }
 
@@ -229,8 +346,8 @@
         <div class="section-title" style="margin-bottom:6px;">Connect a partner class</div>
         <div style="font-size:13px;color:#888;margin-bottom:12px;">Enter a code from a teacher at another school to pair your classes as pen pals.</div>
         <div class="input-row">
-          <input class="connect-input" id="partner-code" placeholder="Partner class code, e.g. MX-GDL-4B...">
-          <button class="connect-btn" onclick="alert('Partner class connection coming in a future update!')">Connect</button>
+          <input class="connect-input" id="partner-code" placeholder="Partner class code...">
+          <button class="connect-btn" onclick="alert('Partner class connection coming soon!')">Connect</button>
         </div>
       </div>
       <div class="connect-section">
@@ -256,17 +373,11 @@
     const a = document.getElementById('student-a').value
     const b = document.getElementById('student-b').value
     const msg = document.getElementById('match-msg')
-
     if (!a || !b) { msg.style.color='#A32D2D'; msg.textContent='Please select two students.'; return }
     if (a === b) { msg.style.color='#A32D2D'; msg.textContent='Please select two different students.'; return }
-
-    const { error } = await supabase.from('pen_pal_connections').insert({
-      student_a: a,
-      student_b: b,
-      connected_by: 'teacher',
-      status: 'active'
+    const { error } = await sb.from('pen_pal_connections').insert({
+      student_a: a, student_b: b, connected_by: 'teacher', status: 'active'
     })
-
     if (error) { msg.style.color='#A32D2D'; msg.textContent='Error: '+error.message; return }
     msg.style.color='#0F6E56'
     msg.textContent='✓ Students matched! They can now write to each other.'
@@ -279,7 +390,7 @@
       <div class="card" style="padding:20px;">
         <div class="section-title" style="margin-bottom:16px;">Classroom controls</div>
         <div class="settings-row">
-          <div class="sr-lbl"><p>Target language only</p><span>Students may only write in their learning language. English is hidden.</span></div>
+          <div class="sr-lbl"><p>Target language only</p><span>Students may only write in their learning language.</span></div>
           <label class="tog"><input type="checkbox" checked><span class="tsl"></span></label>
         </div>
         <div class="settings-row">
@@ -292,10 +403,6 @@
         </div>
         <div class="settings-row">
           <div class="sr-lbl"><p>Translation hints</p><span>Students can tap to reveal an English translation.</span></div>
-          <label class="tog"><input type="checkbox" checked><span class="tsl"></span></label>
-        </div>
-        <div class="settings-row">
-          <div class="sr-lbl"><p>Photo sharing</p><span>Allow students to attach photos. You see all photos before delivery.</span></div>
           <label class="tog"><input type="checkbox" checked><span class="tsl"></span></label>
         </div>
         <div class="section-title" style="margin:20px 0 16px;">Flag controls</div>
@@ -329,7 +436,7 @@
       <div class="av" style="width:32px;height:32px;background:#E1F5EE;color:#0F6E56;">${initials}</div>
       <div class="st-info">
         <div class="st-name">${s.display_name}</div>
-        <div class="st-sub">${s.learning_language || 'Language learner'} · ${s.flag_count || 0} flags</div>
+        <div class="st-sub">${s.learning_language || 'Language learner'}</div>
       </div>
       <span class="chip ${s.flag_count > 0 ? 'ca' : 'cg'}">${s.flag_count > 0 ? '⚠ ' + s.flag_count + ' flag' + (s.flag_count !== 1 ? 's' : '') : '✓ active'}</span>
     </div>`
@@ -351,19 +458,18 @@
   }
 
   window.resolveFlag = async function(flagId, outcome) {
-    await supabase.from('flags').update({
+    await sb.from('flags').update({
       outcome,
       reviewed_by: currentUser.id,
       reviewed_at: new Date().toISOString()
     }).eq('id', flagId)
-
     flags = flags.filter(f => f.id !== flagId)
     document.getElementById('flag-count').textContent = flags.length
     renderView()
   }
 
   window.handleSignOut = async function() {
-    await supabase.auth.signOut()
+    await sb.auth.signOut()
     window.location.href = '/login.html'
   }
 
