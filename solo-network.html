@@ -45,6 +45,11 @@
     .connect-btn:disabled { opacity: 0.5; cursor: not-allowed; }
     .empty { text-align: center; padding: 60px 20px; color: #aaa; font-size: 14px; }
     .error-msg { text-align: center; padding: 60px 20px; color: #A32D2D; font-size: 14px; }
+    .section-label { font-size: 11px; color: #aaa; text-transform: uppercase; letter-spacing: .06em; font-weight: 500; margin-bottom: 12px; }
+    .rec-card { background: white; border-radius: 14px; padding: 20px; box-shadow: 0 2px 12px rgba(0,0,0,0.06); display: flex; flex-direction: column; gap: 12px; border: 2px solid #E1F5EE; position: relative; }
+    .rec-badge { position: absolute; top: 12px; right: 12px; background: #1D9E75; color: white; font-size: 10px; padding: 2px 8px; border-radius: 20px; font-weight: 500; }
+    .rec-reason { font-size: 11px; color: #0F6E56; background: #E1F5EE; padding: 6px 10px; border-radius: 8px; line-height: 1.5; }
+    .rec-section { max-width: 900px; margin: 0 auto 28px; }
   </style>
 </head>
 <body>
@@ -88,8 +93,14 @@
   </div>
 </div>
 
+<div class="rec-section" id="rec-section" style="display:none;">
+  <div class="section-label">⭐ Recommended for you</div>
+  <div class="grid" id="rec-grid"></div>
+</div>
+
 <div class="results">
   <div id="results-header" class="results-header"></div>
+  <div class="section-label" id="all-label">All learners</div>
   <div id="grid" class="grid"><div class="empty">Loading learners…</div></div>
 </div>
 
@@ -103,6 +114,7 @@
 
   let me = null
   let connectionMap = {}
+  let allLearners = []
 
   async function init() {
     const { data: { session } } = await sb.auth.getSession()
@@ -114,12 +126,10 @@
 
     me = user
 
-    // Pre-fill language filter with their own language
     if (me.learning_language) {
       document.getElementById('filter-language').value = me.learning_language
     }
 
-    // Load existing connections
     const { data: connections } = await sb
       .from('pen_pal_connections')
       .select('student_a, student_b')
@@ -141,10 +151,11 @@
 
   async function loadLearners(filters = {}) {
     document.getElementById('grid').innerHTML = '<div class="empty">Loading learners…</div>'
+    document.getElementById('rec-section').style.display = 'none'
 
     let query = sb
       .from('users')
-      .select('id, display_name, full_name, bio, learning_language, profile_photo_url')
+      .select('id, display_name, full_name, bio, learning_language, profile_photo_url, school_country, religion, gender, match_preferences, age')
       .eq('account_type', 'solo')
       .neq('id', me.id)
 
@@ -152,7 +163,6 @@
     if (filters.country) query = query.ilike('school_country', `%${filters.country}%`)
 
     const { data, error } = await query
-
     if (error) { showError('Error loading learners: ' + error.message); return }
 
     if (!data || data.length === 0) {
@@ -161,36 +171,89 @@
       return
     }
 
-    const avatarColors = ['', 'alt', 'alt2']
+    allLearners = data
     document.getElementById('results-header').textContent = `${data.length} learner${data.length === 1 ? '' : 's'} found`
+    renderLearners(data)
+    loadRecommendations()
+  }
 
-    document.getElementById('grid').innerHTML = data.map((u, i) => {
+  async function loadRecommendations() {
+    try {
+      const response = await fetch('/api/recommend-matches', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          currentUser: me,
+          candidates: allLearners,
+          accountType: 'solo'
+        })
+      })
+      const { recommendations } = await response.json()
+      if (!recommendations || recommendations.length === 0) return
+
+      const recIds = recommendations.map(r => r.id)
+      const recMap = {}
+      recommendations.forEach(r => { recMap[r.id] = r.reason })
+
+      const recLearners = recIds.map(id => allLearners.find(u => u.id === id)).filter(Boolean)
+      if (recLearners.length === 0) return
+
+      document.getElementById('rec-section').style.display = 'block'
+      document.getElementById('rec-grid').innerHTML = recLearners.map(u => {
+        const initials = (u.display_name || u.full_name || '?').split(' ').map(w => w[0]).join('').toUpperCase().slice(0,2)
+        const bio = u.bio ? u.bio.slice(0, 100) + (u.bio.length > 100 ? '…' : '') : 'No bio yet.'
+        const langTag = u.learning_language ? `<span class="tag green">Learning ${u.learning_language}</span>` : ''
+        let avatarHtml = `<div class="avatar">${initials}</div>`
+        if (u.profile_photo_url) {
+          avatarHtml = `<div class="avatar" style="padding:0;"><img src="${u.profile_photo_url}" style="width:100%;height:100%;object-fit:cover;" onerror="this.parentElement.innerHTML='${initials}'"></div>`
+        }
+        return `
+          <div class="rec-card">
+            <div class="rec-badge">⭐ Recommended</div>
+            <div class="card-header">
+              ${avatarHtml}
+              <div>
+                <div class="card-name">${u.display_name || u.full_name}</div>
+                <div class="card-sub">Solo learner${u.school_country ? ' · ' + u.school_country : ''}</div>
+              </div>
+            </div>
+            <div class="card-bio">${bio}</div>
+            <div class="tags">${langTag}</div>
+            <div class="rec-reason">💡 ${recMap[u.id]}</div>
+            <button class="connect-btn" onclick="connect('${u.id}', this)">✉ Write to this learner</button>
+          </div>
+        `
+      }).join('')
+    } catch(e) {
+      console.log('Recommendations unavailable:', e.message)
+    }
+  }
+
+  function renderLearners(learners) {
+    const avatarColors = ['', 'alt', 'alt2']
+    document.getElementById('grid').innerHTML = learners.map((u, i) => {
       const initials = (u.display_name || u.full_name || '?').split(' ').map(w => w[0]).join('').toUpperCase().slice(0,2)
       const colorClass = avatarColors[i % 3]
       const bio = u.bio ? u.bio.slice(0, 100) + (u.bio.length > 100 ? '…' : '') : 'No bio yet.'
       const connStatus = connectionMap[u.id]
-
       let avatarHtml = `<div class="avatar ${colorClass}">${initials}</div>`
       if (u.profile_photo_url) {
         avatarHtml = `<div class="avatar ${colorClass}" style="padding:0;"><img src="${u.profile_photo_url}" style="width:100%;height:100%;object-fit:cover;" onerror="this.parentElement.innerHTML='${initials}'"></div>`
       }
-
       let statusTag = ''
       let connectBtn = `<button class="connect-btn" onclick="connect('${u.id}', this)">✉ Write to this learner</button>`
       if (connStatus === 'connected') {
         statusTag = '<span class="tag connected">✓ Pen pal</span>'
         connectBtn = ''
       }
-
       const langTag = u.learning_language ? `<span class="tag green">Learning ${u.learning_language}</span>` : ''
-
       return `
         <div class="solo-card">
           <div class="card-header">
             ${avatarHtml}
             <div>
               <div class="card-name">${u.display_name || u.full_name}</div>
-              <div class="card-sub">Solo learner</div>
+              <div class="card-sub">Solo learner${u.school_country ? ' · ' + u.school_country : ''}</div>
             </div>
           </div>
           <div class="card-bio">${bio}</div>
@@ -204,12 +267,10 @@
   window.connect = async function(otherId, btn) {
     btn.disabled = true
     btn.textContent = 'Connecting…'
-
     const { error } = await sb.from('pen_pal_connections').insert({
       student_a: me.id,
       student_b: otherId
     })
-
     if (error) {
       btn.disabled = false
       btn.textContent = '✉ Write to this learner'
@@ -237,4 +298,4 @@
   init()
 </script>
 </body>
-</html>
+</html>          
