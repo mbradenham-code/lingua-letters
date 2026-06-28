@@ -43,6 +43,12 @@
     .tag.pending { background: #FFF8E6; color: #9A6700; }
     .empty { text-align: center; padding: 60px 20px; color: #aaa; font-size: 14px; }
     .error-msg { text-align: center; padding: 60px 20px; color: #A32D2D; font-size: 14px; }
+    .section-label { font-size: 11px; color: #aaa; text-transform: uppercase; letter-spacing: .06em; font-weight: 500; margin-bottom: 12px; }
+    .rec-card { background: white; border-radius: 14px; padding: 20px; box-shadow: 0 2px 12px rgba(0,0,0,0.06); text-decoration: none; display: block; border: 2px solid #E1F5EE; position: relative; transition: box-shadow .15s, transform .15s; }
+    .rec-card:hover { box-shadow: 0 4px 20px rgba(0,0,0,0.1); transform: translateY(-2px); }
+    .rec-badge { position: absolute; top: 12px; right: 12px; background: #1D9E75; color: white; font-size: 10px; padding: 2px 8px; border-radius: 20px; font-weight: 500; }
+    .rec-reason { font-size: 11px; color: #0F6E56; background: #E1F5EE; padding: 6px 10px; border-radius: 8px; margin-top: 10px; line-height: 1.5; }
+    .rec-section { max-width: 900px; margin: 0 auto 28px; }
   </style>
 </head>
 <body>
@@ -101,15 +107,20 @@
   </div>
 </div>
 
+<div class="rec-section" id="rec-section" style="display:none;">
+  <div class="section-label">⭐ Recommended for you</div>
+  <div class="grid" id="rec-grid"></div>
+</div>
+
 <div class="results">
   <div id="results-header" class="results-header"></div>
+  <div class="section-label" style="max-width:900px;margin:0 auto 12px;" id="all-label">All teachers</div>
   <div id="grid" class="grid"><div class="empty">Loading teachers…</div></div>
 </div>
 
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <script>
   const { createClient } = supabase
-
   const sb = createClient(
     'https://vfohvovtxklsdvpigycx.supabase.co',
     'sb_publishable_iOcoEodjREKpEL1B7DqRSg_k4cKFSEu'
@@ -117,6 +128,7 @@
 
   let me = null
   let connectionMap = {}
+  let allTeachers = []
 
   function showError(msg) {
     document.getElementById('grid').innerHTML = `<div class="error-msg">${msg}</div>`
@@ -130,7 +142,7 @@
 
       const { data: user, error: userError } = await sb
         .from('users')
-        .select('id, account_type')
+        .select('*')
         .eq('id', session.user.id)
         .single()
 
@@ -167,7 +179,7 @@
     try {
       let query = sb
         .from('users')
-        .select('id, display_name, full_name, school_name, school_country, bio, grade_level, teaching_style, screening_status')
+        .select('id, display_name, full_name, school_name, school_country, bio, grade_level, teaching_style, screening_status, religion, gender, match_preferences')
         .eq('account_type', 'teacher')
         .eq('is_suspended', false)
         .neq('id', me.id)
@@ -178,49 +190,105 @@
       if (filters.verified) query = query.eq('screening_status', filters.verified)
 
       const { data, error } = await query
-
       if (error) { showError('Query error: ' + error.message); return }
 
-      if (!data || data.length === 0) {
+      allTeachers = data || []
+
+      if (allTeachers.length === 0) {
         document.getElementById('results-header').textContent = ''
         document.getElementById('grid').innerHTML = '<div class="empty">No other teachers found yet.</div>'
+        document.getElementById('rec-section').style.display = 'none'
         return
       }
 
-      const avatarColors = ['', 'alt', 'alt2']
-      document.getElementById('results-header').textContent = `${data.length} teacher${data.length === 1 ? '' : 's'} found`
+      document.getElementById('results-header').textContent = `${allTeachers.length} teacher${allTeachers.length === 1 ? '' : 's'} found`
+      renderTeachers(allTeachers)
 
-      document.getElementById('grid').innerHTML = data.map((t, i) => {
-        const initials = (t.display_name || t.full_name || '?').split(' ').map(w => w[0]).join('').toUpperCase().slice(0, 2)
-        const colorClass = avatarColors[i % 3]
+      // Load recommendations in background
+      loadRecommendations()
+
+    } catch(e) {
+      showError('Load error: ' + e.message)
+    }
+  }
+
+  async function loadRecommendations() {
+    try {
+      const response = await fetch('/api/recommend-matches', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          currentUser: me,
+          candidates: allTeachers,
+          accountType: 'teacher'
+        })
+      })
+      const { recommendations } = await response.json()
+      if (!recommendations || recommendations.length === 0) return
+
+      const recIds = recommendations.map(r => r.id)
+      const recMap = {}
+      recommendations.forEach(r => { recMap[r.id] = r.reason })
+
+      const recTeachers = recIds.map(id => allTeachers.find(t => t.id === id)).filter(Boolean)
+      if (recTeachers.length === 0) return
+
+      document.getElementById('rec-section').style.display = 'block'
+      document.getElementById('rec-grid').innerHTML = recTeachers.map(t => {
+        const initials = (t.display_name || t.full_name || '?').split(' ').map(w => w[0]).join('').toUpperCase().slice(0,2)
         const bio = t.bio ? t.bio.slice(0, 100) + (t.bio.length > 100 ? '…' : '') : 'No bio yet.'
-        const connStatus = connectionMap[t.id]
-        let statusTag = ''
-        if (connStatus === 'accepted') statusTag = '<span class="tag connected">✓ Connected</span>'
-        else if (connStatus === 'pending') statusTag = '<span class="tag pending">⏳ Pending</span>'
-        const styleTags = (t.teaching_style || []).slice(0, 2).map(s => `<span class="tag">${s}</span>`).join('')
+        const verifiedTag = t.screening_status === 'approved' ? '<span class="tag connected">✓ Verified</span>' : '<span class="tag pending">Unverified</span>'
         const gradeTag = t.grade_level ? `<span class="tag green">${t.grade_level}</span>` : ''
-        const verifiedTag = t.screening_status === 'approved'
-          ? '<span class="tag connected">✓ Verified</span>'
-          : '<span class="tag pending">Unverified</span>'
-
         return `
-          <a class="teacher-card" href="/teacher-profile.html?id=${t.id}">
+          <a class="rec-card" href="/teacher-profile.html?id=${t.id}">
+            <div class="rec-badge">⭐ Recommended</div>
             <div class="card-header">
-              <div class="avatar ${colorClass}">${initials}</div>
+              <div class="avatar">${initials}</div>
               <div>
                 <div class="card-name">${t.display_name || t.full_name}</div>
                 <div class="card-school">${t.school_name || 'School not listed'} · ${t.school_country || ''}</div>
               </div>
             </div>
             <div class="card-bio">${bio}</div>
-            <div class="tags">${verifiedTag}${gradeTag}${styleTags}${statusTag}</div>
+            <div class="tags">${verifiedTag}${gradeTag}</div>
+            <div class="rec-reason">💡 ${recMap[t.id]}</div>
           </a>
         `
       }).join('')
     } catch(e) {
-      showError('Load error: ' + e.message)
+      console.log('Recommendations unavailable:', e.message)
     }
+  }
+
+  function renderTeachers(teachers) {
+    const avatarColors = ['', 'alt', 'alt2']
+    document.getElementById('grid').innerHTML = teachers.map((t, i) => {
+      const initials = (t.display_name || t.full_name || '?').split(' ').map(w => w[0]).join('').toUpperCase().slice(0,2)
+      const colorClass = avatarColors[i % 3]
+      const bio = t.bio ? t.bio.slice(0, 100) + (t.bio.length > 100 ? '…' : '') : 'No bio yet.'
+      const connStatus = connectionMap[t.id]
+      let statusTag = ''
+      if (connStatus === 'accepted') statusTag = '<span class="tag connected">✓ Connected</span>'
+      else if (connStatus === 'pending') statusTag = '<span class="tag pending">⏳ Pending</span>'
+      const styleTags = (t.teaching_style || []).slice(0, 2).map(s => `<span class="tag">${s}</span>`).join('')
+      const gradeTag = t.grade_level ? `<span class="tag green">${t.grade_level}</span>` : ''
+      const verifiedTag = t.screening_status === 'approved'
+        ? '<span class="tag connected">✓ Verified</span>'
+        : '<span class="tag pending">Unverified</span>'
+      return `
+        <a class="teacher-card" href="/teacher-profile.html?id=${t.id}">
+          <div class="card-header">
+            <div class="avatar ${colorClass}">${initials}</div>
+            <div>
+              <div class="card-name">${t.display_name || t.full_name}</div>
+              <div class="card-school">${t.school_name || 'School not listed'} · ${t.school_country || ''}</div>
+            </div>
+          </div>
+          <div class="card-bio">${bio}</div>
+          <div class="tags">${verifiedTag}${gradeTag}${styleTags}${statusTag}</div>
+        </a>
+      `
+    }).join('')
   }
 
   window.applyFilters = function() {
