@@ -14,14 +14,21 @@
     .back { font-size: 13px; color: #1D9E75; text-decoration: none; }
     .layout { display: flex; height: calc(100vh - 53px); }
     .map-wrap { flex: 1; position: relative; background: #B8D9F0; }
-    .map-hint { position: absolute; top: 14px; left: 50%; transform: translateX(-50%); background: white; border-radius: 20px; padding: 7px 16px; font-size: 12px; color: #888; box-shadow: 0 2px 12px rgba(0,0,0,.1); z-index: 10; pointer-events: none; white-space: nowrap; }
+    .map-controls { position: absolute; top: 14px; left: 50%; transform: translateX(-50%); display: flex; gap: 8px; z-index: 10; }
+    .map-hint { background: white; border-radius: 20px; padding: 7px 16px; font-size: 12px; color: #888; box-shadow: 0 2px 12px rgba(0,0,0,.1); white-space: nowrap; }
+    .search-wrap { position: relative; }
+    .search-input { padding: 7px 14px 7px 32px; border-radius: 20px; border: none; font-size: 12px; font-family: inherit; outline: none; box-shadow: 0 2px 12px rgba(0,0,0,.1); width: 200px; }
+    .search-icon { position: absolute; left: 10px; top: 50%; transform: translateY(-50%); font-size: 12px; pointer-events: none; }
+    .search-results { position: absolute; top: calc(100% + 6px); left: 0; right: 0; background: white; border-radius: 12px; box-shadow: 0 4px 20px rgba(0,0,0,.12); overflow: hidden; display: none; max-height: 200px; overflow-y: auto; }
+    .search-result { padding: 9px 14px; font-size: 13px; cursor: pointer; display: flex; align-items: center; gap: 8px; }
+    .search-result:hover { background: #F1EFE8; }
     #chartdiv { width: 100%; height: 100%; }
     .panel { width: 400px; background: white; border-left: 1px solid #e5e3dc; display: flex; flex-direction: column; overflow: hidden; }
     .panel-empty { flex: 1; display: flex; flex-direction: column; align-items: center; justify-content: center; padding: 40px 24px; text-align: center; }
     .panel-empty .globe { font-size: 56px; margin-bottom: 16px; }
     .panel-empty h3 { font-size: 16px; font-weight: 500; color: #555; margin-bottom: 8px; }
     .panel-empty p { font-size: 13px; color: #aaa; line-height: 1.6; }
-    .panel-body { flex: 1; overflow-y: auto; display: none; flex-direction: column; }
+    .panel-body { flex: 1; overflow-y: auto; }
     .country-hero { padding: 20px 20px 16px; border-bottom: 1px solid #f0ede6; background: linear-gradient(135deg, #F0FAF5 0%, #F8F7F4 100%); }
     .country-top { display: flex; align-items: center; gap: 14px; margin-bottom: 14px; }
     .country-flag { font-size: 44px; line-height: 1; }
@@ -66,16 +73,23 @@
 </div>
 <div class="layout">
   <div class="map-wrap">
-    <div class="map-hint">🌍 Tap any country to explore its culture</div>
+    <div class="map-controls">
+      <div class="map-hint">🌍 Tap any country to explore</div>
+      <div class="search-wrap">
+        <span class="search-icon">🔍</span>
+        <input class="search-input" id="search-input" placeholder="Search a country…" oninput="searchCountries(this.value)" onblur="setTimeout(()=>hideSearch(),200)">
+        <div class="search-results" id="search-results"></div>
+      </div>
+    </div>
     <div id="chartdiv"></div>
   </div>
   <div class="panel">
     <div class="panel-empty" id="panel-empty">
       <div class="globe">🗺️</div>
       <h3>Explore the world</h3>
-      <p>Tap any country on the map to learn about its culture, food, festivals, school life and get tips for writing to a pen pal there!</p>
+      <p>Tap any country on the map or search above to learn about its culture, food, festivals, school life and get tips for writing to a pen pal there!</p>
     </div>
-    <div class="panel-body" id="panel-body"></div>
+    <div class="panel-body" id="panel-body" style="display:none;"></div>
   </div>
 </div>
 
@@ -107,7 +121,7 @@ const DATA = {
   MA:{name:'Morocco',flag:'🇲🇦',region:'North Africa',capital:'Rabat',cities:'Casablanca, Marrakech, Fez, Tangier, Agadir, Meknes',languages:'Arabic, Berber (Amazigh), French widely spoken',population:'37 million',food:['🍲 Tagine (slow-cooked stew in a conical clay pot) is the national dish','🥙 Couscous is served on Fridays — it\'s a family tradition','🍵 Mint tea is served with great ceremony — a sign of hospitality','🥐 Msemen (flatbread) is eaten at breakfast with honey and argan oil'],festivals:['🌙 Ramadan — a month of fasting and community with special night markets','🎊 Eid al-Fitr and Eid al-Adha — major celebrations with family','🌹 Rose Festival in Kelaat M\'Gouna (May) — celebrates the rose harvest','🎭 Gnaoua World Music Festival in Essaouira — world-famous'],school:['📚 School is taught in Arabic and French','🕌 Islamic studies is part of the curriculum','⚽ Football is the most popular sport by far','👨‍👩‍👧 Family and community are central to school culture'],topics:['Favourite Moroccan foods','Ramadan traditions','Life in their city','Moroccan music and art','The medinas (old city centres)'],tips:['Hospitality is sacred — guests are treated with great generosity','Friday is the day of prayer — things slow down','Mint tea offered to a guest is a sign of welcome']},
   PT:{name:'Portugal',flag:'🇵🇹',region:'Southern Europe',capital:'Lisbon',cities:'Porto, Braga, Coimbra, Faro, Setúbal, Aveiro',languages:'Portuguese',population:'10 million',food:['🐟 Bacalhau (salt cod) — there are said to be 365 recipes, one for every day','🥧 Pastel de nata (custard tart) is one of the world\'s most famous pastries','🍲 Caldo verde (kale soup with chorizo) is a warming national favourite','🍷 Port wine from the Douro Valley is world-famous'],festivals:['🎉 Festa de Santo António (Lisbon, June 12-13) — streets fill with sardines and dancing','🎭 Carnaval de Torres Vedras — one of Europe\'s biggest carnivals','🎵 Fado music festivals — Portugal\'s melancholy soulful folk music','🥁 Festas de São João (Porto, June) — hammers and leeks as props!'],school:['📚 Education system is rigorous with lots of exams','⚽ Football is hugely popular — Cristiano Ronaldo is a national hero','🌍 Portugal has a deep history of exploration and discovery','🎒 School days are long with a substantial lunch break'],topics:['Cristiano Ronaldo — he\'s from Madeira!','Favourite Portuguese foods','Life in Lisbon vs Porto','Portuguese history of exploration','Fado music'],tips:['Saudade — a bittersweet longing — is a concept central to Portuguese culture','Portuguese people are warm but slightly reserved at first','Brazil speaks Portuguese too — a great connection point']},
   SE:{name:'Sweden',flag:'🇸🇪',region:'Northern Europe',capital:'Stockholm',cities:'Gothenburg, Malmö, Uppsala, Västerås, Örebro, Linköping',languages:'Swedish',population:'10 million',food:['🍪 Fika — a coffee and cake break — is a sacred daily ritual','🥩 Swedish meatballs with lingonberry sauce (yes, like IKEA!)','🐟 Gravlax (cured salmon) is a classic Scandinavian dish','🫐 Wild berries (lingonberry, cloudberry) are foraged and loved'],festivals:['☀️ Midsommar (June) — dancing around a flower maypole at the longest day','🕯️ Lucia Day (December 13th) — children in white robes with candle crowns','🎄 Christmas (Jul) — celebrated with a smörgåsbord feast on Christmas Eve','🦞 Kräftskiva (crayfish party) in August — outdoor party under lanterns'],school:['🌲 Outdoor education is taken seriously — forest schools are common','😊 Swedish schools focus heavily on wellbeing and student happiness','📚 School starts at 7 or 8 and usually finishes by 2-3pm','♻️ Environmental awareness and sustainability are central to education'],topics:['Favourite Swedish foods','Midsommar celebrations','ABBA, IKEA, Minecraft — all Swedish!','The northern lights — have they seen them?','Fika culture'],tips:['Lagom — "just the right amount" — is a key Swedish concept','Swedes value equality, work-life balance and nature','Recycling and environmental responsibility are deeply embedded']},
-  GR:{name:'Greece',flag:'🇬🇷',region:'Southern Europe',capital:'Athens',cities:'Thessaloniki, Patras, Heraklion, Larissa, Volos, Rhodes',languages:'Greek',population:'11 million',food:['🫒 Olive oil is used in almost everything — Greece produces some of the world\'s best','🥗 Greek salad (tomato, cucumber, feta, olives) is eaten daily','🥙 Souvlaki and gyros are the fast food of choice','🍯 Honey from Greek thyme bees is considered the finest in the world'],festivals:['🏛️ Athens Epidaurus Festival — ancient theatre performances in summer','🎊 Greek Easter is bigger than Christmas — midnight fireworks and lamb roast','🎭 Apokries (Carnival) — weeks of costume parties before Lent','⛵ Armata (Spetses island, September) — a sea battle re-enactment'],school:['📚 Greek students study ancient Greek alongside modern Greek','🏛️ History lessons include the birthplace of democracy and the Olympics','⚽ Football and basketball are the most popular school sports','📖 School day runs from early morning but afternoons are often for private tutoring'],topics:['Ancient Greek history and mythology','Greek food favourites','Life on the islands vs mainland','Greek Easter traditions','Football or basketball?'],tips:['Greeks are warm, hospitable and love a long meal with family','"Opa!" is an expression of joy — you\'ll hear it a lot','Family is absolutely central to Greek life']},
+  GR:{name:'Greece',flag:'🇬🇷',region:'Southern Europe',capital:'Athens',cities:'Thessaloniki, Patras, Heraklion, Larissa, Volos, Rhodes',languages:'Greek',population:'11 million',food:['🫒 Olive oil is used in almost everything — Greece produces some of the world\'s best','🥗 Greek salad (tomato, cucumber, feta, olives) is eaten daily','🥙 Souvlaki and gyros are the fast food of choice','🍯 Honey from Greek thyme bees is considered the finest in the world'],festivals:['🏛️ Athens Epidaurus Festival — ancient theatre performances in summer','🎊 Greek Easter is bigger than Christmas — midnight fireworks and lamb roast','🎭 Apokries (Carnival) — weeks of costume parties before Lent','⛵ Armata (Spetses island, September) — a sea battle re-enactment'],school:['📚 Greek students study ancient Greek alongside modern Greek','🏛️ History lessons include the birthplace of democracy and the Olympics','⚽ Football and basketball are the most popular school sports','📖 School day runs from early morning with afternoons often for private tutoring'],topics:['Ancient Greek history and mythology','Greek food favourites','Life on the islands vs mainland','Greek Easter traditions','Football or basketball?'],tips:['Greeks are warm, hospitable and love a long meal with family','"Opa!" is an expression of joy — you\'ll hear it a lot','Family is absolutely central to Greek life']},
   NL:{name:'Netherlands',flag:'🇳🇱',region:'Western Europe',capital:'Amsterdam',cities:'Rotterdam, The Hague, Utrecht, Eindhoven, Groningen',languages:'Dutch',population:'17 million',food:['🧀 Dutch cheese (Gouda, Edam) is exported worldwide','🍟 Fries (patat) with mayonnaise is a beloved street food','🥞 Poffertjes (mini fluffy pancakes) are a popular treat','🍫 Dutch stroopwafels (syrup waffles) are eaten with coffee'],festivals:['🌷 King\'s Day (April 27th) — everyone wears orange and parties','🌷 Keukenhof Tulip Festival — millions of flowers bloom in spring','🎄 Sinterklaas (December 5th) — the Dutch version of Christmas','💡 Amsterdam Light Festival — art installations on the canals'],school:['🚲 Almost every student cycles to school — the Netherlands is flat!','📚 School system has different tracks based on ability from age 12','⚽ Football, field hockey and cycling are hugely popular','😊 Dutch schools are relaxed and students call teachers by first name'],topics:['Cycling everywhere — do they have a bike?','Tulips and windmills — are they actually common?','Their favourite Dutch foods','King\'s Day celebrations','Ajax football club'],tips:['Dutch people are very direct — they say exactly what they mean','Cycling is not just transport — it\'s a way of life','The Netherlands is very international and English is widely spoken']},
   IE:{name:'Ireland',flag:'🇮🇪',region:'Western Europe',capital:'Dublin',cities:'Cork, Limerick, Galway, Waterford, Belfast',languages:'English and Irish (Gaelic) — both official',population:'5 million',food:['🥔 Potatoes are central to Irish cuisine in many forms','🍞 Soda bread is made without yeast and eaten with butter','🥩 Irish stew (lamb with vegetables) is the classic national dish','🍺 Guinness is the national drink — even if you\'re too young to try it!'],festivals:['☘️ St Patrick\'s Day (March 17th) — a worldwide celebration of Irish culture','🎵 Fleadh Cheoil — the world\'s biggest traditional Irish music festival','🏈 All-Ireland GAA Finals — hurling and Gaelic football are huge','🎪 Galway Arts Festival — a massive annual arts celebration'],school:['☘️ Irish (Gaelic) is compulsory in all schools — students learn it from age 4','🏈 GAA sports (hurling, camogie, Gaelic football) are part of school life','📚 The Leaving Certificate at age 18 is highly stressful and important','🌧️ Rain is a constant topic — it rains a lot in Ireland!'],topics:['Favourite Irish foods','St Patrick\'s Day traditions','Hurling or Gaelic football — have they played?','Music — traditional Irish music is amazing','The Irish diaspora — Irish people are everywhere in the world!'],tips:['Irish people are famous for storytelling, craic (fun) and hospitality','Self-deprecating humour is common — they joke about themselves a lot','Football here means soccer — Gaelic football is something completely different']},
   PH:{name:'Philippines',flag:'🇵🇭',region:'Southeast Asia',capital:'Manila',cities:'Cebu City, Davao City, Quezon City, Zamboanga, Cagayan de Oro',languages:'Filipino (Tagalog) and English (both official), plus 175+ regional languages',population:'115 million',food:['🍚 Adobo (meat marinated in vinegar and soy sauce) is the national dish','🍲 Sinigang (sour tamarind soup with vegetables) is a family staple','🥩 Lechon (whole roasted pig) is the centrepiece of celebrations','🍌 Halo-halo (shaved ice dessert with beans, fruit and ice cream) is a summer favourite'],festivals:['🎭 Sinulog Festival (Cebu, January) — one of Asia\'s most spectacular street festivals','🌺 Ati-Atihan Festival — vibrant dancing and tribal costumes','🕯️ Simbang Gabi — nine nights of dawn masses before Christmas','🎆 Christmas season starts in September — the world\'s longest!'],school:['📚 Philippines has a K-12 system following a US-influenced model','⛪ Many schools are Catholic — religion class is part of the curriculum','🏀 Basketball is the number one sport — played everywhere','🎤 Singing is a huge part of Filipino culture — karaoke is everywhere'],topics:['Favourite Filipino foods','Christmas — Filipinos celebrate it the longest in the world!','Basketball — very popular','Their island or region — the Philippines has 7,600+ islands!','OPM (Original Pilipino Music)'],tips:['Filipinos are incredibly warm, cheerful and hospitable','Christmas is taken extremely seriously — decorations go up in September','Family (pamilya) is the absolute centre of Filipino life']},
@@ -116,51 +130,129 @@ const DATA = {
   CO:{name:'Colombia',flag:'🇨🇴',region:'South America',capital:'Bogotá',cities:'Medellín, Cali, Barranquilla, Cartagena, Cúcuta, Bucaramanga',languages:'Spanish',population:'51 million',food:['🫘 Bandeja paisa (rice, beans, meat, egg, avocado on one plate) is the national dish','🥐 Arepas (corn flatbreads) are eaten at every meal','🍲 Sancocho (hearty meat and vegetable soup) is the ultimate comfort food','☕ Colombia produces some of the world\'s finest coffee'],festivals:['🎭 Carnaval de Barranquilla — one of the world\'s biggest carnivals','🌸 Feria de las Flores (Medellín, August) — flower parade and festival','🎺 Vallenato Legend Festival — celebrating Colombia\'s iconic music genre','🕯️ Night of Candles (December 7th) — millions of candles lit everywhere'],school:['☕ Colombia\'s coffee culture means even school trips sometimes visit coffee farms','⚽ Football is absolutely central to Colombian culture and school life','💃 Salsa and vallenato are sometimes taught as cultural heritage','📚 School runs from February to November in most of Colombia'],topics:['Colombian coffee — the world\'s best?','Football — Los Cafeteros national team','Carnaval de Barranquilla','Favourite Colombian foods','Medellín vs Bogotá — which city?'],tips:['Colombians are incredibly warm and proud of their country\'s transformation','Coffee is the best conversation opener — they\'re passionate about it','Shakira is from Barranquilla — they\'ll love that you know!']},
   UA:{name:'Ukraine',flag:'🇺🇦',region:'Eastern Europe',capital:'Kyiv',cities:'Kharkiv, Odessa, Lviv, Dnipro, Zaporizhzhia',languages:'Ukrainian',population:'44 million',food:['🫕 Borscht (beetroot soup) is the iconic national dish — eaten hot or cold','🥟 Varenyky (dumplings with potato, cheese or cherries) are beloved comfort food','🍞 Pampushky (garlic bread rolls) are served with borscht','🥒 Pickled vegetables are eaten with almost everything in winter'],festivals:['🌻 Ivana Kupala (July) — bonfires, flower crowns and jumping over flames','🎄 Christmas is celebrated on January 7th (Orthodox calendar)','🎭 Lviv Coffee Festival — celebrating Ukraine\'s passionate coffee culture','🌼 Easter (Paska) — elaborately decorated eggs (pysanky) are a famous tradition'],school:['📚 Education is highly valued — Ukraine has a high literacy rate','🏊 Swimming, gymnastics and football are popular school sports','🎨 Art, music and literature are strongly emphasised','🇺🇦 Ukrainian language and history are taught with great pride'],topics:['Favourite Ukrainian foods','Pysanky (decorated Easter eggs) — they\'re beautiful','Their city and what it\'s like','Ukrainian folk music and embroidery','Sunflowers — Ukraine\'s national flower'],tips:['Ukrainians are proud of their distinct culture and language','Showing genuine interest in Ukrainian culture is deeply appreciated','Embroidery (vyshyvanka) is a national symbol — many wear it on holidays']},
   PL:{name:'Poland',flag:'🇵🇱',region:'Central Europe',capital:'Warsaw',cities:'Kraków, Łódź, Wrocław, Poznań, Gdańsk, Szczecin',languages:'Polish',population:'38 million',food:['🥟 Pierogi (stuffed dumplings) are the most beloved Polish dish','🍲 Bigos (hunter\'s stew with cabbage and meat) is the national dish','🥣 Żurek (sour rye soup with egg and sausage) is a classic','🍩 Pączki (deep-fried doughnuts) are eaten especially on Fat Thursday'],festivals:['💀 All Saints\' Day (November 1st) — graves lit with thousands of candles','🎄 Wigilia (Christmas Eve) — a 12-dish meatless supper','🥚 Śmigus-dyngus (Easter Monday) — tradition of splashing people with water','🎭 Kraków Film Festival — one of Europe\'s oldest film festivals'],school:['📚 Education is taken very seriously in Polish culture','🏐 Volleyball is surprisingly popular alongside football','📖 Polish students study hard — school goes until late afternoon','🏛️ Polish history — especially WWII — is a major subject'],topics:['Favourite Polish foods','Kraków vs Warsaw — which is better?','Polish history and resilience','Polish pop music','Easter and Christmas traditions'],tips:['Polish people are warm once you get to know them but can seem reserved at first','History is very important to Polish identity — show interest','Pierogi are the best conversation opener!']},
-  MY:{name:'Malaysia',flag:'🇲🇾',region:'Southeast Asia',capital:'Kuala Lumpur',cities:'George Town, Ipoh, Johor Bahru, Kota Kinabalu, Kuching',languages:'Malay (official), English, Mandarin, Tamil widely spoken',population:'33 million',food:['🍜 Nasi lemak (coconut rice with anchovy, egg and sambal) is the national dish','🍢 Satay with peanut sauce is eaten at every hawker stall','🫕 Laksa (spicy noodle soup) comes in many regional varieties','🧋 Teh tarik ("pulled tea") is a frothy sweet iced tea tradition'],festivals:['🎊 Hari Raya (Eid) — the biggest celebration for Malay Muslims','🏮 Chinese New Year — celebrated with fireworks and lion dances','💡 Deepavali (Festival of Lights) — celebrated by Indian Malaysians','🌺 Hari Merdeka (August 31st) — Malaysia\'s Independence Day'],school:['📚 Malaysia has both national and vernacular schools (Chinese and Tamil)','🏸 Badminton is the top sport — Malaysia produces world champions','🌍 Most students are trilingual — Malay, English and their mother tongue','🎒 School uniforms are standard and school starts early'],topics:['Their favourite Malaysian foods','Which ethnic community they\'re from — Malay, Chinese, Indian or other','Badminton — Malaysia is world class!','Hari Raya or Chinese New Year traditions','Life in Kuala Lumpur vs Penang or Borneo'],tips:['Malaysia\'s motto is "unity in diversity" — multiple religions live side by side','Food is the great unifier — Malaysians bond over eating','Always ask which part of Malaysia they\'re from — Peninsular and Borneo are very different']},
+  MY:{name:'Malaysia',flag:'🇲🇾',region:'Southeast Asia',capital:'Kuala Lumpur',cities:'George Town, Ipoh, Johor Bahru, Kota Kinabalu, Kuching',languages:'Malay (official), English, Mandarin, Tamil widely spoken',population:'33 million',food:['🍜 Nasi lemak (coconut rice with anchovy, egg and sambal) is the national dish','🍢 Satay with peanut sauce is eaten at every hawker stall','🫕 Laksa (spicy noodle soup) comes in many regional varieties','🧋 Teh tarik ("pulled tea") is a frothy sweet iced tea tradition'],festivals:['🎊 Hari Raya (Eid) — the biggest celebration for Malay Muslims','🏮 Chinese New Year — celebrated with fireworks and lion dances','💡 Deepavali (Festival of Lights) — celebrated by Indian Malaysians','🌺 Hari Merdeka (August 31st) — Malaysia\'s Independence Day'],school:['📚 Malaysia has both national and vernacular schools (Chinese and Tamil)','🏸 Badminton is the top sport — Malaysia produces world champions','🌍 Most students are trilingual — Malay, English and their mother tongue','🎒 School uniforms are standard and school starts early'],topics:['Their favourite Malaysian foods','Which ethnic community they\'re from — Malay, Chinese, Indian or other','Badminton — Malaysia is world class!','Hari Raya or Chinese New Year traditions','Life in Kuala Lumpur vs Penang or Borneo'],tips:['Malaysia\'s motto is "unity in diversity" — multiple religions live side by side','Food is the great unifier — Malaysians bond over eating','Always ask which part of Malaysia they\'re from — very different regions']},
   VN:{name:'Vietnam',flag:'🇻🇳',region:'Southeast Asia',capital:'Hanoi',cities:'Ho Chi Minh City, Da Nang, Haiphong, Hội An, Nha Trang',languages:'Vietnamese',population:'98 million',food:['🍜 Pho (noodle soup with herbs) is eaten for breakfast, lunch and dinner','🥖 Bánh mì (Vietnamese baguette sandwich) is a French colonial legacy','🌿 Fresh herbs are added to almost everything at the table','🧆 Bánh xèo (crispy sizzling pancakes) are eaten wrapped in lettuce'],festivals:['🎆 Tết (Lunar New Year) — the most important festival, celebrated for weeks','🏮 Hội An Lantern Festival (monthly) — the ancient town glows with coloured lanterns','👻 Hungry Ghost Festival — offerings made for wandering spirits','🌺 Hue Festival — celebrating imperial Vietnamese arts and culture'],school:['📚 Education is highly competitive — exam scores determine university entry','🚲 Many students still cycle to school in rural areas','📐 Maths and sciences are heavily emphasised','🏫 School uniforms are white áo dài (traditional dress) for girls in many schools'],topics:['Favourite Vietnamese foods','Tết traditions','Life in Hanoi vs Ho Chi Minh City','Motorbikes — they are EVERYWHERE!','Vietnamese coffee — one of the world\'s strongest!'],tips:['Vietnamese people are hardworking, resilient and proud of their culture','Traffic in Vietnam\'s cities is famously wild — motorbikes rule the roads','Always ask about their family — family is central to Vietnamese values']}
 }
 
 const SUGGESTIONS = ['What do kids do after school?','What is the most popular food?','Tell me about a big celebration','What sports are popular here?','What should I write to my pen pal?']
 
-let selectedISO = null
 let chatHistory = []
 let isSending = false
 let currentCountryName = ''
+let activePolygon = null
 
-// Build map
+// ── Search ──────────────────────────────────────────────────────────────────
+window.searchCountries = function(val) {
+  const res = document.getElementById('search-results')
+  if (!val.trim()) { res.style.display = 'none'; return }
+  const matches = Object.entries(DATA).filter(([iso, c]) =>
+    c.name.toLowerCase().includes(val.toLowerCase())
+  ).slice(0, 8)
+  if (matches.length === 0) { res.style.display = 'none'; return }
+  res.style.display = 'block'
+  res.innerHTML = matches.map(([iso, c]) =>
+    `<div class="search-result" onclick="selectFromSearch('${iso}')">${c.flag} ${c.name}</div>`
+  ).join('')
+}
+
+window.hideSearch = function() {
+  document.getElementById('search-results').style.display = 'none'
+}
+
+window.selectFromSearch = function(iso) {
+  document.getElementById('search-input').value = ''
+  document.getElementById('search-results').style.display = 'none'
+  showCountry(iso)
+
+  // Highlight on map
+  if (polygonSeries) {
+    polygonSeries.mapPolygons.each(function(polygon) {
+      const id = polygon.dataItem?.get('id')
+      if (id === iso) {
+        if (activePolygon && activePolygon !== polygon) activePolygon.states.applyAnimate('default')
+        polygon.states.applyAnimate('active')
+        activePolygon = polygon
+        chart.zoomToDataItem(polygon.dataItem, 3, true)
+      }
+    })
+  }
+}
+
+// ── Map setup ────────────────────────────────────────────────────────────────
 const root = am5.Root.new('chartdiv')
 root.setThemes([am5themes_Animated.new(root)])
-const chart = root.container.children.push(am5map.MapChart.new(root, { panX:'rotateX', panY:'translateY', projection:am5map.geoNaturalEarth1() }))
-const polygonSeries = chart.series.push(am5map.MapPolygonSeries.new(root, { geoJSON:am5geodata_worldLow, exclude:['AQ'] }))
-polygonSeries.mapPolygons.template.setAll({ tooltipText:'{name}', interactive:true, fill:am5.color(0x7CB9D8), stroke:am5.color(0xFFFFFF), strokeWidth:0.5 })
-polygonSeries.mapPolygons.template.states.create('hover', { fill:am5.color(0x1D9E75) })
-polygonSeries.mapPolygons.template.states.create('active', { fill:am5.color(0x0F6E56) })
+
+const chart = root.container.children.push(
+  am5map.MapChart.new(root, {
+    panX: 'rotateX',
+    panY: 'translateY',
+    projection: am5map.geoNaturalEarth1(),
+    paddingBottom: 20,
+    paddingTop: 20
+  })
+)
+
+const polygonSeries = chart.series.push(
+  am5map.MapPolygonSeries.new(root, {
+    geoJSON: am5geodata_worldLow,
+    exclude: ['AQ']
+  })
+)
+
+polygonSeries.mapPolygons.template.setAll({
+  tooltipText: '{name}',
+  interactive: true,
+  fill: am5.color(0x7CB9D8),
+  stroke: am5.color(0xFFFFFF),
+  strokeWidth: 0.5,
+  cursorOverStyle: 'pointer'
+})
+
+polygonSeries.mapPolygons.template.states.create('hover', {
+  fill: am5.color(0x1D9E75)
+})
+
+polygonSeries.mapPolygons.template.states.create('active', {
+  fill: am5.color(0x0F6E56)
+})
+
 chart.set('zoomControl', am5map.ZoomControl.new(root, {}))
 
-let activePolygon = null
-polygonSeries.mapPolygons.template.on('click', function(ev) {
-  if (activePolygon && activePolygon !== ev.target) activePolygon.states.applyAnimate('default')
+polygonSeries.mapPolygons.template.events.on('click', function(ev) {
+  if (activePolygon && activePolygon !== ev.target) {
+    activePolygon.states.applyAnimate('default')
+  }
   ev.target.states.applyAnimate('active')
   activePolygon = ev.target
   const iso = ev.target.dataItem?.get('id')
-  if (iso) { selectedISO = iso; showCountry(iso) }
+  if (iso) showCountry(iso)
 })
 
+// ── Panel ────────────────────────────────────────────────────────────────────
 async function showCountry(iso) {
   document.getElementById('panel-empty').style.display = 'none'
   const body = document.getElementById('panel-body')
-  body.style.display = 'flex'
-  body.style.flexDirection = 'column'
+  body.style.display = 'block'
   chatHistory = []
+
   const pre = DATA[iso]
-  if (pre) { renderCountry(pre); return }
+  if (pre) {
+    renderCountry(pre)
+    return
+  }
+
+  // AI fallback for countries not in DATA
   body.innerHTML = '<div class="loading-panel"><div class="spin"></div>Loading cultural info…</div>'
   try {
-    const r = await fetch('/api/culture-info', { method:'POST', headers:{'Content-Type':'application/json'}, body:JSON.stringify({ type:'info', country:iso }) })
+    const r = await fetch('/api/culture-info', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ type: 'info', country: iso })
+    })
     const { result } = await r.json()
     renderCountry(result)
   } catch(e) {
-    body.innerHTML = '<div class="loading-panel">Couldn\'t load info for this country. Try asking in the chat!</div>'
+    body.innerHTML = `<div class="loading-panel">Couldn't load info for this country.<br><br>Try asking below!</div>`
   }
 }
 
@@ -170,7 +262,10 @@ function renderCountry(c) {
     <div class="country-hero">
       <div class="country-top">
         <div class="country-flag">${c.flag}</div>
-        <div><div class="country-name">${c.name}</div><div class="country-region">${c.region}</div></div>
+        <div>
+          <div class="country-name">${c.name}</div>
+          <div class="country-region">${c.region}</div>
+        </div>
       </div>
       <div class="quick-grid">
         <div class="quick-item"><div class="quick-label">🏛 Capital</div><div class="quick-value">${c.capital}</div></div>
@@ -179,15 +274,32 @@ function renderCountry(c) {
         <div class="quick-item"><div class="quick-label">🏙 Major cities</div><div class="quick-value">${c.cities}</div></div>
       </div>
     </div>
-    <div class="info-section"><div class="section-title">🍜 Food & drink</div><div class="info-list">${c.food.map(f=>`<div class="info-item">${f}</div>`).join('')}</div></div>
-    <div class="info-section"><div class="section-title">🎉 Festivals & celebrations</div><div class="info-list">${c.festivals.map(f=>`<div class="info-item">${f}</div>`).join('')}</div></div>
-    <div class="info-section"><div class="section-title">🏫 School life</div><div class="info-list">${c.school.map(s=>`<div class="info-item">${s}</div>`).join('')}</div></div>
-    <div class="info-section"><div class="section-title">💬 Great pen pal topics</div><div class="chips">${c.topics.map(t=>`<span class="chip-green">${t}</span>`).join('')}</div></div>
-    <div class="info-section"><div class="section-title">💡 Cultural tips</div><div class="chips">${c.tips.map(t=>`<span class="chip-amber">${t}</span>`).join('')}</div></div>
+    <div class="info-section">
+      <div class="section-title">🍜 Food & drink</div>
+      <div class="info-list">${c.food.map(f=>`<div class="info-item">${f}</div>`).join('')}</div>
+    </div>
+    <div class="info-section">
+      <div class="section-title">🎉 Festivals & celebrations</div>
+      <div class="info-list">${c.festivals.map(f=>`<div class="info-item">${f}</div>`).join('')}</div>
+    </div>
+    <div class="info-section">
+      <div class="section-title">🏫 School life</div>
+      <div class="info-list">${c.school.map(s=>`<div class="info-item">${s}</div>`).join('')}</div>
+    </div>
+    <div class="info-section">
+      <div class="section-title">💬 Great pen pal topics</div>
+      <div class="chips">${c.topics.map(t=>`<span class="chip-green">${t}</span>`).join('')}</div>
+    </div>
+    <div class="info-section">
+      <div class="section-title">💡 Cultural tips</div>
+      <div class="chips">${c.tips.map(t=>`<span class="chip-amber">${t}</span>`).join('')}</div>
+    </div>
     <div class="chat-wrap">
       <div class="chat-head">💬 Ask anything about ${c.name}</div>
       <div class="chat-msgs" id="chat-msgs"></div>
-      <div class="chat-sugg">${SUGGESTIONS.map(s=>`<button class="sugg-btn" onclick="askSugg('${s.replace(/'/g,"\\'")}')">${s}</button>`).join('')}</div>
+      <div class="chat-sugg">
+        ${SUGGESTIONS.map(s=>`<button class="sugg-btn" onclick="askSugg('${s.replace(/'/g,"\\'")}')">${s}</button>`).join('')}
+      </div>
       <div class="chat-row">
         <input class="chat-in" id="chat-in" placeholder="Ask me anything…" onkeydown="if(event.key==='Enter')sendMsg()">
         <button class="chat-btn" id="chat-btn" onclick="sendMsg()">→</button>
@@ -195,7 +307,10 @@ function renderCountry(c) {
     </div>`
 }
 
-window.askSugg = t => { document.getElementById('chat-in').value = t; sendMsg() }
+window.askSugg = function(t) {
+  document.getElementById('chat-in').value = t
+  sendMsg()
+}
 
 window.sendMsg = async function() {
   const input = document.getElementById('chat-in')
@@ -211,7 +326,11 @@ window.sendMsg = async function() {
   document.getElementById('chat-msgs').scrollTop = 99999
   chatHistory.push({ role:'user', content:text })
   try {
-    const r = await fetch('/api/culture-info', { method:'POST', headers:{'Content-Type':'application/json'}, body:JSON.stringify({ type:'chat', country:currentCountryName, message:text, history:chatHistory.slice(0,-1) }) })
+    const r = await fetch('/api/culture-info', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ type:'chat', country:currentCountryName, message:text, history:chatHistory.slice(0,-1) })
+    })
     const { result } = await r.json()
     document.getElementById('think')?.remove()
     addMsg('ai', result)
@@ -229,8 +348,7 @@ function addMsg(type, text) {
   if (!msgs) return
   const d = document.createElement('div')
   d.className = `msg ${type}`; d.textContent = text
-  msgs.appendChild(d)
-  msgs.scrollTop = 99999
+  msgs.appendChild(d); msgs.scrollTop = 99999
 }
 </script>
 </body>
