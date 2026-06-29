@@ -71,6 +71,7 @@
 
 <script type="module">
   import { createClient } from 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js/+esm'
+  import { loadAndApplyTheme } from '/theme.js'
 
   const supabase = createClient(
     'https://vfohvovtxklsdvpigycx.supabase.co',
@@ -82,6 +83,7 @@
 
   async function init() {
     try {
+      await loadAndApplyTheme(supabase)
       const { data: { session } } = await supabase.auth.getSession()
 
       if (!session) {
