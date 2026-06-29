@@ -65,6 +65,12 @@
     .spin { width: 28px; height: 28px; border: 2px solid #e5e3dc; border-top-color: #1D9E75; border-radius: 50%; animation: sp .7s linear infinite; margin: 0 auto 12px; }
     @keyframes sp { to { transform: rotate(360deg); } }
   </style>
+  <script type="module">
+    import { loadAndApplyTheme } from '/theme.js'
+    import { createClient } from 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js/+esm'
+    const sb = createClient('https://vfohvovtxklsdvpigycx.supabase.co','sb_publishable_iOcoEodjREKpEL1B7DqRSg_k4cKFSEu')
+    loadAndApplyTheme(sb)
+  </script>
 </head>
 <body>
 <div class="topbar">
