@@ -202,22 +202,46 @@
     }
   }
 
-  window.onPenPalChange = function() {
+ window.onPenPalChange = function() {
     const idx = document.getElementById('penpal-select').value
     if (idx === '') { selectedPenPal = null; return }
     selectedPenPal = penPals[parseInt(idx)]
     const lang = selectedPenPal.language || 'Spanish'
+    const penPalName = selectedPenPal.name || ''
+    const myName = currentUser.display_name || ''
     document.getElementById('culture-tip-text').textContent = CULTURE_TIPS[lang] || CULTURE_TIPS.Spanish
-    const greetings = GREETINGS[lang] || GREETINGS.Spanish
-    const signoffs = SIGNOFFS[lang] || SIGNOFFS.Spanish
+
+    // Replace [nombre]/[name] placeholders with actual names
+    const fillName = (str) => str
+      .replace(/\[nombre\]/g, penPalName)
+      .replace(/\[prénom\]/g, penPalName)
+      .replace(/\[nome\]/g, penPalName)
+      .replace(/\[Name\]/g, penPalName)
+      .replace(/\[이름\]/g, penPalName)
+      .replace(/\[お名前\]/g, penPalName)
+      .replace(/\[名字\]/g, penPalName)
+
+    const greetings = (GREETINGS[lang] || GREETINGS.Spanish).map(fillName)
+    const signoffs = (SIGNOFFS[lang] || SIGNOFFS.Spanish).map(s => s)
+
     document.getElementById('greeting-select').innerHTML =
       '<option value="">— Choose a greeting —</option>' +
       greetings.map(g => `<option value="${g}">${g}</option>`).join('') +
       '<option value="custom">Write my own...</option>'
+
     document.getElementById('signoff-select').innerHTML =
       '<option value="">— Choose a sign-off —</option>' +
       signoffs.map(s => `<option value="${s}">${s}</option>`).join('') +
       '<option value="custom">Write my own...</option>'
+
+    // Auto-fill sign-off with sender's name
+    const defaultSignoff = signoffs[0]
+    document.getElementById('signoff-select').value = defaultSignoff
+    document.getElementById('signoff-custom').value = defaultSignoff + '\n' + myName
+
+    // Auto-fill greeting with pen pal's name
+    document.getElementById('greeting-select').value = greetings[0]
+    document.getElementById('greeting-custom').value = greetings[0]
   }
 
   window.onGreetingChange = function() {
