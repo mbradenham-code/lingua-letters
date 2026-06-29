@@ -7,30 +7,64 @@
   <style>
     * { box-sizing: border-box; margin: 0; padding: 0; }
     body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; background: #F1EFE8; min-height: 100vh; display: flex; align-items: center; justify-content: center; padding: 20px; }
-    .card { background: white; border-radius: 16px; padding: 48px 36px; width: 100%; max-width: 420px; box-shadow: 0 2px 20px rgba(0,0,0,0.08); text-align: center; }
+    .card { background: white; border-radius: 16px; padding: 48px 36px; width: 100%; max-width: 460px; box-shadow: 0 2px 20px rgba(0,0,0,0.08); text-align: center; }
     .orb { width: 64px; height: 64px; border-radius: 50%; background: #1D9E75; display: flex; align-items: center; justify-content: center; font-size: 28px; margin: 0 auto 20px; }
     .logo-text { font-size: 18px; font-weight: 500; color: #1a1a1a; margin-bottom: 32px; }
     h1 { font-size: 22px; font-weight: 600; color: #1a1a1a; margin-bottom: 10px; }
     p { font-size: 14px; color: #888; line-height: 1.6; margin-bottom: 28px; }
     .btn { display: block; background: #1D9E75; color: white; padding: 12px 24px; border-radius: 9px; font-size: 14px; font-weight: 500; text-decoration: none; border: none; cursor: pointer; width: 100%; }
     .btn:hover { background: #0F6E56; }
+    .btn:disabled { opacity: .5; cursor: not-allowed; }
     .spinner { width: 32px; height: 32px; border: 3px solid #e5e3dc; border-top-color: #1D9E75; border-radius: 50%; animation: spin 0.8s linear infinite; margin: 0 auto 16px; }
     @keyframes spin { to { transform: rotate(360deg); } }
+
+    /* Theme picker */
+    .theme-section { display: none; }
+    .theme-section h1 { margin-bottom: 6px; }
+    .theme-section .sub { font-size: 13px; color: #aaa; margin-bottom: 20px; }
+    .theme-grid { display: flex; flex-wrap: wrap; gap: 10px; justify-content: center; margin-bottom: 24px; }
+    .theme-btn { display: flex; flex-direction: column; align-items: center; gap: 6px; padding: 14px 16px; border-radius: 14px; border: 2px solid #e5e3dc; background: white; cursor: pointer; font-family: inherit; transition: all .15s; min-width: 80px; }
+    .theme-btn:hover { border-color: #1D9E75; transform: translateY(-2px); }
+    .theme-btn.selected { border-color: #1D9E75; background: #E1F5EE; }
+    .theme-btn .t-emoji { font-size: 26px; }
+    .theme-btn .t-name { font-size: 11px; font-weight: 500; color: #555; }
+    .theme-btn.selected .t-name { color: #0F6E56; font-weight: 600; }
+    .skip-link { font-size: 12px; color: #aaa; cursor: pointer; margin-top: 12px; display: block; text-decoration: underline; }
+    .skip-link:hover { color: #555; }
   </style>
 </head>
 <body>
   <div class="card">
     <div class="orb">✉</div>
     <div class="logo-text">Lingua Letters</div>
-    <div class="spinner" id="spinner"></div>
-    <h1 id="title">Setting up your account…</h1>
-    <p id="msg">Just a moment while we get everything ready.</p>
-    <button class="btn" id="action-btn" style="display:none;" onclick="window.location.href='/login.html'">Sign in</button>
+
+    <!-- Setup / loading state -->
+    <div id="setup-section">
+      <div class="spinner" id="spinner"></div>
+      <h1 id="title">Setting up your account…</h1>
+      <p id="msg">Just a moment while we get everything ready.</p>
+      <button class="btn" id="action-btn" style="display:none;" onclick="window.location.href='/login.html'">Sign in</button>
+    </div>
+
+    <!-- Theme picker — shown after setup -->
+    <div class="theme-section" id="theme-section">
+      <h1>One last thing!</h1>
+      <p class="sub">Choose a theme for your Lingua Letters experience.<br>You can always change it in settings.</p>
+      <div class="theme-grid" id="theme-grid"></div>
+      <button class="btn" id="theme-continue-btn" onclick="saveThemeAndGo()" disabled>Continue to Lingua Letters →</button>
+      <span class="skip-link" onclick="window.location.href='/dashboard.html'">Skip for now</span>
+    </div>
   </div>
+
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-<script>
+<script type="module">
+  import { applyTheme, THEMES } from '/theme.js'
+
   const { createClient } = supabase
   const sb = createClient('https://vfohvovtxklsdvpigycx.supabase.co','sb_publishable_iOcoEodjREKpEL1B7DqRSg_k4cKFSEu')
+
+  let selectedTheme = null
+  let currentUserId = null
 
   async function init() {
     const params = new URLSearchParams(window.location.search)
@@ -44,11 +78,13 @@
     const { data: { session } } = await sb.auth.getSession()
     if (!session) { showError('Could not confirm your email. Please try signing up again.'); return }
 
+    currentUserId = session.user.id
+
     const { data: existing } = await sb.from('users').select('id').eq('id', session.user.id).single()
-    if (existing) { showSuccess(); return }
+    if (existing) { showThemePicker(); return }
 
     const pending = localStorage.getItem('ll_pending_profile')
-    if (!pending) { showSuccess(); return }
+    if (!pending) { showThemePicker(); return }
 
     const profile = JSON.parse(pending)
 
@@ -68,34 +104,28 @@
       school_name: profile.school_name,
       school_country: profile.school_country,
       grade_level: profile.grade_level,
-      teaching_style: profile.teaching_style
+      teaching_style: profile.teaching_style,
+      theme: 'classic'
     })
 
     if (profileError) { showError('Account confirmed but profile setup failed: ' + profileError.message); return }
 
-    // Add to class roster if needed
     if (profile.class_id) {
       await sb.from('class_members').insert({ class_id: profile.class_id, student_id: session.user.id })
     }
 
-    // Link waiting children to new parent
     if (profile.account_type === 'parent') {
       await sb.from('users').update({ parent_id: session.user.id, pending_parent_email: null }).eq('pending_parent_email', profile.email)
     }
 
-    // Send parent invitation email only for home accounts
     if (profile.pending_parent_email && profile.account_subtype === 'student_home') {
       fetch('/api/invite-parent', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          parentEmail: profile.pending_parent_email,
-          studentName: profile.display_name
-        })
+        body: JSON.stringify({ parentEmail: profile.pending_parent_email, studentName: profile.display_name })
       })
     }
 
-    // Run teacher screening in background
     if (profile.account_subtype === 'teacher') {
       fetch('/api/screen-teacher', {
         method: 'POST',
@@ -113,17 +143,38 @@
     }
 
     localStorage.removeItem('ll_pending_profile')
-    showSuccess()
+    showThemePicker()
   }
 
-  function showSuccess() {
-    document.getElementById('spinner').style.display = 'none'
-    document.getElementById('title').textContent = 'Email confirmed!'
-    document.getElementById('msg').textContent = 'Your account is ready. Sign in to get started.'
-    const btn = document.getElementById('action-btn')
-    btn.style.display = 'block'
-    btn.textContent = 'Sign in to Lingua Letters'
-    btn.onclick = () => window.location.href = '/dashboard.html'
+  function showThemePicker() {
+    document.getElementById('setup-section').style.display = 'none'
+    document.getElementById('theme-section').style.display = 'block'
+
+    const grid = document.getElementById('theme-grid')
+    grid.innerHTML = Object.entries(THEMES).map(([key, t]) => `
+      <button type="button" class="theme-btn" id="tbtn-${key}" onclick="pickTheme('${key}')">
+        <span class="t-emoji">${t.emoji}</span>
+        <span class="t-name">${t.name}</span>
+      </button>`).join('')
+  }
+
+  window.pickTheme = function(key) {
+    selectedTheme = key
+    document.querySelectorAll('.theme-btn').forEach(b => b.classList.remove('selected'))
+    document.getElementById('tbtn-' + key)?.classList.add('selected')
+    applyTheme(key)
+    document.getElementById('theme-continue-btn').disabled = false
+  }
+
+  window.saveThemeAndGo = async function() {
+    if (!selectedTheme) return
+    const btn = document.getElementById('theme-continue-btn')
+    btn.disabled = true
+    btn.textContent = 'Saving…'
+    if (currentUserId) {
+      await sb.from('users').update({ theme: selectedTheme }).eq('id', currentUserId)
+    }
+    window.location.href = '/dashboard.html'
   }
 
   function showError(msg) {
