@@ -55,6 +55,15 @@
     .connect-row:last-child { border-bottom: none; }
     .code-box { font-size: 18px; font-weight: 500; color: #1D9E75; letter-spacing: 2px; background: #E1F5EE; border-radius: 8px; padding: 8px 14px; display: inline-block; margin: 8px 0; }
     .copy-btn { font-size: 11px; color: #0F6E56; background: none; border: 1px solid #9FE1CB; border-radius: 7px; padding: 4px 10px; cursor: pointer; margin-left: 8px; }
+    /* Theme picker */
+    .theme-grid { display: flex; flex-wrap: wrap; gap: 10px; padding: 16px 18px; }
+    .theme-btn { display: flex; flex-direction: column; align-items: center; gap: 6px; padding: 12px 14px; border-radius: 12px; border: 2px solid #e5e3dc; background: white; cursor: pointer; font-family: inherit; transition: all .15s; min-width: 76px; }
+    .theme-btn:hover { border-color: #1D9E75; }
+    .theme-btn.selected { border-color: #1D9E75; background: #E1F5EE; }
+    .theme-btn .theme-emoji { font-size: 22px; }
+    .theme-btn .theme-name { font-size: 11px; font-weight: 500; color: #555; }
+    .theme-btn.selected .theme-name { color: #0F6E56; font-weight: 600; }
+    .theme-saved { font-size: 12px; color: #1D9E75; padding: 0 18px 14px; display: none; }
   </style>
 </head>
 <body>
@@ -71,7 +80,7 @@
 
 <script type="module">
   import { createClient } from 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js/+esm'
-  import { loadAndApplyTheme } from '/theme.js'
+  import { loadAndApplyTheme, applyTheme, THEMES } from '/theme.js'
 
   const supabase = createClient(
     'https://vfohvovtxklsdvpigycx.supabase.co',
@@ -80,22 +89,16 @@
 
   const LANGS = ['Spanish','French','Italian','Korean','Japanese','German','Portuguese','Mandarin']
   let currentUser = null
+  let currentTheme = 'classic'
 
   async function init() {
     try {
       await loadAndApplyTheme(supabase)
       const { data: { session } } = await supabase.auth.getSession()
-
-      if (!session) {
-        window.location.href = '/login.html'
-        return
-      }
+      if (!session) { window.location.href = '/login.html'; return }
 
       const { data: user, error } = await supabase
-        .from('users')
-        .select('*')
-        .eq('id', session.user.id)
-        .single()
+        .from('users').select('*').eq('id', session.user.id).single()
 
       if (error || !user) {
         document.getElementById('content').innerHTML = `
@@ -107,6 +110,7 @@
       }
 
       currentUser = user
+      currentTheme = user.theme || 'classic'
       document.getElementById('user-name').textContent = user.display_name
       renderSettings()
 
@@ -136,6 +140,12 @@
     else if (isTeacher) accountLabel = '<span class="chip cg">📚 Teacher</span>'
     else if (isParent) accountLabel = '<span class="chip" style="background:#F0E6FF;color:#5B21B6;">👨‍👩‍👧 Parent</span>'
     else accountLabel = '<span class="chip cg">🌍 Solo learner</span>'
+
+    const themeButtons = Object.entries(THEMES).map(([key, t]) => `
+      <button type="button" class="theme-btn${key === currentTheme ? ' selected' : ''}" id="theme-btn-${key}" onclick="pickTheme('${key}')">
+        <span class="theme-emoji">${t.emoji}</span>
+        <span class="theme-name">${t.name}</span>
+      </button>`).join('')
 
     document.getElementById('content').innerHTML = `
       <div class="page-title">⚙ Settings</div>
@@ -171,6 +181,15 @@
           <div class="pf-value">${accountLabel}</div>
         </div>
         ${u.age ? `<div class="profile-field"><div class="pf-label">Age</div><div class="pf-value">${u.age}</div></div>` : ''}
+      </div>
+
+      <div class="section">
+        <div class="section-header">
+          <div class="section-title">🎨 App theme</div>
+          <div class="section-sub">Choose how Lingua Letters looks and feels</div>
+        </div>
+        <div class="theme-grid">${themeButtons}</div>
+        <div class="theme-saved" id="theme-saved">✓ Theme saved!</div>
       </div>
 
       ${isStudent || isSolo ? `
@@ -271,20 +290,34 @@
     loadMyCode()
   }
 
+  window.pickTheme = async function(key) {
+    currentTheme = key
+    // Update button styles
+    Object.keys(THEMES).forEach(k => {
+      const btn = document.getElementById('theme-btn-' + k)
+      if (!btn) return
+      btn.classList.toggle('selected', k === key)
+    })
+    // Apply immediately
+    applyTheme(key)
+    // Save to Supabase
+    await supabase.from('users').update({ theme: key }).eq('id', currentUser.id)
+    // Show saved confirmation
+    const saved = document.getElementById('theme-saved')
+    if (saved) {
+      saved.style.display = 'block'
+      setTimeout(() => saved.style.display = 'none', 2000)
+    }
+  }
+
   async function loadMyCode() {
     const el = document.getElementById('my-code')
     if (!el) return
-
     try {
       const { data } = await supabase
-        .from('connection_codes')
-        .select('code')
-        .eq('student_id', currentUser.id)
-        .eq('used', false)
-        .single()
-
+        .from('connection_codes').select('code')
+        .eq('student_id', currentUser.id).eq('used', false).single()
       if (data) { el.textContent = data.code; return }
-
       const code = 'LL-' + Math.random().toString(36).substring(2, 6).toUpperCase()
       await supabase.from('connection_codes').insert({ student_id: currentUser.id, code, used: false })
       el.textContent = code
