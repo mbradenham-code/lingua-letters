@@ -31,7 +31,8 @@
     .panel-body { flex: 1; overflow-y: auto; }
     .country-hero { padding: 20px 20px 16px; border-bottom: 1px solid #f0ede6; background: linear-gradient(135deg, #F0FAF5 0%, #F8F7F4 100%); }
     .country-top { display: flex; align-items: center; gap: 14px; margin-bottom: 14px; }
-    .country-flag { font-size: 44px; line-height: 1; }
+    .country-flag-img { width: 64px; height: 43px; border-radius: 6px; object-fit: cover; box-shadow: 0 1px 6px rgba(0,0,0,.18); flex-shrink: 0; }
+    .country-flag-fallback { width: 64px; height: 43px; border-radius: 6px; background: #1D9E75; display: flex; align-items: center; justify-content: center; font-size: 14px; font-weight: 700; color: white; letter-spacing: .05em; flex-shrink: 0; }
     .country-name { font-size: 22px; font-weight: 600; color: #1a1a1a; margin-bottom: 2px; }
     .country-region { font-size: 12px; color: #aaa; }
     .quick-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
@@ -139,7 +140,18 @@ const SUGGESTIONS = ['What do kids do after school?','What is the most popular f
 let chatHistory = []
 let isSending = false
 let currentCountryName = ''
+let currentISO = ''
 let activePolygon = null
+
+// ── Flag helper ──────────────────────────────────────────────────────────────
+function flagHTML(iso, name) {
+  const code = iso.toLowerCase()
+  return `<img class="country-flag-img"
+    src="https://flagcdn.com/w80/${code}.png"
+    srcset="https://flagcdn.com/w160/${code}.png 2x"
+    onerror="this.outerHTML='<div class=\\"country-flag-fallback\\">${iso}</div>'"
+    alt="${name} flag">`
+}
 
 // ── Search ──────────────────────────────────────────────────────────────────
 window.searchCountries = function(val) {
@@ -164,7 +176,6 @@ window.selectFromSearch = function(iso) {
   document.getElementById('search-results').style.display = 'none'
   showCountry(iso)
 
-  // Highlight on map
   if (polygonSeries) {
     polygonSeries.mapPolygons.each(function(polygon) {
       const id = polygon.dataItem?.get('id')
@@ -234,14 +245,14 @@ async function showCountry(iso) {
   const body = document.getElementById('panel-body')
   body.style.display = 'block'
   chatHistory = []
+  currentISO = iso
 
   const pre = DATA[iso]
   if (pre) {
-    renderCountry(pre)
+    renderCountry(pre, iso)
     return
   }
 
-  // AI fallback for countries not in DATA
   body.innerHTML = '<div class="loading-panel"><div class="spin"></div>Loading cultural info…</div>'
   try {
     const r = await fetch('/api/culture-info', {
@@ -250,18 +261,19 @@ async function showCountry(iso) {
       body: JSON.stringify({ type: 'info', country: iso })
     })
     const { result } = await r.json()
-    renderCountry(result)
+    renderCountry(result, iso)
   } catch(e) {
     body.innerHTML = `<div class="loading-panel">Couldn't load info for this country.<br><br>Try asking below!</div>`
   }
 }
 
-function renderCountry(c) {
+function renderCountry(c, iso) {
   currentCountryName = c.name
+  const isoCode = iso || currentISO || ''
   document.getElementById('panel-body').innerHTML = `
     <div class="country-hero">
       <div class="country-top">
-        <div class="country-flag">${c.flag}</div>
+        ${flagHTML(isoCode, c.name)}
         <div>
           <div class="country-name">${c.name}</div>
           <div class="country-region">${c.region}</div>
