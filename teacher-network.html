@@ -11,6 +11,10 @@
     .logo { display: flex; align-items: center; gap: 10px; }
     .orb { width: 32px; height: 32px; border-radius: 50%; background: #1D9E75; display: flex; align-items: center; justify-content: center; font-size: 16px; }
     .logo-text { font-size: 18px; font-weight: 500; color: #1a1a1a; }
+    .topbar-right { display: flex; align-items: center; gap: 12px; }
+    .inbox-btn { display: flex; align-items: center; gap: 6px; background: #1D9E75; color: white; border: none; border-radius: 9px; padding: 8px 14px; font-size: 13px; font-weight: 500; cursor: pointer; text-decoration: none; }
+    .inbox-btn:hover { background: #0F6E56; }
+    .inbox-badge { background: white; color: #1D9E75; border-radius: 50%; width: 18px; height: 18px; font-size: 11px; font-weight: 700; display: flex; align-items: center; justify-content: center; }
     .back { font-size: 13px; color: #1D9E75; text-decoration: none; }
     .back:hover { text-decoration: underline; }
     h1 { font-size: 22px; font-weight: 600; color: #1a1a1a; margin-bottom: 4px; }
@@ -27,28 +31,74 @@
     .results { max-width: 900px; margin: 0 auto; }
     .results-header { font-size: 12px; color: #aaa; margin-bottom: 12px; }
     .grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(260px, 1fr)); gap: 16px; }
-    .teacher-card { background: white; border-radius: 14px; padding: 20px; box-shadow: 0 2px 12px rgba(0,0,0,0.06); cursor: pointer; transition: box-shadow .15s, transform .15s; text-decoration: none; display: block; }
+    .teacher-card { background: white; border-radius: 14px; padding: 20px; box-shadow: 0 2px 12px rgba(0,0,0,0.06); transition: box-shadow .15s, transform .15s; display: block; }
     .teacher-card:hover { box-shadow: 0 4px 20px rgba(0,0,0,0.1); transform: translateY(-2px); }
-    .card-header { display: flex; align-items: center; gap: 12px; margin-bottom: 12px; }
+    .card-header { display: flex; align-items: center; gap: 12px; margin-bottom: 12px; cursor: pointer; }
     .avatar { width: 44px; height: 44px; border-radius: 50%; background: #1D9E75; display: flex; align-items: center; justify-content: center; font-size: 16px; color: white; font-weight: 600; flex-shrink: 0; }
     .avatar.alt { background: #0F6E56; }
     .avatar.alt2 { background: #5B9E75; }
     .card-name { font-size: 15px; font-weight: 600; color: #1a1a1a; margin-bottom: 2px; }
     .card-school { font-size: 12px; color: #888; }
-    .card-bio { font-size: 12px; color: #666; line-height: 1.5; margin-bottom: 12px; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; }
-    .tags { display: flex; flex-wrap: wrap; gap: 6px; }
+    .card-bio { font-size: 12px; color: #666; line-height: 1.5; margin-bottom: 12px; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; cursor: pointer; }
+    .tags { display: flex; flex-wrap: wrap; gap: 6px; margin-bottom: 12px; }
     .tag { font-size: 11px; padding: 3px 10px; border-radius: 20px; background: #F1EFE8; color: #555; }
     .tag.green { background: #E1F5EE; color: #0F6E56; }
     .tag.connected { background: #E1F5EE; color: #0F6E56; font-weight: 500; }
     .tag.pending { background: #FFF8E6; color: #9A6700; }
+    .card-actions { display: flex; gap: 8px; }
+    .card-btn { flex: 1; padding: 8px; border-radius: 8px; font-size: 12px; font-weight: 500; cursor: pointer; border: none; text-align: center; text-decoration: none; display: block; }
+    .card-btn-view { background: #F1EFE8; color: #555; }
+    .card-btn-view:hover { background: #e5e3dc; }
+    .card-btn-msg { background: #1D9E75; color: white; }
+    .card-btn-msg:hover { background: #0F6E56; }
     .empty { text-align: center; padding: 60px 20px; color: #aaa; font-size: 14px; }
     .error-msg { text-align: center; padding: 60px 20px; color: #A32D2D; font-size: 14px; }
     .section-label { font-size: 11px; color: #aaa; text-transform: uppercase; letter-spacing: .06em; font-weight: 500; margin-bottom: 12px; }
-    .rec-card { background: white; border-radius: 14px; padding: 20px; box-shadow: 0 2px 12px rgba(0,0,0,0.06); text-decoration: none; display: block; border: 2px solid #E1F5EE; position: relative; transition: box-shadow .15s, transform .15s; }
+    .rec-card { background: white; border-radius: 14px; padding: 20px; box-shadow: 0 2px 12px rgba(0,0,0,0.06); display: block; border: 2px solid #E1F5EE; position: relative; transition: box-shadow .15s, transform .15s; }
     .rec-card:hover { box-shadow: 0 4px 20px rgba(0,0,0,0.1); transform: translateY(-2px); }
     .rec-badge { position: absolute; top: 12px; right: 12px; background: #1D9E75; color: white; font-size: 10px; padding: 2px 8px; border-radius: 20px; font-weight: 500; }
     .rec-reason { font-size: 11px; color: #0F6E56; background: #E1F5EE; padding: 6px 10px; border-radius: 8px; margin-top: 10px; line-height: 1.5; }
     .rec-section { max-width: 900px; margin: 0 auto 28px; }
+
+    /* ── Chat Drawer ── */
+    .drawer-overlay { position: fixed; inset: 0; background: rgba(0,0,0,.3); z-index: 100; display: none; }
+    .drawer-overlay.open { display: block; }
+    .drawer { position: fixed; right: 0; top: 0; bottom: 0; width: 380px; background: white; box-shadow: -4px 0 24px rgba(0,0,0,.12); z-index: 101; display: flex; flex-direction: column; transform: translateX(100%); transition: transform .25s ease; }
+    .drawer.open { transform: translateX(0); }
+    .drawer-head { padding: 16px 20px; border-bottom: 1px solid #f0ede6; display: flex; align-items: center; gap: 12px; }
+    .drawer-avatar { width: 38px; height: 38px; border-radius: 50%; background: #1D9E75; display: flex; align-items: center; justify-content: center; font-size: 14px; color: white; font-weight: 600; flex-shrink: 0; }
+    .drawer-name { font-size: 15px; font-weight: 600; color: #1a1a1a; }
+    .drawer-school { font-size: 11px; color: #aaa; }
+    .drawer-close { margin-left: auto; background: none; border: none; font-size: 20px; color: #aaa; cursor: pointer; line-height: 1; }
+    .drawer-close:hover { color: #1a1a1a; }
+    .drawer-msgs { flex: 1; overflow-y: auto; padding: 16px; display: flex; flex-direction: column; gap: 10px; }
+    .dmsg { max-width: 80%; padding: 10px 13px; border-radius: 16px; font-size: 13px; line-height: 1.5; word-break: break-word; }
+    .dmsg.mine { background: #1D9E75; color: white; align-self: flex-end; border-radius: 16px 16px 4px 16px; }
+    .dmsg.theirs { background: #F1EFE8; color: #1a1a1a; align-self: flex-start; border-radius: 16px 16px 16px 4px; }
+    .dmsg.system { background: #FFF8E6; color: #9A6700; align-self: center; font-size: 12px; border-radius: 10px; text-align: center; max-width: 90%; }
+    .dmsg-time { font-size: 10px; opacity: .6; margin-top: 3px; }
+    .email-request-card { background: #F0FAF5; border: 1px solid #9FE1CB; border-radius: 12px; padding: 12px; align-self: center; max-width: 90%; text-align: center; }
+    .email-request-card .req-title { font-size: 13px; font-weight: 600; color: #0F6E56; margin-bottom: 4px; }
+    .email-request-card .req-sub { font-size: 12px; color: #555; margin-bottom: 10px; }
+    .req-actions { display: flex; gap: 8px; justify-content: center; }
+    .req-btn { padding: 6px 16px; border-radius: 8px; font-size: 12px; font-weight: 500; cursor: pointer; border: none; }
+    .req-btn-accept { background: #1D9E75; color: white; }
+    .req-btn-accept:hover { background: #0F6E56; }
+    .req-btn-decline { background: #F1EFE8; color: #888; }
+    .req-btn-decline:hover { background: #e5e3dc; }
+    .email-revealed { background: #F0FAF5; border: 1px solid #9FE1CB; border-radius: 12px; padding: 12px; align-self: center; max-width: 90%; text-align: center; }
+    .email-revealed .rev-label { font-size: 11px; color: #aaa; text-transform: uppercase; letter-spacing: .05em; margin-bottom: 4px; }
+    .email-revealed .rev-email { font-size: 14px; font-weight: 600; color: #0F6E56; }
+    .drawer-actions { padding: 10px 16px; border-top: 1px solid #f0ede6; display: flex; gap: 8px; }
+    .share-email-btn { background: #F1EFE8; color: #555; border: none; border-radius: 8px; padding: 8px 12px; font-size: 12px; cursor: pointer; white-space: nowrap; }
+    .share-email-btn:hover { background: #e5e3dc; }
+    .drawer-input-row { padding: 8px 16px 16px; display: flex; gap: 8px; }
+    .drawer-input { flex: 1; padding: 10px 13px; border: 1px solid #e5e3dc; border-radius: 22px; font-size: 13px; font-family: inherit; outline: none; background: #fafafa; }
+    .drawer-input:focus { border-color: #1D9E75; background: white; }
+    .drawer-send { background: #1D9E75; color: white; border: none; border-radius: 50%; width: 38px; height: 38px; font-size: 17px; cursor: pointer; flex-shrink: 0; display: flex; align-items: center; justify-content: center; }
+    .drawer-send:hover { background: #0F6E56; }
+    .drawer-send:disabled { opacity: .4; cursor: not-allowed; }
+    .drawer-loading { padding: 40px; text-align: center; color: #aaa; font-size: 13px; }
   </style>
 </head>
 <body>
@@ -58,7 +108,12 @@
     <div class="orb">✉</div>
     <div class="logo-text">Lingua Letters</div>
   </div>
-  <a class="back" href="/dashboard.html">← Dashboard</a>
+  <div class="topbar-right">
+    <a class="inbox-btn" href="/messages.html">
+      💬 Inbox <span class="inbox-badge" id="unread-badge" style="display:none">0</span>
+    </a>
+    <a class="back" href="/dashboard.html">← Dashboard</a>
+  </div>
 </div>
 
 <div style="max-width:900px;margin:0 auto 16px;">
@@ -118,6 +173,29 @@
   <div id="grid" class="grid"><div class="empty">Loading teachers…</div></div>
 </div>
 
+<!-- Chat Drawer -->
+<div class="drawer-overlay" id="drawer-overlay" onclick="closeDrawer()"></div>
+<div class="drawer" id="drawer">
+  <div class="drawer-head">
+    <div class="drawer-avatar" id="drawer-avatar"></div>
+    <div>
+      <div class="drawer-name" id="drawer-name"></div>
+      <div class="drawer-school" id="drawer-school"></div>
+    </div>
+    <button class="drawer-close" onclick="closeDrawer()">✕</button>
+  </div>
+  <div class="drawer-msgs" id="drawer-msgs">
+    <div class="drawer-loading">Loading messages…</div>
+  </div>
+  <div class="drawer-actions">
+    <button class="share-email-btn" onclick="sendEmailRequest()">📧 Share my email</button>
+  </div>
+  <div class="drawer-input-row">
+    <input class="drawer-input" id="drawer-input" placeholder="Message…" onkeydown="if(event.key==='Enter')sendMessage()">
+    <button class="drawer-send" id="drawer-send" onclick="sendMessage()">↑</button>
+  </div>
+</div>
+
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <script>
   const { createClient } = supabase
@@ -129,6 +207,8 @@
   let me = null
   let connectionMap = {}
   let allTeachers = []
+  let activeChat = null // { id, name, school, email }
+  let chatSub = null
 
   function showError(msg) {
     document.getElementById('grid').innerHTML = `<div class="error-msg">${msg}</div>`
@@ -136,23 +216,14 @@
 
   async function init() {
     try {
-      const { data: { session }, error: sessionError } = await sb.auth.getSession()
-      if (sessionError) { showError('Session error: ' + sessionError.message); return }
+      const { data: { session } } = await sb.auth.getSession()
       if (!session) { window.location.href = '/login.html'; return }
 
-      const { data: user, error: userError } = await sb
-        .from('users')
-        .select('*')
-        .eq('id', session.user.id)
-        .single()
-
-      if (userError) { showError('User error: ' + userError.message); return }
-      if (!user) { showError('Could not find your account.'); return }
-      if (user.account_type !== 'teacher') {
+      const { data: user } = await sb.from('users').select('*').eq('id', session.user.id).single()
+      if (!user || user.account_type !== 'teacher') {
         showError('This page is only available to teacher accounts.')
         return
       }
-
       me = user
 
       const { data: connections } = await sb
@@ -167,19 +238,35 @@
         })
       }
 
+      // Unread badge
+      loadUnreadCount()
+
       await loadTeachers()
     } catch(e) {
       showError('Unexpected error: ' + e.message)
     }
   }
 
+  async function loadUnreadCount() {
+    const { count } = await sb
+      .from('teacher_messages')
+      .select('id', { count: 'exact', head: true })
+      .eq('receiver_id', me.id)
+      .is('read_at', null)
+
+    if (count > 0) {
+      const badge = document.getElementById('unread-badge')
+      badge.textContent = count
+      badge.style.display = 'flex'
+    }
+  }
+
   async function loadTeachers(filters = {}) {
     document.getElementById('grid').innerHTML = '<div class="empty">Loading teachers…</div>'
-
     try {
       let query = sb
         .from('users')
-        .select('id, display_name, full_name, school_name, school_country, bio, grade_level, teaching_style, screening_status, religion, gender, match_preferences')
+        .select('id, display_name, full_name, school_name, school_country, bio, grade_level, teaching_style, screening_status, email, match_preferences')
         .eq('account_type', 'teacher')
         .eq('is_suspended', false)
         .neq('id', me.id)
@@ -203,10 +290,7 @@
 
       document.getElementById('results-header').textContent = `${allTeachers.length} teacher${allTeachers.length === 1 ? '' : 's'} found`
       renderTeachers(allTeachers)
-
-      // Load recommendations in background
       loadRecommendations()
-
     } catch(e) {
       showError('Load error: ' + e.message)
     }
@@ -217,20 +301,14 @@
       const response = await fetch('/api/recommend-matches', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          currentUser: me,
-          candidates: allTeachers,
-          accountType: 'teacher'
-        })
+        body: JSON.stringify({ currentUser: me, candidates: allTeachers, accountType: 'teacher' })
       })
       const { recommendations } = await response.json()
       if (!recommendations || recommendations.length === 0) return
 
-      const recIds = recommendations.map(r => r.id)
       const recMap = {}
       recommendations.forEach(r => { recMap[r.id] = r.reason })
-
-      const recTeachers = recIds.map(id => allTeachers.find(t => t.id === id)).filter(Boolean)
+      const recTeachers = recommendations.map(r => allTeachers.find(t => t.id === r.id)).filter(Boolean)
       if (recTeachers.length === 0) return
 
       document.getElementById('rec-section').style.display = 'block'
@@ -240,20 +318,23 @@
         const verifiedTag = t.screening_status === 'approved' ? '<span class="tag connected">✓ Verified</span>' : '<span class="tag pending">Unverified</span>'
         const gradeTag = t.grade_level ? `<span class="tag green">${t.grade_level}</span>` : ''
         return `
-          <a class="rec-card" href="/teacher-profile.html?id=${t.id}">
+          <div class="rec-card">
             <div class="rec-badge">⭐ Recommended</div>
-            <div class="card-header">
+            <div class="card-header" onclick="window.location='/teacher-profile.html?id=${t.id}'" style="cursor:pointer;">
               <div class="avatar">${initials}</div>
               <div>
                 <div class="card-name">${t.display_name || t.full_name}</div>
                 <div class="card-school">${t.school_name || 'School not listed'} · ${t.school_country || ''}</div>
               </div>
             </div>
-            <div class="card-bio">${bio}</div>
+            <div class="card-bio" onclick="window.location='/teacher-profile.html?id=${t.id}'" style="cursor:pointer;">${bio}</div>
             <div class="tags">${verifiedTag}${gradeTag}</div>
             <div class="rec-reason">💡 ${recMap[t.id]}</div>
-          </a>
-        `
+            <div class="card-actions" style="margin-top:12px;">
+              <a class="card-btn card-btn-view" href="/teacher-profile.html?id=${t.id}">View profile</a>
+              <button class="card-btn card-btn-msg" onclick="openChat('${t.id}','${(t.display_name||t.full_name).replace(/'/g,"\\'")}','${(t.school_name||'').replace(/'/g,"\\'")}','${t.email}')">💬 Message</button>
+            </div>
+          </div>`
       }).join('')
     } catch(e) {
       console.log('Recommendations unavailable:', e.message)
@@ -272,23 +353,202 @@
       else if (connStatus === 'pending') statusTag = '<span class="tag pending">⏳ Pending</span>'
       const styleTags = (t.teaching_style || []).slice(0, 2).map(s => `<span class="tag">${s}</span>`).join('')
       const gradeTag = t.grade_level ? `<span class="tag green">${t.grade_level}</span>` : ''
-      const verifiedTag = t.screening_status === 'approved'
-        ? '<span class="tag connected">✓ Verified</span>'
-        : '<span class="tag pending">Unverified</span>'
+      const verifiedTag = t.screening_status === 'approved' ? '<span class="tag connected">✓ Verified</span>' : '<span class="tag pending">Unverified</span>'
       return `
-        <a class="teacher-card" href="/teacher-profile.html?id=${t.id}">
-          <div class="card-header">
+        <div class="teacher-card">
+          <div class="card-header" onclick="window.location='/teacher-profile.html?id=${t.id}'" style="cursor:pointer;">
             <div class="avatar ${colorClass}">${initials}</div>
             <div>
               <div class="card-name">${t.display_name || t.full_name}</div>
               <div class="card-school">${t.school_name || 'School not listed'} · ${t.school_country || ''}</div>
             </div>
           </div>
-          <div class="card-bio">${bio}</div>
+          <div class="card-bio" onclick="window.location='/teacher-profile.html?id=${t.id}'" style="cursor:pointer;">${bio}</div>
           <div class="tags">${verifiedTag}${gradeTag}${styleTags}${statusTag}</div>
-        </a>
-      `
+          <div class="card-actions">
+            <a class="card-btn card-btn-view" href="/teacher-profile.html?id=${t.id}">View profile</a>
+            <button class="card-btn card-btn-msg" onclick="openChat('${t.id}','${(t.display_name||t.full_name).replace(/'/g,"\\'")}','${(t.school_name||'').replace(/'/g,"\\'")}','${t.email}')">💬 Message</button>
+          </div>
+        </div>`
     }).join('')
+  }
+
+  // ── Chat Drawer ──────────────────────────────────────────────────────────
+  window.openChat = async function(id, name, school, email) {
+    activeChat = { id, name, school, email }
+
+    const initials = name.split(' ').map(w => w[0]).join('').toUpperCase().slice(0,2)
+    document.getElementById('drawer-avatar').textContent = initials
+    document.getElementById('drawer-name').textContent = name
+    document.getElementById('drawer-school').textContent = school
+    document.getElementById('drawer-overlay').classList.add('open')
+    document.getElementById('drawer').classList.add('open')
+    document.getElementById('drawer-msgs').innerHTML = '<div class="drawer-loading">Loading…</div>'
+
+    await loadMessages()
+
+    // Mark messages as read
+    await sb.from('teacher_messages')
+      .update({ read_at: new Date().toISOString() })
+      .eq('sender_id', id)
+      .eq('receiver_id', me.id)
+      .is('read_at', null)
+
+    // Realtime subscription
+    if (chatSub) chatSub.unsubscribe()
+    chatSub = sb.channel('chat-' + [me.id, id].sort().join('-'))
+      .on('postgres_changes', {
+        event: 'INSERT',
+        schema: 'public',
+        table: 'teacher_messages',
+        filter: `sender_id=eq.${id}`
+      }, payload => {
+        appendMessage(payload.new, false)
+      })
+      .subscribe()
+
+    document.getElementById('drawer-input').focus()
+  }
+
+  window.closeDrawer = function() {
+    document.getElementById('drawer-overlay').classList.remove('open')
+    document.getElementById('drawer').classList.remove('open')
+    if (chatSub) { chatSub.unsubscribe(); chatSub = null }
+    activeChat = null
+  }
+
+  async function loadMessages() {
+    const { data, error } = await sb
+      .from('teacher_messages')
+      .select('*')
+      .or(`and(sender_id.eq.${me.id},receiver_id.eq.${activeChat.id}),and(sender_id.eq.${activeChat.id},receiver_id.eq.${me.id})`)
+      .order('created_at', { ascending: true })
+
+    const msgs = document.getElementById('drawer-msgs')
+
+    if (!data || data.length === 0) {
+      msgs.innerHTML = `<div style="text-align:center;color:#aaa;font-size:13px;margin-top:40px;">Start a conversation with ${activeChat.name}!</div>`
+      return
+    }
+
+    msgs.innerHTML = data.map(m => renderMessage(m)).join('')
+    msgs.scrollTop = msgs.scrollHeight
+  }
+
+  function renderMessage(m) {
+    const isMine = m.sender_id === me.id
+    const time = new Date(m.created_at).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })
+
+    if (m.type === 'email_request') {
+      if (isMine) {
+        return `<div class="dmsg system">📧 You sent an email sharing request</div>`
+      } else {
+        return `
+          <div class="email-request-card" id="req-${m.id}">
+            <div class="req-title">📧 Email sharing request</div>
+            <div class="req-sub">${activeChat.name} wants to share emails with you</div>
+            <div class="req-actions">
+              <button class="req-btn req-btn-accept" onclick="acceptEmailRequest('${m.id}','${m.sender_id}')">Accept</button>
+              <button class="req-btn req-btn-decline" onclick="declineEmailRequest('${m.id}')">Decline</button>
+            </div>
+          </div>`
+      }
+    }
+
+    if (m.type === 'email_accepted') {
+      return `
+        <div class="email-revealed">
+          <div class="rev-label">📧 Email shared</div>
+          <div class="rev-email">${isMine ? activeChat.email : me.email}</div>
+        </div>`
+    }
+
+    if (m.type === 'email_declined') {
+      return `<div class="dmsg system">Email sharing request was declined</div>`
+    }
+
+    return `
+      <div class="dmsg ${isMine ? 'mine' : 'theirs'}">
+        ${escHtml(m.content)}
+        <div class="dmsg-time">${time}</div>
+      </div>`
+  }
+
+  function appendMessage(m, isMine) {
+    const msgs = document.getElementById('drawer-msgs')
+    if (!msgs) return
+    msgs.insertAdjacentHTML('beforeend', renderMessage({ ...m, sender_id: isMine ? me.id : activeChat.id }))
+    msgs.scrollTop = msgs.scrollHeight
+  }
+
+  window.sendMessage = async function() {
+    const input = document.getElementById('drawer-input')
+    const text = input.value.trim()
+    if (!text || !activeChat) return
+    input.value = ''
+    document.getElementById('drawer-send').disabled = true
+
+    const msg = {
+      sender_id: me.id,
+      receiver_id: activeChat.id,
+      content: text,
+      type: 'text'
+    }
+
+    const { data } = await sb.from('teacher_messages').insert(msg).select().single()
+    if (data) appendMessage(data, true)
+    document.getElementById('drawer-send').disabled = false
+    input.focus()
+  }
+
+  window.sendEmailRequest = async function() {
+    if (!activeChat) return
+    // Check if one already exists
+    const { data: existing } = await sb
+      .from('teacher_messages')
+      .select('id')
+      .eq('sender_id', me.id)
+      .eq('receiver_id', activeChat.id)
+      .eq('type', 'email_request')
+      .limit(1)
+
+    if (existing && existing.length > 0) {
+      alert('You already sent an email sharing request to this teacher.')
+      return
+    }
+
+    const { data } = await sb.from('teacher_messages').insert({
+      sender_id: me.id,
+      receiver_id: activeChat.id,
+      content: 'Email sharing request',
+      type: 'email_request'
+    }).select().single()
+
+    if (data) appendMessage(data, true)
+  }
+
+  window.acceptEmailRequest = async function(msgId, senderId) {
+    // Insert accepted message — this reveals the email
+    await sb.from('teacher_messages').insert({
+      sender_id: me.id,
+      receiver_id: senderId,
+      content: 'Email sharing accepted',
+      type: 'email_accepted'
+    })
+    // Update original request
+    await sb.from('teacher_messages').update({ type: 'email_accepted' }).eq('id', msgId)
+    document.getElementById('req-' + msgId)?.remove()
+    await loadMessages()
+  }
+
+  window.declineEmailRequest = async function(msgId) {
+    await sb.from('teacher_messages').update({ type: 'email_declined' }).eq('id', msgId)
+    document.getElementById('req-' + msgId)?.remove()
+    await loadMessages()
+  }
+
+  function escHtml(str) {
+    return str.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;')
   }
 
   window.applyFilters = function() {
