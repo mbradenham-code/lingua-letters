@@ -1,0 +1,368 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Lingua Letters — Parent Messages</title>
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; background: #F1EFE8; height: 100vh; display: flex; flex-direction: column; overflow: hidden; }
+    .topbar { background: white; border-bottom: 1px solid #e5e3dc; padding: 14px 24px; display: flex; align-items: center; gap: 12px; height: 53px; flex-shrink: 0; }
+    .logo { display: flex; align-items: center; gap: 8px; font-size: 16px; font-weight: 500; color: #1a1a1a; }
+    .orb { width: 26px; height: 26px; border-radius: 50%; background: #1D9E75; display: flex; align-items: center; justify-content: center; font-size: 14px; }
+    .spacer { flex: 1; }
+    .back { font-size: 13px; color: #1D9E75; text-decoration: none; }
+    .layout { display: flex; flex: 1; overflow: hidden; }
+
+    .sidebar { width: 300px; background: white; border-right: 1px solid #e5e3dc; display: flex; flex-direction: column; flex-shrink: 0; }
+    .sidebar-head { padding: 16px 20px; border-bottom: 1px solid #f0ede6; font-size: 15px; font-weight: 600; color: #1a1a1a; }
+    .convo-list { flex: 1; overflow-y: auto; }
+    .convo-item { padding: 12px 20px; border-bottom: 1px solid #f0ede6; cursor: pointer; display: flex; align-items: center; gap: 10px; transition: background .1s; }
+    .convo-item:hover { background: #F8F7F4; }
+    .convo-item.active { background: #F0FAF5; }
+    .convo-avatars { position: relative; width: 44px; height: 44px; flex-shrink: 0; }
+    .convo-avatar-parent { width: 32px; height: 32px; border-radius: 50%; background: #1D9E75; display: flex; align-items: center; justify-content: center; font-size: 12px; color: white; font-weight: 600; position: absolute; top: 0; left: 0; border: 2px solid white; }
+    .convo-avatar-child { width: 20px; height: 20px; border-radius: 50%; background: #FAEEDA; display: flex; align-items: center; justify-content: center; font-size: 10px; position: absolute; bottom: 0; right: 0; border: 2px solid white; }
+    .convo-info { flex: 1; min-width: 0; }
+    .convo-name { font-size: 13px; font-weight: 600; color: #1a1a1a; }
+    .convo-child { font-size: 11px; color: #aaa; margin-bottom: 2px; }
+    .convo-preview { font-size: 12px; color: #aaa; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+    .convo-meta { display: flex; flex-direction: column; align-items: flex-end; gap: 4px; flex-shrink: 0; }
+    .convo-time { font-size: 11px; color: #ccc; }
+    .convo-unread { width: 18px; height: 18px; background: #1D9E75; color: white; border-radius: 50%; font-size: 10px; font-weight: 700; display: flex; align-items: center; justify-content: center; }
+    .sidebar-empty { padding: 40px 20px; text-align: center; color: #aaa; font-size: 13px; }
+
+    .chat-panel { flex: 1; display: flex; flex-direction: column; overflow: hidden; }
+    .chat-empty { flex: 1; display: flex; flex-direction: column; align-items: center; justify-content: center; color: #aaa; font-size: 14px; gap: 8px; }
+    .chat-empty-icon { font-size: 48px; }
+    .chat-head { background: white; border-bottom: 1px solid #e5e3dc; padding: 14px 20px; display: flex; align-items: center; gap: 12px; flex-shrink: 0; }
+    .chat-head-avatars { position: relative; width: 46px; height: 46px; flex-shrink: 0; }
+    .chat-head-avatar-parent { width: 34px; height: 34px; border-radius: 50%; background: #1D9E75; display: flex; align-items: center; justify-content: center; font-size: 13px; color: white; font-weight: 600; position: absolute; top: 0; left: 0; border: 2px solid white; }
+    .chat-head-avatar-child { width: 22px; height: 22px; border-radius: 50%; background: #FAEEDA; display: flex; align-items: center; justify-content: center; font-size: 11px; position: absolute; bottom: 0; right: 0; border: 2px solid white; }
+    .chat-head-name { font-size: 15px; font-weight: 600; color: #1a1a1a; }
+    .chat-head-child { font-size: 11px; color: #aaa; }
+    .chat-head-spacer { flex: 1; }
+    .chat-msgs { flex: 1; overflow-y: auto; padding: 20px 24px; display: flex; flex-direction: column; gap: 10px; }
+    .dmsg { max-width: 65%; padding: 10px 14px; border-radius: 16px; font-size: 14px; line-height: 1.5; word-break: break-word; }
+    .dmsg.mine { background: #1D9E75; color: white; align-self: flex-end; border-radius: 16px 16px 4px 16px; }
+    .dmsg.theirs { background: white; color: #1a1a1a; align-self: flex-start; border-radius: 16px 16px 16px 4px; box-shadow: 0 1px 4px rgba(0,0,0,.06); }
+    .dmsg.system { background: #F1EFE8; color: #888; align-self: center; font-size: 12px; border-radius: 10px; text-align: center; max-width: 80%; }
+    .dmsg-time { font-size: 10px; opacity: .6; margin-top: 3px; }
+    .email-request-card { background: #F0FAF5; border: 1px solid #9FE1CB; border-radius: 14px; padding: 16px; align-self: center; max-width: 340px; width: 100%; text-align: center; }
+    .email-request-card .req-title { font-size: 14px; font-weight: 600; color: #0F6E56; margin-bottom: 4px; }
+    .email-request-card .req-sub { font-size: 13px; color: #555; margin-bottom: 12px; }
+    .req-actions { display: flex; gap: 8px; justify-content: center; }
+    .req-btn { padding: 8px 20px; border-radius: 8px; font-size: 13px; font-weight: 500; cursor: pointer; border: none; }
+    .req-btn-accept { background: #1D9E75; color: white; }
+    .req-btn-accept:hover { background: #0F6E56; }
+    .req-btn-decline { background: #F1EFE8; color: #888; }
+    .email-revealed { background: #F0FAF5; border: 1px solid #9FE1CB; border-radius: 14px; padding: 16px; align-self: center; max-width: 340px; width: 100%; text-align: center; }
+    .email-revealed .rev-label { font-size: 11px; color: #aaa; text-transform: uppercase; letter-spacing: .05em; margin-bottom: 6px; }
+    .email-revealed .rev-email { font-size: 16px; font-weight: 600; color: #0F6E56; }
+    .chat-actions { padding: 8px 24px; border-top: 1px solid #f0ede6; background: white; }
+    .share-email-btn { background: #F1EFE8; color: #555; border: none; border-radius: 8px; padding: 7px 14px; font-size: 12px; cursor: pointer; }
+    .share-email-btn:hover { background: #e5e3dc; }
+    .chat-input-row { padding: 12px 24px 16px; background: white; display: flex; gap: 10px; align-items: center; }
+    .chat-input { flex: 1; padding: 11px 16px; border: 1px solid #e5e3dc; border-radius: 24px; font-size: 14px; font-family: inherit; outline: none; background: #fafafa; }
+    .chat-input:focus { border-color: #1D9E75; background: white; }
+    .chat-send { background: #1D9E75; color: white; border: none; border-radius: 50%; width: 42px; height: 42px; font-size: 18px; cursor: pointer; flex-shrink: 0; display: flex; align-items: center; justify-content: center; }
+    .chat-send:hover { background: #0F6E56; }
+    .chat-send:disabled { opacity: .4; cursor: not-allowed; }
+  </style>
+</head>
+<body>
+
+<div class="topbar">
+  <div class="logo"><div class="orb">✉</div>Lingua Letters</div>
+  <div class="spacer"></div>
+  <a class="back" href="/parent-network.html">← Network</a>
+</div>
+
+<div class="layout">
+  <div class="sidebar">
+    <div class="sidebar-head">💬 Messages</div>
+    <div class="convo-list" id="convo-list">
+      <div class="sidebar-empty">Loading…</div>
+    </div>
+  </div>
+  <div class="chat-panel" id="chat-panel">
+    <div class="chat-empty" id="chat-empty">
+      <div class="chat-empty-icon">💬</div>
+      <div>Select a conversation to start chatting</div>
+      <div style="font-size:12px;">Or find parents in the <a href="/parent-network.html" style="color:#1D9E75;">Parent Network</a></div>
+    </div>
+  </div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script>
+  const { createClient } = supabase
+  const sb = createClient(
+    'https://vfohvovtxklsdvpigycx.supabase.co',
+    'sb_publishable_iOcoEodjREKpEL1B7DqRSg_k4cKFSEu'
+  )
+
+  let me = null
+  let conversations = []
+  let activeConvo = null
+  let chatSub = null
+  let childCache = {}
+
+  function childEmoji(lang) {
+    const map = { Spanish:'🇪🇸', French:'🇫🇷', Japanese:'🇯🇵', Korean:'🇰🇷', German:'🇩🇪', Italian:'🇮🇹', Portuguese:'🇵🇹', Mandarin:'🇨🇳', English:'🇬🇧' }
+    return map[lang] || '📚'
+  }
+
+  async function init() {
+    const { data: { session } } = await sb.auth.getSession()
+    if (!session) { window.location.href = '/login.html'; return }
+    const { data: user } = await sb.from('users').select('*').eq('id', session.user.id).single()
+    if (!user) { window.location.href = '/login.html'; return }
+    me = user
+    await loadConversations()
+
+    const params = new URLSearchParams(window.location.search)
+    const openId = params.get('with')
+    if (openId) {
+      const convo = conversations.find(c => c.otherId === openId)
+      if (convo) openConversation(convo)
+    }
+  }
+
+  async function loadConversations() {
+    const { data: msgs } = await sb
+      .from('teacher_messages')
+      .select('*, sender:sender_id(id, display_name, full_name, email), receiver:receiver_id(id, display_name, full_name, email)')
+      .or(`sender_id.eq.${me.id},receiver_id.eq.${me.id}`)
+      .order('created_at', { ascending: false })
+
+    if (!msgs || msgs.length === 0) {
+      document.getElementById('convo-list').innerHTML = '<div class="sidebar-empty">No messages yet.<br><br>Find parents in the network and start chatting!</div>'
+      return
+    }
+
+    const convoMap = {}
+    msgs.forEach(m => {
+      const otherId = m.sender_id === me.id ? m.receiver_id : m.sender_id
+      const other = m.sender_id === me.id ? m.receiver : m.sender
+      if (!convoMap[otherId]) {
+        convoMap[otherId] = {
+          otherId,
+          otherName: other?.display_name || other?.full_name || 'Unknown',
+          otherEmail: other?.email || '',
+          lastMsg: m,
+          unread: 0
+        }
+      }
+      if (m.receiver_id === me.id && !m.read_at) convoMap[otherId].unread++
+    })
+
+    conversations = Object.values(convoMap)
+
+    // Load children for all convo partners
+    const otherIds = conversations.map(c => c.otherId)
+    if (otherIds.length > 0) {
+      const { data: children } = await sb
+        .from('users')
+        .select('parent_id, display_name, full_name, learning_language, age')
+        .in('parent_id', otherIds)
+      if (children) children.forEach(c => { childCache[c.parent_id] = c })
+    }
+
+    document.getElementById('convo-list').innerHTML = conversations.map(c => {
+      const initials = c.otherName.split(' ').map(w => w[0]).join('').toUpperCase().slice(0,2)
+      const child = childCache[c.otherId]
+      const childName = child ? (child.display_name || child.full_name) : null
+      const childLang = child?.learning_language || ''
+      const preview = c.lastMsg.type === 'text' ? c.lastMsg.content
+        : c.lastMsg.type === 'email_request' ? '📧 Email sharing request'
+        : c.lastMsg.type === 'email_accepted' ? '📧 Email shared' : '…'
+      const time = new Date(c.lastMsg.created_at).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })
+      return `
+        <div class="convo-item" id="convo-${c.otherId}" onclick="openConversation(conversations.find(x=>x.otherId==='${c.otherId}'))">
+          <div class="convo-avatars">
+            <div class="convo-avatar-parent">${initials}</div>
+            <div class="convo-avatar-child">${childEmoji(childLang)}</div>
+          </div>
+          <div class="convo-info">
+            <div class="convo-name">${c.otherName}</div>
+            ${childName ? `<div class="convo-child">${childEmoji(childLang)} ${childName} · Learning ${childLang}</div>` : ''}
+            <div class="convo-preview">${escHtml(preview)}</div>
+          </div>
+          <div class="convo-meta">
+            <div class="convo-time">${time}</div>
+            ${c.unread > 0 ? `<div class="convo-unread">${c.unread}</div>` : ''}
+          </div>
+        </div>`
+    }).join('')
+  }
+
+  window.openConversation = async function(convo) {
+    if (!convo) return
+    activeConvo = convo
+
+    document.querySelectorAll('.convo-item').forEach(el => el.classList.remove('active'))
+    document.getElementById('convo-' + convo.otherId)?.classList.add('active')
+
+    await sb.from('teacher_messages')
+      .update({ read_at: new Date().toISOString() })
+      .eq('sender_id', convo.otherId)
+      .eq('receiver_id', me.id)
+      .is('read_at', null)
+
+    document.getElementById('convo-' + convo.otherId)?.querySelector('.convo-unread')?.remove()
+
+    const initials = convo.otherName.split(' ').map(w => w[0]).join('').toUpperCase().slice(0,2)
+    const child = childCache[convo.otherId]
+    const childName = child ? (child.display_name || child.full_name) : null
+    const childLang = child?.learning_language || ''
+
+    document.getElementById('chat-panel').innerHTML = `
+      <div class="chat-head">
+        <div class="chat-head-avatars">
+          <div class="chat-head-avatar-parent">${initials}</div>
+          <div class="chat-head-avatar-child">${childEmoji(childLang)}</div>
+        </div>
+        <div>
+          <div class="chat-head-name">${convo.otherName}</div>
+          ${childName ? `<div class="chat-head-child">${childEmoji(childLang)} ${childName} · Learning ${childLang}</div>` : ''}
+        </div>
+        <div class="chat-head-spacer"></div>
+      </div>
+      <div class="chat-msgs" id="chat-msgs"></div>
+      <div class="chat-actions">
+        <button class="share-email-btn" onclick="sendEmailRequest()">📧 Share my email</button>
+      </div>
+      <div class="chat-input-row">
+        <input class="chat-input" id="chat-input" placeholder="Message ${convo.otherName}…" onkeydown="if(event.key==='Enter')sendMessage()">
+        <button class="chat-send" id="chat-send" onclick="sendMessage()">↑</button>
+      </div>`
+
+    await loadMessages()
+
+    if (chatSub) chatSub.unsubscribe()
+    chatSub = sb.channel('pmsgs-' + [me.id, convo.otherId].sort().join('-'))
+      .on('postgres_changes', {
+        event: 'INSERT',
+        schema: 'public',
+        table: 'teacher_messages',
+        filter: `sender_id=eq.${convo.otherId}`
+      }, payload => {
+        appendMessage(payload.new)
+        sb.from('teacher_messages').update({ read_at: new Date().toISOString() }).eq('id', payload.new.id)
+      })
+      .subscribe()
+
+    document.getElementById('chat-input')?.focus()
+  }
+
+  async function loadMessages() {
+    const { data } = await sb
+      .from('teacher_messages')
+      .select('*')
+      .or(`and(sender_id.eq.${me.id},receiver_id.eq.${activeConvo.otherId}),and(sender_id.eq.${activeConvo.otherId},receiver_id.eq.${me.id})`)
+      .order('created_at', { ascending: true })
+
+    const msgs = document.getElementById('chat-msgs')
+    if (!msgs) return
+
+    if (!data || data.length === 0) {
+      msgs.innerHTML = `<div style="text-align:center;color:#aaa;font-size:14px;margin-top:60px;">Say hello to ${activeConvo.otherName}! 👋</div>`
+      return
+    }
+
+    msgs.innerHTML = data.map(m => renderMessage(m)).join('')
+    msgs.scrollTop = msgs.scrollHeight
+  }
+
+  function renderMessage(m) {
+    const isMine = m.sender_id === me.id
+    const time = new Date(m.created_at).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })
+
+    if (m.type === 'email_request') {
+      if (isMine) return `<div class="dmsg system">📧 You sent an email sharing request</div>`
+      return `
+        <div class="email-request-card" id="req-${m.id}">
+          <div class="req-title">📧 Email sharing request</div>
+          <div class="req-sub">${activeConvo.otherName} wants to share emails with you</div>
+          <div class="req-actions">
+            <button class="req-btn req-btn-accept" onclick="acceptEmailRequest('${m.id}','${m.sender_id}')">Accept</button>
+            <button class="req-btn req-btn-decline" onclick="declineEmailRequest('${m.id}')">Decline</button>
+          </div>
+        </div>`
+    }
+
+    if (m.type === 'email_accepted') {
+      return `
+        <div class="email-revealed">
+          <div class="rev-label">📧 Email shared</div>
+          <div class="rev-email">${isMine ? activeConvo.otherEmail : me.email}</div>
+        </div>`
+    }
+
+    if (m.type === 'email_declined') {
+      return `<div class="dmsg system">Email sharing request was declined</div>`
+    }
+
+    return `
+      <div class="dmsg ${isMine ? 'mine' : 'theirs'}">
+        ${escHtml(m.content)}
+        <div class="dmsg-time">${time}</div>
+      </div>`
+  }
+
+  function appendMessage(m) {
+    const msgs = document.getElementById('chat-msgs')
+    if (!msgs) return
+    msgs.insertAdjacentHTML('beforeend', renderMessage(m))
+    msgs.scrollTop = msgs.scrollHeight
+  }
+
+  window.sendMessage = async function() {
+    const input = document.getElementById('chat-input')
+    const text = input?.value.trim()
+    if (!text || !activeConvo) return
+    input.value = ''
+    document.getElementById('chat-send').disabled = true
+    const { data } = await sb.from('teacher_messages').insert({
+      sender_id: me.id,
+      receiver_id: activeConvo.otherId,
+      content: text,
+      type: 'text'
+    }).select().single()
+    if (data) appendMessage(data)
+    document.getElementById('chat-send').disabled = false
+    input.focus()
+  }
+
+  window.sendEmailRequest = async function() {
+    if (!activeConvo) return
+    const { data: existing } = await sb.from('teacher_messages').select('id')
+      .eq('sender_id', me.id).eq('receiver_id', activeConvo.otherId).eq('type', 'email_request').limit(1)
+    if (existing && existing.length > 0) { alert('You already sent an email sharing request.'); return }
+    const { data } = await sb.from('teacher_messages').insert({
+      sender_id: me.id, receiver_id: activeConvo.otherId,
+      content: 'Email sharing request', type: 'email_request'
+    }).select().single()
+    if (data) appendMessage(data)
+  }
+
+  window.acceptEmailRequest = async function(msgId, senderId) {
+    await sb.from('teacher_messages').insert({ sender_id: me.id, receiver_id: senderId, content: 'Email sharing accepted', type: 'email_accepted' })
+    await sb.from('teacher_messages').update({ type: 'email_accepted' }).eq('id', msgId)
+    await loadMessages()
+  }
+
+  window.declineEmailRequest = async function(msgId) {
+    await sb.from('teacher_messages').update({ type: 'email_declined' }).eq('id', msgId)
+    await loadMessages()
+  }
+
+  function escHtml(str) {
+    return String(str).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;')
+  }
+
+  init()
+</script>
+</body>
+</html>
