@@ -149,7 +149,7 @@ function flagHTML(iso, name) {
   return `<img class="country-flag-img"
     src="https://flagcdn.com/w80/${code}.png"
     srcset="https://flagcdn.com/w160/${code}.png 2x"
-    onerror="this.outerHTML='<div class=\\"country-flag-fallback\\">${iso}</div>'"
+    onerror="this.style.display='none'"
     alt="${name} flag">`
 }
 
