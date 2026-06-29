@@ -146,11 +146,7 @@ let activePolygon = null
 // ── Flag helper ──────────────────────────────────────────────────────────────
 function flagHTML(iso, name) {
   const code = iso.toLowerCase()
-  return `<img class="country-flag-img"
-    src="https://flagcdn.com/w80/${code}.png"
-    srcset="https://flagcdn.com/w160/${code}.png 2x"
-    onerror="this.style.display='none'"
-    alt="${name} flag">`
+  return '<img class="country-flag-img" src="https://flagcdn.com/w80/' + code + '.png" onerror="this.style.display=\'none\'" alt="' + name + ' flag">'
 }
 
 // ── Search ──────────────────────────────────────────────────────────────────
