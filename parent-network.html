@@ -11,6 +11,10 @@
     .logo { display: flex; align-items: center; gap: 10px; }
     .orb { width: 32px; height: 32px; border-radius: 50%; background: #1D9E75; display: flex; align-items: center; justify-content: center; font-size: 16px; }
     .logo-text { font-size: 18px; font-weight: 500; color: #1a1a1a; }
+    .topbar-right { display: flex; align-items: center; gap: 12px; }
+    .inbox-btn { display: flex; align-items: center; gap: 6px; background: #1D9E75; color: white; border: none; border-radius: 9px; padding: 8px 14px; font-size: 13px; font-weight: 500; cursor: pointer; text-decoration: none; }
+    .inbox-btn:hover { background: #0F6E56; }
+    .inbox-badge { background: white; color: #1D9E75; border-radius: 50%; width: 18px; height: 18px; font-size: 11px; font-weight: 700; display: flex; align-items: center; justify-content: center; }
     .back { font-size: 13px; color: #1D9E75; text-decoration: none; }
     .back:hover { text-decoration: underline; }
     h1 { font-size: 22px; font-weight: 600; color: #1a1a1a; margin-bottom: 4px; }
@@ -26,23 +30,37 @@
     .btn-ghost { background: none; color: #888; }
     .results { max-width: 900px; margin: 0 auto; }
     .results-header { font-size: 12px; color: #aaa; margin-bottom: 12px; }
-    .grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(260px, 1fr)); gap: 16px; }
-    .parent-card { background: white; border-radius: 14px; padding: 20px; box-shadow: 0 2px 12px rgba(0,0,0,0.06); display: flex; flex-direction: column; gap: 12px; }
-    .card-header { display: flex; align-items: center; gap: 12px; }
-    .avatar { width: 44px; height: 44px; border-radius: 50%; background: #1D9E75; display: flex; align-items: center; justify-content: center; font-size: 16px; color: white; font-weight: 600; flex-shrink: 0; }
-    .avatar.alt { background: #0F6E56; }
-    .avatar.alt2 { background: #5B9E75; }
-    .card-name { font-size: 15px; font-weight: 600; color: #1a1a1a; margin-bottom: 2px; }
-    .card-sub { font-size: 12px; color: #888; }
+    .grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(270px, 1fr)); gap: 16px; }
+
+    /* Parent card */
+    .parent-card { background: white; border-radius: 14px; padding: 20px; box-shadow: 0 2px 12px rgba(0,0,0,0.06); display: flex; flex-direction: column; gap: 12px; transition: box-shadow .15s, transform .15s; }
+    .parent-card:hover { box-shadow: 0 4px 20px rgba(0,0,0,0.1); transform: translateY(-2px); }
+    .card-header { display: flex; align-items: flex-start; gap: 12px; }
+    .avatars { position: relative; flex-shrink: 0; width: 54px; height: 54px; }
+    .avatar-parent { width: 40px; height: 40px; border-radius: 50%; background: #1D9E75; display: flex; align-items: center; justify-content: center; font-size: 15px; color: white; font-weight: 600; position: absolute; top: 0; left: 0; border: 2px solid white; }
+    .avatar-parent.alt { background: #0F6E56; }
+    .avatar-parent.alt2 { background: #5B9E75; }
+    .avatar-child { width: 26px; height: 26px; border-radius: 50%; background: #FAEEDA; display: flex; align-items: center; justify-content: center; font-size: 12px; position: absolute; bottom: 0; right: 0; border: 2px solid white; }
+    .card-info { flex: 1; min-width: 0; }
+    .card-parent-name { font-size: 15px; font-weight: 600; color: #1a1a1a; margin-bottom: 2px; }
+    .card-parent-label { font-size: 10px; color: #aaa; text-transform: uppercase; letter-spacing: .05em; margin-bottom: 6px; }
+    .card-child-row { display: flex; align-items: center; gap: 6px; background: #F8F7F4; border-radius: 8px; padding: 6px 10px; }
+    .card-child-name { font-size: 12px; font-weight: 500; color: #1a1a1a; }
+    .card-child-detail { font-size: 11px; color: #888; }
     .card-bio { font-size: 12px; color: #666; line-height: 1.5; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; }
     .tags { display: flex; flex-wrap: wrap; gap: 6px; }
     .tag { font-size: 11px; padding: 3px 10px; border-radius: 20px; background: #F1EFE8; color: #555; }
     .tag.green { background: #E1F5EE; color: #0F6E56; }
+    .tag.amber { background: #FFF8E6; color: #9A6700; }
     .tag.connected { background: #E1F5EE; color: #0F6E56; font-weight: 500; }
     .tag.pending { background: #FFF8E6; color: #9A6700; }
-    .connect-btn { width: 100%; padding: 8px; background: #1D9E75; color: white; border: none; border-radius: 9px; font-size: 12px; font-weight: 500; cursor: pointer; }
-    .connect-btn:hover { background: #0F6E56; }
-    .connect-btn:disabled { opacity: 0.5; cursor: not-allowed; }
+    .card-actions { display: flex; gap: 8px; }
+    .card-btn { flex: 1; padding: 8px; border-radius: 8px; font-size: 12px; font-weight: 500; cursor: pointer; border: none; text-align: center; }
+    .card-btn-connect { background: #F1EFE8; color: #555; }
+    .card-btn-connect:hover { background: #e5e3dc; }
+    .card-btn-connect:disabled { opacity: .5; cursor: not-allowed; }
+    .card-btn-msg { background: #1D9E75; color: white; }
+    .card-btn-msg:hover { background: #0F6E56; }
     .empty { text-align: center; padding: 60px 20px; color: #aaa; font-size: 14px; }
     .error-msg { text-align: center; padding: 60px 20px; color: #A32D2D; font-size: 14px; }
     .section-label { font-size: 11px; color: #aaa; text-transform: uppercase; letter-spacing: .06em; font-weight: 500; margin-bottom: 12px; }
@@ -50,6 +68,47 @@
     .rec-badge { position: absolute; top: 12px; right: 12px; background: #1D9E75; color: white; font-size: 10px; padding: 2px 8px; border-radius: 20px; font-weight: 500; }
     .rec-reason { font-size: 11px; color: #0F6E56; background: #E1F5EE; padding: 6px 10px; border-radius: 8px; line-height: 1.5; }
     .rec-section { max-width: 900px; margin: 0 auto 28px; }
+
+    /* ── Chat Drawer ── */
+    .drawer-overlay { position: fixed; inset: 0; background: rgba(0,0,0,.3); z-index: 100; display: none; }
+    .drawer-overlay.open { display: block; }
+    .drawer { position: fixed; right: 0; top: 0; bottom: 0; width: 380px; background: white; box-shadow: -4px 0 24px rgba(0,0,0,.12); z-index: 101; display: flex; flex-direction: column; transform: translateX(100%); transition: transform .25s ease; }
+    .drawer.open { transform: translateX(0); }
+    .drawer-head { padding: 16px 20px; border-bottom: 1px solid #f0ede6; display: flex; align-items: center; gap: 12px; }
+    .drawer-avatars { position: relative; width: 46px; height: 46px; flex-shrink: 0; }
+    .drawer-avatar-parent { width: 34px; height: 34px; border-radius: 50%; background: #1D9E75; display: flex; align-items: center; justify-content: center; font-size: 13px; color: white; font-weight: 600; position: absolute; top: 0; left: 0; border: 2px solid white; }
+    .drawer-avatar-child { width: 22px; height: 22px; border-radius: 50%; background: #FAEEDA; display: flex; align-items: center; justify-content: center; font-size: 11px; position: absolute; bottom: 0; right: 0; border: 2px solid white; }
+    .drawer-name { font-size: 14px; font-weight: 600; color: #1a1a1a; }
+    .drawer-child { font-size: 11px; color: #aaa; }
+    .drawer-close { margin-left: auto; background: none; border: none; font-size: 20px; color: #aaa; cursor: pointer; line-height: 1; }
+    .drawer-close:hover { color: #1a1a1a; }
+    .drawer-msgs { flex: 1; overflow-y: auto; padding: 16px; display: flex; flex-direction: column; gap: 10px; }
+    .dmsg { max-width: 80%; padding: 10px 13px; border-radius: 16px; font-size: 13px; line-height: 1.5; word-break: break-word; }
+    .dmsg.mine { background: #1D9E75; color: white; align-self: flex-end; border-radius: 16px 16px 4px 16px; }
+    .dmsg.theirs { background: #F1EFE8; color: #1a1a1a; align-self: flex-start; border-radius: 16px 16px 16px 4px; }
+    .dmsg.system { background: #FFF8E6; color: #9A6700; align-self: center; font-size: 12px; border-radius: 10px; text-align: center; max-width: 90%; padding: 8px 12px; }
+    .dmsg-time { font-size: 10px; opacity: .6; margin-top: 3px; }
+    .email-request-card { background: #F0FAF5; border: 1px solid #9FE1CB; border-radius: 12px; padding: 12px; align-self: center; max-width: 90%; text-align: center; width: 100%; }
+    .email-request-card .req-title { font-size: 13px; font-weight: 600; color: #0F6E56; margin-bottom: 4px; }
+    .email-request-card .req-sub { font-size: 12px; color: #555; margin-bottom: 10px; }
+    .req-actions { display: flex; gap: 8px; justify-content: center; }
+    .req-btn { padding: 6px 16px; border-radius: 8px; font-size: 12px; font-weight: 500; cursor: pointer; border: none; }
+    .req-btn-accept { background: #1D9E75; color: white; }
+    .req-btn-accept:hover { background: #0F6E56; }
+    .req-btn-decline { background: #F1EFE8; color: #888; }
+    .email-revealed { background: #F0FAF5; border: 1px solid #9FE1CB; border-radius: 12px; padding: 12px; align-self: center; max-width: 90%; text-align: center; width: 100%; }
+    .email-revealed .rev-label { font-size: 11px; color: #aaa; text-transform: uppercase; letter-spacing: .05em; margin-bottom: 4px; }
+    .email-revealed .rev-email { font-size: 14px; font-weight: 600; color: #0F6E56; }
+    .drawer-actions { padding: 10px 16px; border-top: 1px solid #f0ede6; }
+    .share-email-btn { background: #F1EFE8; color: #555; border: none; border-radius: 8px; padding: 8px 12px; font-size: 12px; cursor: pointer; }
+    .share-email-btn:hover { background: #e5e3dc; }
+    .drawer-input-row { padding: 8px 16px 16px; display: flex; gap: 8px; }
+    .drawer-input { flex: 1; padding: 10px 13px; border: 1px solid #e5e3dc; border-radius: 22px; font-size: 13px; font-family: inherit; outline: none; background: #fafafa; }
+    .drawer-input:focus { border-color: #1D9E75; background: white; }
+    .drawer-send { background: #1D9E75; color: white; border: none; border-radius: 50%; width: 38px; height: 38px; font-size: 17px; cursor: pointer; flex-shrink: 0; display: flex; align-items: center; justify-content: center; }
+    .drawer-send:hover { background: #0F6E56; }
+    .drawer-send:disabled { opacity: .4; cursor: not-allowed; }
+    .drawer-loading { padding: 40px; text-align: center; color: #aaa; font-size: 13px; }
   </style>
 </head>
 <body>
@@ -59,12 +118,17 @@
     <div class="orb">✉</div>
     <div class="logo-text">Lingua Letters</div>
   </div>
-  <a class="back" href="/dashboard.html">← Dashboard</a>
+  <div class="topbar-right">
+    <a class="inbox-btn" href="/parent-messages.html">
+      💬 Inbox <span class="inbox-badge" id="unread-badge" style="display:none">0</span>
+    </a>
+    <a class="back" href="/dashboard.html">← Dashboard</a>
+  </div>
 </div>
 
 <div style="max-width:900px;margin:0 auto 16px;">
   <h1>👨‍👩‍👧 Parent Network</h1>
-  <div class="subtitle">Connect with other parents, share tips, and find pen pals for your children.</div>
+  <div class="subtitle">Connect with other parents, share tips, and support your children's pen pal journey.</div>
 </div>
 
 <div class="filters">
@@ -104,6 +168,32 @@
   <div id="grid" class="grid"><div class="empty">Loading parents…</div></div>
 </div>
 
+<!-- Chat Drawer -->
+<div class="drawer-overlay" id="drawer-overlay" onclick="closeDrawer()"></div>
+<div class="drawer" id="drawer">
+  <div class="drawer-head">
+    <div class="drawer-avatars">
+      <div class="drawer-avatar-parent" id="drawer-avatar-parent"></div>
+      <div class="drawer-avatar-child" id="drawer-avatar-child">👦</div>
+    </div>
+    <div>
+      <div class="drawer-name" id="drawer-name"></div>
+      <div class="drawer-child" id="drawer-child"></div>
+    </div>
+    <button class="drawer-close" onclick="closeDrawer()">✕</button>
+  </div>
+  <div class="drawer-msgs" id="drawer-msgs">
+    <div class="drawer-loading">Loading messages…</div>
+  </div>
+  <div class="drawer-actions">
+    <button class="share-email-btn" onclick="sendEmailRequest()">📧 Share my email</button>
+  </div>
+  <div class="drawer-input-row">
+    <input class="drawer-input" id="drawer-input" placeholder="Message…" onkeydown="if(event.key==='Enter')sendMessage()">
+    <button class="drawer-send" id="drawer-send" onclick="sendMessage()">↑</button>
+  </div>
+</div>
+
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <script>
   const { createClient } = supabase
@@ -113,25 +203,31 @@
   )
 
   let me = null
-  let myChildLanguage = null
+  let myChild = null
   let connectionMap = {}
   let allParents = []
   let childMap = {}
+  let activeChat = null
+  let chatSub = null
+
+  function showError(msg) {
+    document.getElementById('grid').innerHTML = `<div class="error-msg">${msg}</div>`
+  }
 
   async function init() {
     const { data: { session } } = await sb.auth.getSession()
     if (!session) { window.location.href = '/login.html'; return }
 
-    const { data: user, error } = await sb.from('users').select('*').eq('id', session.user.id).single()
-    if (error || !user) { showError('Could not load your account.'); return }
-    if (user.account_type !== 'parent') { window.location.href = '/dashboard.html'; return }
-
+    const { data: user } = await sb.from('users').select('*').eq('id', session.user.id).single()
+    if (!user || user.account_type !== 'parent') { window.location.href = '/dashboard.html'; return }
     me = user
 
-    const { data: child } = await sb.from('users').select('learning_language').eq('parent_id', me.id).single()
-    if (child) {
-      myChildLanguage = child.learning_language
-      document.getElementById('filter-language').value = myChildLanguage || ''
+    // Load my own child
+    const { data: child } = await sb.from('users').select('id, display_name, full_name, learning_language, age').eq('parent_id', me.id).single()
+    myChild = child
+
+    if (myChild) {
+      document.getElementById('filter-language').value = myChild.learning_language || ''
     }
 
     const { data: connections } = await sb
@@ -146,11 +242,21 @@
       })
     }
 
+    loadUnreadCount()
     await loadParents()
   }
 
-  function showError(msg) {
-    document.getElementById('grid').innerHTML = `<div class="error-msg">${msg}</div>`
+  async function loadUnreadCount() {
+    const { count } = await sb
+      .from('teacher_messages')
+      .select('id', { count: 'exact', head: true })
+      .eq('receiver_id', me.id)
+      .is('read_at', null)
+    if (count > 0) {
+      const badge = document.getElementById('unread-badge')
+      badge.textContent = count
+      badge.style.display = 'flex'
+    }
   }
 
   async function loadParents(filters = {}) {
@@ -159,16 +265,17 @@
 
     let query = sb
       .from('users')
-      .select('id, display_name, full_name, bio, profile_photo_url, school_country, religion, match_preferences')
+      .select('id, display_name, full_name, bio, profile_photo_url, school_country, email, match_preferences')
       .eq('account_type', 'parent')
       .neq('id', me.id)
 
     if (filters.country) query = query.ilike('school_country', `%${filters.country}%`)
 
     const { data: parents, error } = await query
-    if (error) { showError('Error loading parents: ' + error.message); return }
+    if (error) { showError('Error: ' + error.message); return }
 
     let filtered = parents || []
+
     if (filters.language && filtered.length > 0) {
       const parentIds = filtered.map(p => p.id)
       const { data: children } = await sb
@@ -176,20 +283,21 @@
         .select('parent_id, learning_language')
         .in('parent_id', parentIds)
         .eq('learning_language', filters.language)
-      const matchingParentIds = new Set((children || []).map(c => c.parent_id))
-      filtered = filtered.filter(p => matchingParentIds.has(p.id))
+      const matchingIds = new Set((children || []).map(c => c.parent_id))
+      filtered = filtered.filter(p => matchingIds.has(p.id))
     }
 
     if (filtered.length === 0) {
       document.getElementById('results-header').textContent = ''
-      document.getElementById('grid').innerHTML = '<div class="empty">No parents found matching your filters.</div>'
+      document.getElementById('grid').innerHTML = '<div class="empty">No parents found.</div>'
       return
     }
 
+    // Load children for all parents
     const parentIds = filtered.map(p => p.id)
     const { data: allChildren } = await sb
       .from('users')
-      .select('parent_id, learning_language, age')
+      .select('parent_id, id, display_name, full_name, learning_language, age')
       .in('parent_id', parentIds)
 
     childMap = {}
@@ -201,93 +309,97 @@
     loadRecommendations()
   }
 
+  function childEmoji(lang) {
+    const map = { Spanish:'🇪🇸', French:'🇫🇷', Japanese:'🇯🇵', Korean:'🇰🇷', German:'🇩🇪', Italian:'🇮🇹', Portuguese:'🇵🇹', Mandarin:'🇨🇳', English:'🇬🇧' }
+    return map[lang] || '📚'
+  }
+
+  function renderParentCard(p, i, isRec = false) {
+    const initials = (p.display_name || p.full_name || '?').split(' ').map(w => w[0]).join('').toUpperCase().slice(0,2)
+    const colorClasses = ['', 'alt', 'alt2']
+    const colorClass = colorClasses[i % 3]
+    const bio = p.bio ? p.bio.slice(0, 100) + (p.bio.length > 100 ? '…' : '') : 'No bio yet.'
+    const child = childMap[p.id]
+    const childName = child ? (child.display_name || child.full_name || 'Child') : null
+    const childAge = child?.age ? `, age ${child.age}` : ''
+    const childLang = child?.learning_language || ''
+    const connStatus = connectionMap[p.id]
+
+    let statusTag = ''
+    if (connStatus === 'accepted') statusTag = '<span class="tag connected">✓ Connected</span>'
+    else if (connStatus === 'pending') statusTag = '<span class="tag pending">⏳ Pending</span>'
+
+    const childTag = childLang ? `<span class="tag green">📚 Learning ${childLang}</span>` : ''
+    const countryTag = p.school_country ? `<span class="tag">📍 ${p.school_country}</span>` : ''
+
+    const connectBtn = (connStatus === 'accepted' || connStatus === 'pending') ? '' :
+      `<button class="card-btn card-btn-connect" onclick="connect('${p.id}', this)">🤝 Connect</button>`
+
+    const safeParentName = (p.display_name || p.full_name || '').replace(/'/g, "\\'")
+    const safeChildName = (childName || '').replace(/'/g, "\\'")
+    const safeEmail = (p.email || '').replace(/'/g, "\\'")
+
+    return `
+      <div class="${isRec ? 'rec-card' : 'parent-card'}">
+        ${isRec ? '<div class="rec-badge">⭐ Recommended</div>' : ''}
+        <div class="card-header">
+          <div class="avatars">
+            <div class="avatar-parent ${colorClass}">${initials}</div>
+            <div class="avatar-child">${child ? childEmoji(childLang) : '👶'}</div>
+          </div>
+          <div class="card-info">
+            <div class="card-parent-label">Parent</div>
+            <div class="card-parent-name">${p.display_name || p.full_name}</div>
+            ${childName ? `
+            <div class="card-child-row">
+              <span style="font-size:14px;">${childEmoji(childLang)}</span>
+              <div>
+                <div class="card-child-name">${childName}${childAge}</div>
+                ${childLang ? `<div class="card-child-detail">Learning ${childLang}</div>` : ''}
+              </div>
+            </div>` : '<div class="card-child-detail" style="margin-top:4px;color:#aaa;">No child linked yet</div>'}
+          </div>
+        </div>
+        <div class="card-bio">${bio}</div>
+        <div class="tags">${childTag}${countryTag}${statusTag}</div>
+        <div class="card-actions">
+          ${connectBtn}
+          <button class="card-btn card-btn-msg" onclick="openChat('${p.id}','${safeParentName}','${safeChildName}','${childLang}','${safeEmail}')">💬 Message</button>
+        </div>
+      </div>`
+  }
+
+  function renderParents(parents) {
+    document.getElementById('grid').innerHTML = parents.map((p, i) => renderParentCard(p, i)).join('')
+  }
+
   async function loadRecommendations() {
     try {
       const response = await fetch('/api/recommend-matches', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          currentUser: me,
-          candidates: allParents,
-          accountType: 'parent'
-        })
+        body: JSON.stringify({ currentUser: me, candidates: allParents, accountType: 'parent' })
       })
       const { recommendations } = await response.json()
       if (!recommendations || recommendations.length === 0) return
 
-      const recIds = recommendations.map(r => r.id)
       const recMap = {}
       recommendations.forEach(r => { recMap[r.id] = r.reason })
-
-      const recParents = recIds.map(id => allParents.find(p => p.id === id)).filter(Boolean)
+      const recParents = recommendations.map(r => allParents.find(p => p.id === r.id)).filter(Boolean)
       if (recParents.length === 0) return
 
       document.getElementById('rec-section').style.display = 'block'
-      document.getElementById('rec-grid').innerHTML = recParents.map(p => {
-        const initials = (p.display_name || p.full_name || '?').split(' ').map(w => w[0]).join('').toUpperCase().slice(0,2)
-        const bio = p.bio ? p.bio.slice(0, 100) + (p.bio.length > 100 ? '…' : '') : 'No bio yet.'
-        const child = childMap[p.id]
-        const childTag = child ? `<span class="tag green">Learning ${child.learning_language}</span>` : ''
-        let avatarHtml = `<div class="avatar">${initials}</div>`
-        if (p.profile_photo_url) {
-          avatarHtml = `<div class="avatar" style="padding:0;overflow:hidden;"><img src="${p.profile_photo_url}" style="width:100%;height:100%;object-fit:cover;" onerror="this.parentElement.innerHTML='${initials}'"></div>`
-        }
-        return `
-          <div class="rec-card">
-            <div class="rec-badge">⭐ Recommended</div>
-            <div class="card-header">
-              ${avatarHtml}
-              <div>
-                <div class="card-name">${p.display_name || p.full_name}</div>
-                <div class="card-sub">${child ? `Child · Age ${child.age || '—'}` : 'Parent'}</div>
-              </div>
-            </div>
-            <div class="card-bio">${bio}</div>
-            <div class="tags">${childTag}</div>
-            <div class="rec-reason">💡 ${recMap[p.id]}</div>
-            <button class="connect-btn" onclick="connect('${p.id}', this)">Connect</button>
-          </div>
-        `
+      document.getElementById('rec-grid').innerHTML = recParents.map((p, i) => {
+        const card = renderParentCard(p, i, true)
+        const reason = recMap[p.id]
+        return card.replace('</div>\n      </div>', `</div>\n        <div class="rec-reason">💡 ${reason}</div>\n      </div>`)
       }).join('')
     } catch(e) {
-      console.log('Recommendations unavailable:', e.message)
+      console.log('Recommendations unavailable')
     }
   }
 
-  function renderParents(parents) {
-    const avatarColors = ['', 'alt', 'alt2']
-    document.getElementById('grid').innerHTML = parents.map((p, i) => {
-      const initials = (p.display_name || p.full_name || '?').split(' ').map(w => w[0]).join('').toUpperCase().slice(0,2)
-      const colorClass = avatarColors[i % 3]
-      const bio = p.bio ? p.bio.slice(0, 100) + (p.bio.length > 100 ? '…' : '') : 'No bio yet.'
-      const child = childMap[p.id]
-      const connStatus = connectionMap[p.id]
-      let avatarHtml = `<div class="avatar ${colorClass}">${initials}</div>`
-      if (p.profile_photo_url) {
-        avatarHtml = `<div class="avatar ${colorClass}" style="padding:0;overflow:hidden;"><img src="${p.profile_photo_url}" style="width:100%;height:100%;object-fit:cover;" onerror="this.parentElement.innerHTML='${initials}'"></div>`
-      }
-      let statusTag = ''
-      let connectBtn = `<button class="connect-btn" onclick="connect('${p.id}', this)">Connect</button>`
-      if (connStatus === 'accepted') { statusTag = '<span class="tag connected">✓ Connected</span>'; connectBtn = '' }
-      else if (connStatus === 'pending') { statusTag = '<span class="tag pending">⏳ Pending</span>'; connectBtn = '' }
-      const childTag = child ? `<span class="tag green">Learning ${child.learning_language}</span>` : ''
-      return `
-        <div class="parent-card">
-          <div class="card-header">
-            ${avatarHtml}
-            <div>
-              <div class="card-name">${p.display_name || p.full_name}</div>
-              <div class="card-sub">${child ? `Child · Age ${child.age || '—'}` : 'Parent'}</div>
-            </div>
-          </div>
-          <div class="card-bio">${bio}</div>
-          <div class="tags">${childTag}${statusTag}</div>
-          ${connectBtn}
-        </div>
-      `
-    }).join('')
-  }
-
+  // ── Connect ──────────────────────────────────────────────────────────────
   window.connect = async function(receiverId, btn) {
     btn.disabled = true
     btn.textContent = 'Sending…'
@@ -298,12 +410,184 @@
     })
     if (error) {
       btn.disabled = false
-      btn.textContent = 'Connect'
+      btn.textContent = '🤝 Connect'
       alert('Error: ' + error.message)
     } else {
       connectionMap[receiverId] = 'pending'
       btn.textContent = '⏳ Pending'
     }
+  }
+
+  // ── Chat Drawer ──────────────────────────────────────────────────────────
+  window.openChat = async function(id, parentName, childName, childLang, email) {
+    activeChat = { id, parentName, childName, childLang, email }
+
+    const initials = parentName.split(' ').map(w => w[0]).join('').toUpperCase().slice(0,2)
+    document.getElementById('drawer-avatar-parent').textContent = initials
+    document.getElementById('drawer-avatar-child').textContent = childEmoji(childLang)
+    document.getElementById('drawer-name').textContent = parentName
+    document.getElementById('drawer-child').textContent = childName ? `👧 ${childName} · Learning ${childLang}` : 'Parent'
+
+    document.getElementById('drawer-overlay').classList.add('open')
+    document.getElementById('drawer').classList.add('open')
+    document.getElementById('drawer-msgs').innerHTML = '<div class="drawer-loading">Loading…</div>'
+
+    await loadMessages()
+
+    await sb.from('teacher_messages')
+      .update({ read_at: new Date().toISOString() })
+      .eq('sender_id', id)
+      .eq('receiver_id', me.id)
+      .is('read_at', null)
+
+    if (chatSub) chatSub.unsubscribe()
+    chatSub = sb.channel('pchat-' + [me.id, id].sort().join('-'))
+      .on('postgres_changes', {
+        event: 'INSERT',
+        schema: 'public',
+        table: 'teacher_messages',
+        filter: `sender_id=eq.${id}`
+      }, payload => {
+        appendMessage(payload.new, false)
+        sb.from('teacher_messages').update({ read_at: new Date().toISOString() }).eq('id', payload.new.id)
+      })
+      .subscribe()
+
+    document.getElementById('drawer-input').focus()
+  }
+
+  window.closeDrawer = function() {
+    document.getElementById('drawer-overlay').classList.remove('open')
+    document.getElementById('drawer').classList.remove('open')
+    if (chatSub) { chatSub.unsubscribe(); chatSub = null }
+    activeChat = null
+  }
+
+  async function loadMessages() {
+    const { data } = await sb
+      .from('teacher_messages')
+      .select('*')
+      .or(`and(sender_id.eq.${me.id},receiver_id.eq.${activeChat.id}),and(sender_id.eq.${activeChat.id},receiver_id.eq.${me.id})`)
+      .order('created_at', { ascending: true })
+
+    const msgs = document.getElementById('drawer-msgs')
+
+    if (!data || data.length === 0) {
+      msgs.innerHTML = `<div style="text-align:center;color:#aaa;font-size:13px;margin-top:40px;">Start a conversation with ${activeChat.parentName}!</div>`
+      return
+    }
+
+    msgs.innerHTML = data.map(m => renderMessage(m)).join('')
+    msgs.scrollTop = msgs.scrollHeight
+  }
+
+  function renderMessage(m) {
+    const isMine = m.sender_id === me.id
+    const time = new Date(m.created_at).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })
+
+    if (m.type === 'email_request') {
+      if (isMine) return `<div class="dmsg system">📧 You sent an email sharing request</div>`
+      return `
+        <div class="email-request-card" id="req-${m.id}">
+          <div class="req-title">📧 Email sharing request</div>
+          <div class="req-sub">${activeChat.parentName} wants to share emails with you</div>
+          <div class="req-actions">
+            <button class="req-btn req-btn-accept" onclick="acceptEmailRequest('${m.id}','${m.sender_id}')">Accept</button>
+            <button class="req-btn req-btn-decline" onclick="declineEmailRequest('${m.id}')">Decline</button>
+          </div>
+        </div>`
+    }
+
+    if (m.type === 'email_accepted') {
+      return `
+        <div class="email-revealed">
+          <div class="rev-label">📧 Email shared</div>
+          <div class="rev-email">${isMine ? activeChat.email : me.email}</div>
+        </div>`
+    }
+
+    if (m.type === 'email_declined') {
+      return `<div class="dmsg system">Email sharing request was declined</div>`
+    }
+
+    return `
+      <div class="dmsg ${isMine ? 'mine' : 'theirs'}">
+        ${escHtml(m.content)}
+        <div class="dmsg-time">${time}</div>
+      </div>`
+  }
+
+  function appendMessage(m, isMine) {
+    const msgs = document.getElementById('drawer-msgs')
+    if (!msgs) return
+    msgs.insertAdjacentHTML('beforeend', renderMessage({ ...m, sender_id: isMine ? me.id : activeChat.id }))
+    msgs.scrollTop = msgs.scrollHeight
+  }
+
+  window.sendMessage = async function() {
+    const input = document.getElementById('drawer-input')
+    const text = input.value.trim()
+    if (!text || !activeChat) return
+    input.value = ''
+    document.getElementById('drawer-send').disabled = true
+
+    const { data } = await sb.from('teacher_messages').insert({
+      sender_id: me.id,
+      receiver_id: activeChat.id,
+      content: text,
+      type: 'text'
+    }).select().single()
+
+    if (data) appendMessage(data, true)
+    document.getElementById('drawer-send').disabled = false
+    input.focus()
+  }
+
+  window.sendEmailRequest = async function() {
+    if (!activeChat) return
+    const { data: existing } = await sb
+      .from('teacher_messages')
+      .select('id')
+      .eq('sender_id', me.id)
+      .eq('receiver_id', activeChat.id)
+      .eq('type', 'email_request')
+      .limit(1)
+
+    if (existing && existing.length > 0) {
+      alert('You already sent an email sharing request to this parent.')
+      return
+    }
+
+    const { data } = await sb.from('teacher_messages').insert({
+      sender_id: me.id,
+      receiver_id: activeChat.id,
+      content: 'Email sharing request',
+      type: 'email_request'
+    }).select().single()
+
+    if (data) appendMessage(data, true)
+  }
+
+  window.acceptEmailRequest = async function(msgId, senderId) {
+    await sb.from('teacher_messages').insert({
+      sender_id: me.id,
+      receiver_id: senderId,
+      content: 'Email sharing accepted',
+      type: 'email_accepted'
+    })
+    await sb.from('teacher_messages').update({ type: 'email_accepted' }).eq('id', msgId)
+    document.getElementById('req-' + msgId)?.remove()
+    await loadMessages()
+  }
+
+  window.declineEmailRequest = async function(msgId) {
+    await sb.from('teacher_messages').update({ type: 'email_declined' }).eq('id', msgId)
+    document.getElementById('req-' + msgId)?.remove()
+    await loadMessages()
+  }
+
+  function escHtml(str) {
+    return String(str).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;')
   }
 
   window.applyFilters = function() {
