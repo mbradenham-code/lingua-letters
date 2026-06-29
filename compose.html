@@ -22,8 +22,6 @@
     .section-hint { font-size: 11px; color: #aaa; font-style: italic; margin-top: 6px; line-height: 1.5; }
     select, input[type=text] { width: 100%; padding: 9px 12px; border: 1px solid #e5e3dc; border-radius: 8px; font-size: 13px; font-family: inherit; color: #1a1a1a; background: white; outline: none; }
     select:focus, input:focus { border-color: #1D9E75; }
-    .custom-input { margin-top: 8px; border: 1px solid #e5e3dc; border-radius: 8px; padding: 8px 12px; font-size: 13px; font-family: inherit; color: #1a1a1a; background: white; outline: none; width: 100%; }
-    .custom-input:focus { border-color: #1D9E75; }
     textarea { width: 100%; border: none; background: transparent; font-size: 14px; font-family: inherit; color: #1a1a1a; outline: none; resize: none; line-height: 1.8; min-height: 180px; }
     .culture-tip { background: #EEEDFE; border: 1px solid #CECBF6; border-radius: 10px; padding: 11px 14px; font-size: 12px; color: #3C3489; display: flex; gap: 8px; margin-bottom: 16px; line-height: 1.6; }
     .safety-note { background: #FAEEDA; border: 1px solid #FAC775; border-radius: 10px; padding: 11px 14px; font-size: 12px; color: #633806; display: flex; gap: 8px; margin-bottom: 16px; line-height: 1.6; }
@@ -51,6 +49,16 @@
     .explain-textarea:focus { border-color: #854F0B; }
     .char-count { font-size: 11px; color: #aaa; text-align: right; margin-top: 4px; }
     .submit-explain-btn { background: #854F0B; color: white; border: none; border-radius: 8px; padding: 9px 18px; font-size: 13px; font-weight: 500; cursor: pointer; margin-top: 10px; }
+    /* Chips */
+    .chips-row { display: flex; flex-wrap: wrap; gap: 8px; margin-bottom: 8px; }
+    .chip { padding: 8px 14px; border-radius: 22px; border: 1.5px solid #e5e3dc; background: white; font-size: 13px; color: #1a1a1a; cursor: pointer; font-family: inherit; transition: all .15s; white-space: nowrap; }
+    .chip:hover { border-color: #1D9E75; color: #1D9E75; }
+    .chip.selected { border-color: #1D9E75; background: #E1F5EE; color: #0F6E56; font-weight: 500; }
+    .chip.custom-chip { border-style: dashed; color: #aaa; }
+    .chip.custom-chip:hover { color: #1D9E75; border-color: #1D9E75; }
+    .custom-field { display: none; margin-top: 8px; width: 100%; padding: 9px 12px; border: 1px solid #e5e3dc; border-radius: 8px; font-size: 13px; font-family: inherit; color: #1a1a1a; background: white; outline: none; }
+    .custom-field:focus { border-color: #1D9E75; }
+    .custom-field.visible { display: block; }
   </style>
 </head>
 <body>
@@ -80,31 +88,32 @@
         <option value="">— Select your pen pal —</option>
       </select>
     </div>
+
     <div class="card-section">
       <div class="section-label">② Subject</div>
       <input type="text" id="subject" placeholder="e.g. My first letter to you!">
     </div>
+
     <div class="card-section">
       <div class="section-label">③ Greeting / salutation</div>
-      <select id="greeting-select" onchange="onGreetingChange()">
-        <option value="">— Choose a greeting —</option>
-      </select>
-      <input type="text" id="greeting-custom" class="custom-input" placeholder="Or write your own greeting...">
+      <div class="chips-row" id="greeting-chips"><span style="font-size:12px;color:#ccc;">Select a pen pal first</span></div>
+      <input type="text" id="greeting-custom" class="custom-field" placeholder="Write your own greeting...">
       <div class="section-hint">Sets the tone — "Estimada" is formal, "Querida" is warm. Every culture opens letters differently!</div>
     </div>
+
     <div class="card-section">
       <div class="section-label">④ Body — your letter</div>
       <textarea id="body" placeholder="Share something about yourself, your city, or your school. Ask your pen pal at least one question about their culture..."></textarea>
       <div class="section-hint">A great letter: one personal story, one cultural observation, one genuine question.</div>
     </div>
+
     <div class="card-section">
       <div class="section-label">⑤ Sign-off / closing</div>
-      <select id="signoff-select" onchange="onSignoffChange()">
-        <option value="">— Choose a sign-off —</option>
-      </select>
-      <input type="text" id="signoff-custom" class="custom-input" placeholder="Or write your own sign-off and name...">
+      <div class="chips-row" id="signoff-chips"><span style="font-size:12px;color:#ccc;">Select a pen pal first</span></div>
+      <input type="text" id="signoff-custom" class="custom-field" placeholder="Write your own sign-off...">
       <div class="section-hint">"Un abrazo" feels natural in Spanish even with new friends!</div>
     </div>
+
     <div class="footer-bar">
       <div class="footer-note">AI reviewed · teacher sees all · flagged letters never sent · grammar feedback after sending</div>
       <button class="discard-btn" onclick="window.location.href='/inbox.html'">Discard</button>
@@ -157,6 +166,8 @@
   let currentUser = null
   let penPals = []
   let selectedPenPal = null
+  let selectedGreeting = ''
+  let selectedSignoff = ''
 
   async function init() {
     try {
@@ -202,17 +213,9 @@
     }
   }
 
- window.onPenPalChange = function() {
-    const idx = document.getElementById('penpal-select').value
-    if (idx === '') { selectedPenPal = null; return }
-    selectedPenPal = penPals[parseInt(idx)]
-    const lang = selectedPenPal.language || 'Spanish'
-    const penPalName = selectedPenPal.name || ''
-    const myName = currentUser.display_name || ''
-    document.getElementById('culture-tip-text').textContent = CULTURE_TIPS[lang] || CULTURE_TIPS.Spanish
-
-    // Replace [nombre]/[name] placeholders with actual names
-    const fillName = (str) => str
+  // ── Chips ────────────────────────────────────────────────────────────────
+  function fillName(str, penPalName) {
+    return str
       .replace(/\[nombre\]/g, penPalName)
       .replace(/\[prénom\]/g, penPalName)
       .replace(/\[nome\]/g, penPalName)
@@ -220,44 +223,67 @@
       .replace(/\[이름\]/g, penPalName)
       .replace(/\[お名前\]/g, penPalName)
       .replace(/\[名字\]/g, penPalName)
-
-    const greetings = (GREETINGS[lang] || GREETINGS.Spanish).map(fillName)
-    const signoffs = (SIGNOFFS[lang] || SIGNOFFS.Spanish).map(s => s)
-
-    document.getElementById('greeting-select').innerHTML =
-      '<option value="">— Choose a greeting —</option>' +
-      greetings.map(g => `<option value="${g}">${g}</option>`).join('') +
-      '<option value="custom">Write my own...</option>'
-
-    document.getElementById('signoff-select').innerHTML =
-      '<option value="">— Choose a sign-off —</option>' +
-      signoffs.map(s => `<option value="${s}">${s}</option>`).join('') +
-      '<option value="custom">Write my own...</option>'
-
-    // Auto-fill sign-off with sender's name
-    const defaultSignoff = signoffs[0]
-    document.getElementById('signoff-select').value = defaultSignoff
-    document.getElementById('signoff-custom').value = defaultSignoff + '\n' + myName
-
-    // Auto-fill greeting with pen pal's name
-    document.getElementById('greeting-select').value = greetings[0]
-    document.getElementById('greeting-custom').value = greetings[0]
   }
 
-  window.onGreetingChange = function() {
-    const val = document.getElementById('greeting-select').value
-    if (val !== 'custom') document.getElementById('greeting-custom').value = val
+  function renderChips(containerId, customFieldId, options, onSelect) {
+    const container = document.getElementById(containerId)
+    const customField = document.getElementById(customFieldId)
+    customField.classList.remove('visible')
+
+    container.innerHTML = options.map((opt, i) => `
+      <button type="button" class="chip${i === 0 ? ' selected' : ''}" data-val="${opt}" onclick="handleChipClick('${containerId}','${customFieldId}',this)">${opt}</button>
+    `).join('') + `<button type="button" class="chip custom-chip" onclick="handleCustomChip('${containerId}','${customFieldId}',this)">✏ Custom</button>`
+
+    // Set default
+    onSelect(options[0])
   }
 
-  window.onSignoffChange = function() {
-    const val = document.getElementById('signoff-select').value
-    if (val !== 'custom') document.getElementById('signoff-custom').value = val
+  window.handleChipClick = function(containerId, customFieldId, el) {
+    document.querySelectorAll(`#${containerId} .chip`).forEach(c => c.classList.remove('selected'))
+    el.classList.add('selected')
+    document.getElementById(customFieldId).classList.remove('visible')
+    if (containerId === 'greeting-chips') selectedGreeting = el.dataset.val
+    else selectedSignoff = el.dataset.val
   }
 
+  window.handleCustomChip = function(containerId, customFieldId, el) {
+    document.querySelectorAll(`#${containerId} .chip`).forEach(c => c.classList.remove('selected'))
+    el.classList.add('selected')
+    const field = document.getElementById(customFieldId)
+    field.classList.add('visible')
+    field.focus()
+    field.oninput = () => {
+      if (containerId === 'greeting-chips') selectedGreeting = field.value
+      else selectedSignoff = field.value
+    }
+  }
+
+  window.onPenPalChange = function() {
+    const idx = document.getElementById('penpal-select').value
+    if (idx === '') { selectedPenPal = null; return }
+    selectedPenPal = penPals[parseInt(idx)]
+
+    const lang = selectedPenPal.language || 'Spanish'
+    const penPalName = selectedPenPal.name || ''
+    const myName = currentUser.display_name || ''
+
+    document.getElementById('culture-tip-text').textContent = CULTURE_TIPS[lang] || CULTURE_TIPS.Spanish
+
+    const greetings = (GREETINGS[lang] || GREETINGS.Spanish).map(g => fillName(g, penPalName))
+    const signoffs = (SIGNOFFS[lang] || SIGNOFFS.Spanish).map(s => s + '\n' + myName)
+
+    renderChips('greeting-chips', 'greeting-custom', greetings, val => { selectedGreeting = val })
+    renderChips('signoff-chips', 'signoff-custom', signoffs, val => { selectedSignoff = val })
+  }
+
+  // ── Send ─────────────────────────────────────────────────────────────────
   window.sendLetter = async function() {
-    const greeting = document.getElementById('greeting-custom').value || document.getElementById('greeting-select').value
+    // Use custom field value if visible, otherwise use selected chip value
+    const greetingCustom = document.getElementById('greeting-custom')
+    const signoffCustom = document.getElementById('signoff-custom')
+    const greeting = greetingCustom.classList.contains('visible') ? greetingCustom.value : selectedGreeting
+    const signoff = signoffCustom.classList.contains('visible') ? signoffCustom.value : selectedSignoff
     const body = document.getElementById('body').value
-    const signoff = document.getElementById('signoff-custom').value || document.getElementById('signoff-select').value
     const subject = document.getElementById('subject').value
 
     if (!selectedPenPal) { alert('Please select a pen pal.'); return }
