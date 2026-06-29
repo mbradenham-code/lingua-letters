@@ -109,7 +109,13 @@
     .drawer-send:hover { background: #0F6E56; }
     .drawer-send:disabled { opacity: .4; cursor: not-allowed; }
     .drawer-loading { padding: 40px; text-align: center; color: #aaa; font-size: 13px; }
-  </style>
+ </style>
+  <script type="module">
+    import { loadAndApplyTheme } from '/theme.js'
+    import { createClient } from 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js/+esm'
+    const sb = createClient('https://vfohvovtxklsdvpigycx.supabase.co','sb_publishable_iOcoEodjREKpEL1B7DqRSg_k4cKFSEu')
+    loadAndApplyTheme(sb)
+  </script>
 </head>
 <body>
 
