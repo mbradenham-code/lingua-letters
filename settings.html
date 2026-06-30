@@ -141,7 +141,11 @@
     else if (isParent) accountLabel = '<span class="chip" style="background:#F0E6FF;color:#5B21B6;">👨‍👩‍👧 Parent</span>'
     else accountLabel = '<span class="chip cg">🌍 Solo learner</span>'
 
-    const themeButtons = Object.entries(THEMES).map(([key, t]) => `
+    const themeButtons = THEMES ? Object.entries(THEMES).map(([key, t]) => `
+      <button type="button" class="theme-btn${key === currentTheme ? ' selected' : ''}" id="theme-btn-${key}" onclick="pickTheme('${key}')">
+        <span class="theme-emoji">${t.emoji}</span>
+        <span class="theme-name">${t.name}</span>
+      </button>`).join('') : '' `
       <button type="button" class="theme-btn${key === currentTheme ? ' selected' : ''}" id="theme-btn-${key}" onclick="pickTheme('${key}')">
         <span class="theme-emoji">${t.emoji}</span>
         <span class="theme-name">${t.name}</span>
