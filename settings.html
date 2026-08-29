@@ -79,13 +79,8 @@
 </div>
 
 <script type="module">
-  import { createClient } from 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js/+esm'
+    import { supabase } from '/js/supabase-client.js'
   import { loadAndApplyTheme, applyTheme, THEMES } from '/theme.js'
-
-  const supabase = createClient(
-    'https://vfohvovtxklsdvpigycx.supabase.co',
-    'sb_publishable_iOcoEodjREKpEL1B7DqRSg_k4cKFSEu'
-  )
 
   const LANGS = ['Spanish','French','Italian','Korean','Japanese','German','Portuguese','Mandarin']
   let currentUser = null
