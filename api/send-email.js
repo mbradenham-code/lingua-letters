@@ -152,7 +152,7 @@ export default async function handler(req, res) {
         'Content-Type': 'application/json'
       },
       body: JSON.stringify({
-        from: from: 'Lingua Letters <onboarding@resend.dev>',
+        from: 'Lingua Letters <onboarding@resend.dev>',
         to: [to],
         subject,
         html
