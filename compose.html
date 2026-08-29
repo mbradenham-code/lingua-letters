@@ -122,14 +122,8 @@
   </div>
 </div>
 
-<script type="module">
-  import { createClient } from 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js/+esm'
+  import { supabase } from '/js/supabase-client.js'
   import { loadAndApplyTheme } from '/theme.js'
-
-  const supabase = createClient(
-    'https://vfohvovtxklsdvpigycx.supabase.co',
-    'sb_publishable_iOcoEodjREKpEL1B7DqRSg_k4cKFSEu'
-  )
 
   const CULTURE_TIPS = {
     Spanish: 'In Spanish letters, "Querida/o" feels warm and natural even with new pen pals. Ask about family early — it shows genuine respect.',
