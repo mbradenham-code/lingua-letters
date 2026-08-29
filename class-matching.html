@@ -79,11 +79,7 @@
 </div>
 
 <script type="module">
-  import { createClient } from 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js/+esm'
-  const supabase = createClient(
-    'https://vfohvovtxklsdvpigycx.supabase.co',
-    'sb_publishable_iOcoEodjREKpEL1B7DqRSg_k4cKFSEu'
-  )
+  import { supabase } from '/js/supabase-client.js'
 
   const { data: { session } } = await supabase.auth.getSession()
   if (!session) { window.location.href = '/login.html' }
@@ -96,8 +92,7 @@
 
   if (!partnerId) {
     document.getElementById('loading').textContent = 'No partner specified. Go back to the teacher network.'
-    return
-  }
+  } else {
 
   // Load partner info
   const { data: partner } = await supabase
@@ -108,8 +103,7 @@
 
   if (!partner) {
     document.getElementById('loading').textContent = 'Could not find partner teacher.'
-    return
-  }
+  } else {
 
   document.getElementById('partner-subtitle').textContent =
     `Matching your class with ${partner.display_name || partner.full_name}'s class at ${partner.school_name || 'their school'}.`
@@ -124,8 +118,7 @@
 
   if (!connection) {
     document.getElementById('loading').textContent = 'You need to be connected with this teacher first.'
-    return
-  }
+  } else {
 
   // Load my students and partner students
   const { data: myStudents } = await supabase
@@ -323,6 +316,10 @@
     }
 
     await renderPairings(connection.id)
+  }
+
+  }
+  }
   }
 </script>
 </body>
