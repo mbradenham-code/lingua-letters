@@ -19,20 +19,12 @@
   <p id="msg">Please wait a moment.</p>
 </div>
 <script type="module">
-  import { createClient } from 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js/+esm'
-
-  const supabase = createClient(
-    'https://vfohvovtxklsdvpigycx.supabase.co',
-    'sb_publishable_iOcoEodjREKpEL1B7DqRSg_k4cKFSEu'
-  )
-
+  import { supabase } from '/js/supabase-client.js'
   const title = document.getElementById('title')
   const msg = document.getElementById('msg')
-
   // Supabase puts the code in the URL as ?code=...
   const params = new URLSearchParams(window.location.search)
   const code = params.get('code')
-
   if (code) {
     const { error } = await supabase.auth.exchangeCodeForSession(code)
     if (error) {
